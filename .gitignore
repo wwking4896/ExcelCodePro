@@ -1,0 +1,35 @@
+# Python 相關
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# 虛擬環境
+venv/
+env/
+.env/
+
+# 建置與發佈相關
+build/
+dist/
+*.spec
+
+# IDE 與編輯器
+.vscode/
+.idea/
+*.swp
+*~
+
+# 日誌檔案
+*.log
+
+# 暫存檔案
+*.tmp
+*.bak
+
+# 個人設定檔
+recent_files.json
+
+# 作業系統相關
+.DS_Store
+Thumbs.db

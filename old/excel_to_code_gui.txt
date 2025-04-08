@@ -1,0 +1,942 @@
+import pandas as pd
+import os
+import tkinter as tk
+from tkinter import filedialog, ttk, messagebox, simpledialog
+from tkinter.scrolledtext import ScrolledText
+import re
+import threading
+
+class ExcelToCodeApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Excel 轉程式碼工具")
+        self.root.geometry("950x700")
+        
+        self.excel_files = []  # 修改为列表，存储多个文件
+        self.dfs = {}  # 使用字典存储多个数据框
+        self.selected_sheet = None
+        self.selected_range = None
+        self.selected_ranges = []  # 新增多選範圍列表
+        self.code_template = None
+        
+        self.create_widgets()
+        
+    def create_widgets(self):
+        # 建立主要框架
+        main_frame = ttk.Frame(self.root)
+        main_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        # 左側控制區
+        control_frame = ttk.Frame(main_frame, width=300)
+        control_frame.pack(side="left", fill="y", padx=(0, 10))
+        
+        # 檔案選擇區域 - 修改为支持多文件
+        file_frame = ttk.LabelFrame(control_frame, text="1. 選擇 Excel 檔案")
+        file_frame.pack(fill="x", pady=(0, 10))
+        
+        self.file_label = ttk.Label(file_frame, text="尚未選擇檔案")
+        self.file_label.pack(side="left", padx=5, pady=5, fill="x", expand=True)
+        
+        file_buttons_frame = ttk.Frame(file_frame)
+        file_buttons_frame.pack(side="right")
+        
+        self.browse_button = ttk.Button(file_buttons_frame, text="瀏覽...", command=self.browse_file)
+        self.browse_button.pack(side="top", padx=5, pady=2)
+        
+        self.browse_multiple_button = ttk.Button(file_buttons_frame, text="多選...", command=self.browse_multiple_files)
+        self.browse_multiple_button.pack(side="top", padx=5, pady=2)
+        
+        # 新增: 文件列表显示
+        self.files_listbox_frame = ttk.LabelFrame(control_frame, text="已選擇的檔案")
+        self.files_listbox_frame.pack(fill="x", pady=(0, 10))
+        
+        self.files_listbox = tk.Listbox(self.files_listbox_frame, height=3)
+        self.files_listbox.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+        
+        # 滾動條
+        scrollbar = ttk.Scrollbar(self.files_listbox_frame, orient="vertical", command=self.files_listbox.yview)
+        scrollbar.pack(side="right", fill="y", pady=5)
+        self.files_listbox.config(yscrollcommand=scrollbar.set)
+        
+        # 工作表選擇區域
+        sheet_frame = ttk.LabelFrame(control_frame, text="2. 選擇工作表")
+        sheet_frame.pack(fill="x", pady=(0, 10))
+        
+        self.sheet_combobox = ttk.Combobox(sheet_frame, state="disabled")
+        self.sheet_combobox.pack(fill="x", padx=5, pady=5)
+        self.sheet_combobox.bind("<<ComboboxSelected>>", self.on_sheet_selected)
+        
+        # 範圍選擇區域
+        range_frame = ttk.LabelFrame(control_frame, text="3. 選擇資料範圍")
+        range_frame.pack(fill="x", pady=(0, 10))
+        
+        range_btns_frame = ttk.Frame(range_frame)
+        range_btns_frame.pack(fill="x", padx=5, pady=5)
+        
+        self.range_label = ttk.Label(range_frame, text="尚未選擇範圍")
+        self.range_label.pack(fill="x", padx=5, pady=5)
+        
+        self.select_range_btn = ttk.Button(range_btns_frame, text="選擇範圍", 
+                                          command=self.select_multiple_ranges, state="disabled")
+        self.select_range_btn.pack(side="left", padx=(0, 5))
+        
+        self.view_data_btn = ttk.Button(range_btns_frame, text="預覽資料", 
+                                        command=self.preview_data, state="disabled")
+        self.view_data_btn.pack(side="right")
+        
+        # 程式碼樣板
+        template_frame = ttk.LabelFrame(control_frame, text="4. 設定程式碼樣板")
+        template_frame.pack(fill="x", pady=(0, 10))
+        
+        # 增加樣板選擇區
+        template_select_frame = ttk.Frame(template_frame)
+        template_select_frame.pack(fill="x", padx=5, pady=5)
+        
+        self.template_btn = ttk.Button(template_select_frame, text="設定自訂樣板", 
+                                      command=self.set_template, state="disabled",
+                                      width=15)
+        self.template_btn.pack(side="left", padx=(0, 5))
+        
+        # 預設樣板下拉選單
+        ttk.Label(template_select_frame, text="或選擇預設:").pack(side="left", padx=(5, 5))
+        self.template_combo = ttk.Combobox(template_select_frame, state="disabled", width=15)
+        self.template_combo.pack(side="left", padx=5)
+        self.template_combo['values'] = ("陣列初始化", "二維陣列", "三維陣列", "權重表設定")
+        self.template_combo.bind("<<ComboboxSelected>>", self.on_template_selected)
+        
+        self.template_preview = ttk.Label(template_frame, text="尚未設定樣板")
+        self.template_preview.pack(padx=5, pady=5, fill="x")
+        
+        # 生成按鈕
+        self.generate_button = ttk.Button(control_frame, text="生成程式碼", 
+                                         command=self.generate_code, state="disabled")
+        self.generate_button.pack(fill="x", pady=5)
+        
+        # 右側程式碼顯示區域
+        code_frame = ttk.LabelFrame(main_frame, text="生成的程式碼")
+        code_frame.pack(side="right", fill="both", expand=True)
+        
+        self.code_text = ScrolledText(code_frame, wrap=tk.WORD, font=("Courier New", 10))
+        self.code_text.pack(fill="both", expand=True, padx=5, pady=5)
+        
+        # 底部按鈕區域
+        bottom_frame = ttk.Frame(self.root)
+        bottom_frame.pack(fill="x", padx=10, pady=5)
+        
+        self.save_button = ttk.Button(bottom_frame, text="儲存程式碼", 
+                                     command=self.save_code, state="disabled")
+        self.save_button.pack(side="right", padx=5)
+        
+        self.copy_button = ttk.Button(bottom_frame, text="複製到剪貼簿", 
+                                     command=self.copy_to_clipboard, state="disabled")
+        self.copy_button.pack(side="right", padx=5)
+    
+    def on_template_selected(self, event):
+        """處理預設樣板選擇"""
+        selected = self.template_combo.get()
+        if selected == "陣列初始化":
+            self.code_template = """// 種重陣列初始化
+#define MAX_SIZE 100
+
+unsigned int weights[MAX_SIZE] = {
+{{LOOP_START}}
+    {{VALUE}},  // 索引 {{ROW_INDEX}}
+{{LOOP_END}}
+};"""
+        elif selected == "二維陣列":
+            self.code_template = """// 二維陣列初始化
+#define ROW_COUNT 20
+#define COL_COUNT 4
+
+unsigned int table[ROW_COUNT][COL_COUNT] = {
+{{LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{LOOP_END}}
+};"""
+        elif selected == "三維陣列":
+            # 添加三维数组模板
+            self.code_template = """// 三維陣列初始化
+#define FILE_COUNT {{FILE_COUNT}}
+#define ROW_COUNT {{ROW_COUNT}}
+#define COL_COUNT {{COL_COUNT}}
+
+unsigned int data3d[FILE_COUNT][ROW_COUNT][COL_COUNT] = {
+{{FILES_LOOP_START}}
+    // 來自檔案: {{FILE_NAME}}
+    {
+{{LOOP_START}}
+        { {{ALL_COLUMNS}} },
+{{LOOP_END}}
+    },
+{{FILES_LOOP_END}}
+};"""
+        elif selected == "權重表設定":
+            self.code_template = """// 遊戲權重表初始化
+void initVariableWeights() {
+{{LOOP_START}}
+    normal_table_weight[{{COL:0}}][{{COL:1}}][{{COL:2}}][{{COL:3}}] = {{VALUE}};
+{{LOOP_END}}
+}"""
+            
+        self.template_preview.config(text=f"已選擇: {selected} 樣板")
+        self.generate_button.config(state="normal")
+    
+    def show_loading_screen(self, message="正在處理中，請稍候..."):
+        """顯示等待畫面"""
+        # 先關閉任何可能存在的之前的 loading 視窗
+        self.hide_loading_screen()
+        
+        self.loading_window = tk.Toplevel(self.root)
+        self.loading_window.title("處理中")
+        
+        # 取得主視窗的位置和大小
+        x = self.root.winfo_x() + (self.root.winfo_width() // 2) - 150
+        y = self.root.winfo_y() + (self.root.winfo_height() // 2) - 50
+        self.loading_window.geometry(f"300x100+{x}+{y}")
+        
+        self.loading_window.transient(self.root)
+        self.loading_window.grab_set()
+        self.loading_window.resizable(False, False)
+        
+        # 進度訊息
+        ttk.Label(self.loading_window, text=message).pack(pady=(20, 10))
+        
+        # 進度條
+        self.progress = ttk.Progressbar(self.loading_window, mode="indeterminate", length=250)
+        self.progress.pack(padx=25)
+        self.progress.start(10)  # 開始動畫
+        
+        # 更新UI
+        self.loading_window.update()
+
+    def hide_loading_screen(self):
+        """關閉等待畫面"""
+        if hasattr(self, 'loading_window') and self.loading_window:
+            try:
+                self.progress.stop()
+                self.loading_window.destroy()
+            except Exception as e:
+                self.gui.log(f"關閉處理中視窗時出錯: {str(e)}")
+            finally:
+                self.loading_window = None
+                # 再次確認視窗已關閉
+                if hasattr(self, 'loading_window') and self.loading_window:
+                    try:
+                        self.loading_window.destroy()
+                    except:
+                        pass
+        
+    def browse_file(self):
+        file_path = filedialog.askopenfilename(
+            title="選擇 Excel 檔案",
+            filetypes=[("Excel 檔案", "*.xlsx *.xls")]
+        )
+        
+        if file_path:
+            self.excel_files = [file_path]  # 单文件模式，清除先前的文件列表
+            self.file_label.config(text=os.path.basename(file_path))
+            self.update_files_listbox()
+            self.load_sheets()
+    
+    def browse_multiple_files(self):
+        file_paths = filedialog.askopenfilenames(
+            title="選擇多個 Excel 檔案",
+            filetypes=[("Excel 檔案", "*.xlsx *.xls")]
+        )
+        
+        if file_paths:
+            self.show_loading_screen("正在處理選擇的檔案...")
+            
+            def process_files():
+                try:
+                    self.excel_files = list(file_paths)  # 更新文件列表
+                    # 在主線程中更新UI
+                    self.root.after(0, lambda: self.file_label.config(text=f"已選擇 {len(self.excel_files)} 個檔案"))
+                    self.root.after(0, self.update_files_listbox)
+                    self.root.after(0, self.load_sheets)
+                finally:
+                    self.root.after(0, self.hide_loading_screen)
+            
+            thread = threading.Thread(target=process_files)
+            thread.daemon = True
+            thread.start()
+    
+    def update_files_listbox(self):
+        """更新文件列表显示"""
+        self.files_listbox.delete(0, tk.END)
+        for file_path in self.excel_files:
+            self.files_listbox.insert(tk.END, os.path.basename(file_path))
+    
+    def load_sheets(self):
+        """加載所有選中文件中的工作表"""
+        self.show_loading_screen("正在載入Excel檔案，請稍候...")
+        
+        def load_task():
+            try:
+                # 清空先前的数据框字典
+                self.dfs = {}
+                
+                # 假設所有文件有相同的工作表，使用第一個文件獲取工作表列表
+                if not self.excel_files:
+                    self.root.after(0, self.hide_loading_screen)
+                    return
+                        
+                xl = pd.ExcelFile(self.excel_files[0])
+                sheets = xl.sheet_names
+                
+                # 在主線程中更新UI
+                self.root.after(0, lambda: self.sheet_combobox.config(values=sheets, state="readonly"))
+                self.root.after(0, lambda: self.sheet_combobox.current(0))
+                # 移除這一行：self.root.after(0, lambda: self.on_sheet_selected(None))
+                
+            except Exception as e:
+                # 在主線程中顯示錯誤
+                self.root.after(0, lambda: messagebox.showerror("錯誤", f"無法讀取 Excel 檔案: {str(e)}"))
+            finally:
+                # 在主線程中關閉等待畫面
+                self.root.after(0, self.hide_loading_screen)
+            
+        # 啟動一個獨立線程來執行耗時任務
+        thread = threading.Thread(target=load_task)
+        thread.daemon = True
+        thread.start()
+    
+    def on_sheet_selected(self, event):
+        self.selected_sheet = self.sheet_combobox.get()
+        if self.selected_sheet:
+            self.show_loading_screen("正在讀取所選工作表中的數據...")
+            
+            def load_data_task():
+                try:
+                    # 逐个加载每个文件的选定工作表
+                    for file_path in self.excel_files:
+                        self.dfs[file_path] = pd.read_excel(file_path, sheet_name=self.selected_sheet)
+                    
+                    # 在主線程中更新UI
+                    self.root.after(0, lambda: self.select_range_btn.config(state="normal"))
+                    self.root.after(0, lambda: self.range_label.config(text="尚未選擇範圍"))
+                    self.root.after(0, lambda: self.view_data_btn.config(state="disabled"))
+                    self.root.after(0, lambda: self.template_btn.config(state="disabled"))
+                    self.root.after(0, lambda: self.template_combo.config(state="disabled"))
+                    self.root.after(0, lambda: self.generate_button.config(state="disabled"))
+                    
+                    # 清空之前選擇的範圍
+                    self.root.after(0, lambda: setattr(self, 'selected_range', None))
+                    self.root.after(0, lambda: setattr(self, 'selected_ranges', []))
+                    
+                except Exception as e:
+                    self.root.after(0, lambda: messagebox.showerror("錯誤", f"無法讀取工作表: {str(e)}"))
+                    self.root.after(0, lambda: self.select_range_btn.config(state="disabled"))
+                finally:
+                    # 確保在所有操作完成後關閉loading視窗
+                    self.root.after(0, self.hide_loading_screen)
+            
+            # 使用新的線程執行耗時的數據讀取操作
+            thread = threading.Thread(target=load_data_task)
+            thread.daemon = True
+            thread.start()
+    
+    def select_multiple_ranges(self):
+        # 使用第一个文件的数据框来设置范围
+        if not self.excel_files or not self.dfs:
+            return
+            
+        first_file = self.excel_files[0]
+        self.df = self.dfs[first_file]  # 使用第一个文件设置范围
+        
+        # 建立一个范围选择窗口
+        range_dialog = tk.Toplevel(self.root)
+        range_dialog.title("選擇多個資料範圍")
+        range_dialog.geometry("500x400")
+        range_dialog.grab_set()  # 模态窗口
+        
+        # 新增一個列表框顯示已選擇的範圍
+        ranges_frame = ttk.LabelFrame(range_dialog, text="已選擇的範圍")
+        ranges_frame.pack(fill="x", padx=10, pady=5)
+        
+        ranges_listbox = tk.Listbox(ranges_frame, height=5)
+        ranges_listbox.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+        
+        # 填充已有的範圍
+        for range_info in self.selected_ranges:
+            ranges_listbox.insert(tk.END, range_info['range_str'])
+        
+        # 滾動條
+        scrollbar = ttk.Scrollbar(ranges_frame, orient="vertical", command=ranges_listbox.yview)
+        scrollbar.pack(side="right", fill="y")
+        ranges_listbox.config(yscrollcommand=scrollbar.set)
+        
+        # 範圍輸入區域
+        input_frame = ttk.Frame(range_dialog)
+        input_frame.pack(fill="x", padx=10, pady=5)
+        
+        ttk.Label(input_frame, text="輸入範圍 (例如: A1:G10):").pack(side="left", padx=5)
+        
+        range_var = tk.StringVar()
+        range_entry = ttk.Entry(input_frame, textvariable=range_var, width=20)
+        range_entry.pack(side="left", padx=5, fill="x", expand=True)
+        
+        # 添加和刪除按鈕
+        btn_frame = ttk.Frame(range_dialog)
+        btn_frame.pack(fill="x", padx=10, pady=5)
+        
+        def add_range():
+            range_str = range_var.get().strip()
+            if not range_str:
+                messagebox.showerror("錯誤", "請輸入有效的範圍", parent=range_dialog)
+                return
+            
+            try:
+                # 解析範圍
+                if ":" in range_str:
+                    start, end = range_str.split(":")
+                    start_col, start_row = self.excel_notation_to_index(start)
+                    end_col, end_row = self.excel_notation_to_index(end)
+                    
+                    # 創建範圍信息
+                    range_info = {
+                        'start_row': start_row,
+                        'start_col': start_col,
+                        'end_row': end_row,
+                        'end_col': end_col,
+                        'range_str': range_str
+                    }
+                    
+                    # 添加到範圍列表
+                    self.selected_ranges.append(range_info)
+                    ranges_listbox.insert(tk.END, range_str)
+                    range_var.set("")  # 清空輸入框
+                else:
+                    messagebox.showerror("錯誤", "範圍格式不正確，請使用如 A1:G10 的格式", parent=range_dialog)
+            except Exception as e:
+                messagebox.showerror("錯誤", f"無法解析範圍: {str(e)}", parent=range_dialog)
+        
+        def remove_range():
+            selected_idx = ranges_listbox.curselection()
+            if selected_idx:
+                idx = selected_idx[0]
+                # 從列表和界面中刪除
+                del self.selected_ranges[idx]
+                ranges_listbox.delete(idx)
+        
+        ttk.Button(btn_frame, text="添加範圍", command=add_range).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="刪除所選範圍", command=remove_range).pack(side="left", padx=5)
+        
+        # 顯示工作表數據預覽
+        preview_frame = ttk.LabelFrame(range_dialog, text="資料預覽（前5行）")
+        preview_frame.pack(fill="both", expand=True, padx=10, pady=5)
+        
+        preview_text = ScrolledText(preview_frame, height=8, font=("Courier New", 9))
+        preview_text.pack(fill="both", expand=True, padx=5, pady=5)
+        
+        # 顯示表頭和前5行數據
+        preview_data = self.df.head().to_string()
+        preview_text.insert("1.0", preview_data)
+        preview_text.config(state="disabled")
+        
+        # 確認按鈕
+        def confirm_ranges():
+            if not self.selected_ranges:
+                messagebox.showwarning("警告", "尚未選擇任何範圍", parent=range_dialog)
+                return
+            
+            # 更新界面顯示
+            range_strs = [r['range_str'] for r in self.selected_ranges]
+            self.range_label.config(text=f"已選擇 {len(range_strs)} 個範圍: {', '.join(range_strs)}")
+            
+            # 更新為兼容原始邏輯的 selected_range
+            self.selected_range = self.selected_ranges[0]  # 保留第一個範圍作為默認
+            
+            # 啟用其他按鈕
+            self.view_data_btn.config(state="normal")
+            self.template_btn.config(state="normal")
+            self.template_combo.config(state="normal")
+            
+            range_dialog.destroy()
+        
+        ttk.Button(range_dialog, text="確認選擇範圍", command=confirm_ranges, width=20).pack(pady=10)
+
+    def excel_notation_to_index(self, notation):
+        # 將 Excel 標記轉換為 (列,行) 索引
+        # 例如: A1 -> (0,0), B3 -> (2,1)
+        match = re.match(r'([A-Z]+)([0-9]+)', notation.upper())
+        if not match:
+            raise ValueError(f"無效的Excel標記: {notation}")
+        
+        col_str, row_str = match.groups()
+        
+        # 將列字母轉換為數字 (A=0, B=1, ...)
+        col_idx = 0
+        for c in col_str:
+            col_idx = col_idx * 26 + (ord(c) - ord('A'))
+        
+        # 將行號轉換為索引 (1-based -> 0-based)
+        row_idx = int(row_str) - 1
+        
+        return col_idx, row_idx
+    
+    def preview_data(self):
+        if not hasattr(self, 'selected_ranges') or not self.selected_ranges or not self.excel_files:
+            return
+        
+        # 建立預覽窗口
+        preview_window = tk.Toplevel(self.root)
+        preview_window.title("資料預覽")
+        preview_window.geometry("700x500")
+        
+        # 頂部選擇區域
+        top_frame = ttk.Frame(preview_window)
+        top_frame.pack(fill="x", padx=10, pady=5)
+        
+        # 範圍選擇
+        range_frame = ttk.Frame(top_frame)
+        range_frame.pack(side="left", fill="x", expand=True)
+        
+        ttk.Label(range_frame, text="選擇範圍:").pack(side="left", padx=5)
+        
+        range_var = tk.StringVar()
+        range_combo = ttk.Combobox(range_frame, textvariable=range_var, state="readonly", width=15)
+        range_combo.pack(side="left", fill="x", expand=True, padx=5)
+        
+        range_strs = [r['range_str'] for r in self.selected_ranges]
+        range_combo['values'] = range_strs
+        range_combo.current(0)
+        
+        # 文件選擇器 (如果有多個文件)
+        file_frame = ttk.Frame(top_frame)
+        file_frame.pack(side="right", fill="x", expand=True)
+        
+        ttk.Label(file_frame, text="選擇檔案:").pack(side="left", padx=5)
+        
+        file_var = tk.StringVar()
+        file_combo = ttk.Combobox(file_frame, textvariable=file_var, state="readonly", width=40)
+        file_combo.pack(side="left", fill="x", expand=True, padx=5)
+        
+        file_names = [os.path.basename(f) for f in self.excel_files]
+        file_combo['values'] = file_names
+        file_combo.current(0)
+        
+        # 數據顯示區域
+        preview_text = ScrolledText(preview_window, wrap=tk.WORD, font=("Courier New", 10))
+        preview_text.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        def update_preview():
+            range_idx = range_combo.current()
+            file_idx = file_combo.current()
+            
+            if range_idx >= 0 and range_idx < len(self.selected_ranges) and file_idx >= 0 and file_idx < len(self.excel_files):
+                selected_range = self.selected_ranges[range_idx]
+                selected_file = self.excel_files[file_idx]
+                
+                df = self.dfs[selected_file]
+                
+                # 提取所選範圍的數據
+                start_row = selected_range['start_row']
+                start_col = selected_range['start_col']
+                end_row = selected_range['end_row']
+                end_col = selected_range['end_col']
+                
+                selected_data = df.iloc[start_row:end_row+1, start_col:end_col+1]
+                
+                preview_text.delete("1.0", tk.END)
+                preview_text.insert("1.0", selected_data.to_string())
+        
+        # 綁定選擇事件
+        range_combo.bind("<<ComboboxSelected>>", lambda event: update_preview())
+        file_combo.bind("<<ComboboxSelected>>", lambda event: update_preview())
+        
+        # 初始顯示
+        update_preview()
+        
+        # 關閉按鈕
+        ttk.Button(preview_window, text="關閉", command=preview_window.destroy).pack(pady=5)
+    
+    def set_template(self):
+        # 建立样板设定窗口
+        template_dialog = tk.Toplevel(self.root)
+        template_dialog.title("設定程式碼樣板")
+        template_dialog.geometry("700x550")  # 加大窗口尺寸
+        template_dialog.grab_set()  # 模态窗口
+        
+        # 样板说明
+        instruction_frame = ttk.Frame(template_dialog)
+        instruction_frame.pack(fill="x", padx=10, pady=5)
+        
+        ttk.Label(instruction_frame, text="程式碼樣板說明：", font=("Arial", 10, "bold")).pack(anchor="w")
+        instruction_text = """
+    在樣板中，您可以使用以下標記：
+    - {{LOOP_START}} - 資料迴圈開始
+    - {{LOOP_END}} - 資料迴圈結束
+    - {{FILES_LOOP_START}} - 檔案迴圈開始 (用於三維陣列)
+    - {{FILES_LOOP_END}} - 檔案迴圈結束 (用於三維陣列)
+    - {{FILE_NAME}} - 當前處理的檔案名稱
+    - {{FILE_INDEX}} - 當前檔案索引
+    - {{FILE_COUNT}} - 總檔案數量
+    - {{ROW_INDEX}} - 當前資料列索引
+    - {{COL_INDEX}} - 當前資料行索引
+    - {{VALUE}} - 當前儲存格值
+    - {{ALL_COLUMNS}} - 當前行的所有欄位值
+    - {{ROW:數字}} - 獲取資料列的數字欄位值（例如：{{ROW:0}}取得該列第1個欄位的值）
+    - {{COL:數字}} - 獲取資料行的數字欄位值（例如：{{COL:0}}取得該行第1個欄位的值）
+        """
+        
+        instruction_box = ScrolledText(instruction_frame, height=8, font=("Courier New", 9))
+        instruction_box.pack(fill="x", pady=5)
+        instruction_box.insert("1.0", instruction_text)
+        instruction_box.config(state="disabled")
+        
+        # 样板编辑区域标题
+        ttk.Separator(template_dialog, orient="horizontal").pack(fill="x", padx=10, pady=5)
+        ttk.Label(template_dialog, text="請在下方編輯程式碼樣板：", font=("Arial", 10, "bold")).pack(anchor="w", padx=10, pady=5)
+        
+        # 样板编辑区域
+        template_frame = ttk.Frame(template_dialog)
+        template_frame.pack(fill="both", expand=True, padx=10, pady=5)
+        
+        template_text = ScrolledText(template_frame, font=("Courier New", 10))
+        template_text.pack(fill="both", expand=True, padx=5, pady=5)
+        
+        # 如果已经有样板，就显示
+        if self.code_template:
+            template_text.insert("1.0", self.code_template)
+        else:
+            # 预设样板
+            default_template = """// 自動生成的權重表格定義
+    #include <stdio.h>
+
+    // 初始化權重資料
+    void init_weights() {
+    {{LOOP_START}}
+        weight_array[{{ROW_INDEX}}] = {{VALUE}};
+    {{LOOP_END}}
+    }
+    """
+            template_text.insert("1.0", default_template)
+        
+        # 按钮区域
+        btn_frame = ttk.Frame(template_dialog)
+        btn_frame.pack(fill="x", padx=10, pady=10)
+        
+        # 确认按钮
+        def confirm_template():
+            self.code_template = template_text.get("1.0", tk.END).strip()
+            if self.code_template:
+                self.template_preview.config(text="已設定自訂樣板")
+                self.generate_button.config(state="normal")
+                template_dialog.destroy()
+            else:
+                messagebox.showerror("錯誤", "樣板不能為空", parent=template_dialog)
+        
+        # 放置明显的确认按钮
+        confirm_btn = ttk.Button(btn_frame, text="確認樣板", command=confirm_template, width=15)
+        confirm_btn.pack(side="right", padx=5)
+        
+        # 取消按钮
+        cancel_btn = ttk.Button(btn_frame, text="取消", command=template_dialog.destroy, width=10)
+        cancel_btn.pack(side="right", padx=5)
+        
+    def generate_code(self):
+        if not self.selected_range or not self.code_template or not self.excel_files:
+            return
+        
+        self.show_loading_screen("正在生成程式碼，請稍候...")
+        
+        def generate_task():
+            try:
+                # 确定是否使用三维数组模板
+                is_3d_template = "{{FILES_LOOP_START}}" in self.code_template and "{{FILES_LOOP_END}}" in self.code_template
+                
+                # 使用第一个选择的范围作为主范围
+                if hasattr(self, 'selected_ranges') and self.selected_ranges:
+                    self.selected_range = self.selected_ranges[0]
+                
+                # 提取范围
+                start_row = self.selected_range['start_row']
+                start_col = self.selected_range['start_col']
+                end_row = self.selected_range['end_row']
+                end_col = self.selected_range['end_col']
+                
+                # 计算实际的行数和列数
+                row_count = end_row - start_row + 1
+                col_count = end_col - start_col + 1
+                file_count = len(self.excel_files)
+                
+                # 准备最终代码
+                template = self.code_template
+                template = re.sub(r'#define\s+ROW_COUNT\s+\d+', f'#define ROW_COUNT {row_count}', template)
+                template = re.sub(r'#define\s+COL_COUNT\s+\d+', f'#define COL_COUNT {col_count}', template)
+                template = re.sub(r'#define\s+FILE_COUNT\s+\d+', f'#define FILE_COUNT {file_count}', template)
+                
+                if is_3d_template:
+                    # 处理三维数组模板
+                    parts = template.split("{{FILES_LOOP_START}}")
+                    before_files_loop = parts[0]
+                    
+                    files_loop_and_after = parts[1].split("{{FILES_LOOP_END}}")
+                    files_loop_content = files_loop_and_after[0]
+                    after_files_loop = files_loop_and_after[1] if len(files_loop_and_after) > 1 else ""
+                    
+                    files_result = []
+                    
+                    # 为每个文件处理数据
+                    for file_idx, file_path in enumerate(self.excel_files):
+                        df = self.dfs[file_path]
+                        selected_data = df.iloc[start_row:end_row+1, start_col:end_col+1]
+                        
+                        # 替换文件相关标记
+                        file_content = files_loop_content.replace("{{FILE_INDEX}}", str(file_idx))
+                        file_content = file_content.replace("{{FILE_NAME}}", os.path.basename(file_path))
+                        
+                        # 处理每个文件内的数据循环
+                        if "{{LOOP_START}}" in file_content and "{{LOOP_END}}" in file_content:
+                            loop_parts = file_content.split("{{LOOP_START}}")
+                            before_loop = loop_parts[0]
+                            
+                            loop_and_after = loop_parts[1].split("{{LOOP_END}}")
+                            loop_content = loop_and_after[0]
+                            after_loop = loop_and_after[1] if len(loop_and_after) > 1 else ""
+                            
+                            loop_result = []
+                            
+                            # 处理每一行数据
+                            for i, row in selected_data.iterrows():
+                                row_idx = i - start_row
+                                
+                                # 处理当前行
+                                line = loop_content.replace("{{ROW_INDEX}}", str(row_idx))
+                                
+                                # 处理 {{ALL_COLUMNS}} 标记
+                                if "{{ALL_COLUMNS}}" in line:
+                                    all_values = []
+                                    for col_idx in range(len(row)):
+                                        value = row.iloc[col_idx]
+                                        if pd.isna(value):
+                                            all_values.append("0")
+                                        elif isinstance(value, (int, float)):
+                                            if isinstance(value, float) and value.is_integer():
+                                                all_values.append(str(int(value)))
+                                            else:
+                                                all_values.append(str(value))
+                                        else:
+                                            all_values.append(f'"{value}"')
+                                    
+                                    # 连接所有值，以逗号分隔
+                                    all_columns_str = ", ".join(all_values)
+                                    line = line.replace("{{ALL_COLUMNS}}", all_columns_str)
+                                
+                                # 处理 {{ROW:n}} 标记
+                                row_references = re.findall(r'{{ROW:(\d+)}}', line)
+                                for ref in row_references:
+                                    ref_idx = int(ref)
+                                    if 0 <= ref_idx < len(row):
+                                        ref_value = row.iloc[ref_idx]
+                                        if pd.isna(ref_value):
+                                            ref_str = "0"
+                                        elif isinstance(ref_value, (int, float)):
+                                            if isinstance(ref_value, float) and ref_value.is_integer():
+                                                ref_str = str(int(ref_value))
+                                            else:
+                                                ref_str = str(ref_value)
+                                        else:
+                                            ref_str = f'"{ref_value}"'
+                                        line = line.replace(f"{{{{ROW:{ref}}}}}", ref_str)
+                                
+                                # 處理 {{COL:n}} 標記
+                                col_references = re.findall(r'{{COL:(\d+)}}', line)
+                                for ref in col_references:
+                                    ref_idx = int(ref)
+                                    if 0 <= ref_idx < len(selected_data.columns):
+                                        col_name = selected_data.columns[ref_idx]
+                                        col_value = row[col_name]
+                                        if pd.isna(col_value):
+                                            col_str = "0"
+                                        elif isinstance(col_value, (int, float)):
+                                            if isinstance(col_value, float) and col_value.is_integer():
+                                                col_str = str(int(col_value))
+                                            else:
+                                                col_str = str(col_value)
+                                        else:
+                                            col_str = f'"{col_value}"'
+                                        line = line.replace(f"{{{{COL:{ref}}}}}", col_str)
+                                
+                                # 替換VALUE為第一個列的值
+                                if len(row) > 0:
+                                    value = row.iloc[0]
+                                    if pd.isna(value):
+                                        str_value = "0"
+                                    elif isinstance(value, (int, float)):
+                                        if isinstance(value, float) and value.is_integer():
+                                            str_value = str(int(value))
+                                        else:
+                                            str_value = str(value)
+                                    else:
+                                        str_value = f'"{value}"'
+                                    line = line.replace("{{VALUE}}", str_value)
+                                
+                                # 處理最後一行的逗號
+                                is_last_row = (row_idx == row_count - 1)
+                                if is_last_row and line.rstrip().endswith(","):
+                                    line = line.rstrip().rstrip(",") + line[len(line.rstrip()):]
+                                
+                                loop_result.append(line)
+                            
+                            # 組合該文件的所有行
+                            file_content = before_loop + "".join(loop_result) + after_loop
+                        
+                        # 處理最後一個文件的逗號
+                        is_last_file = (file_idx == file_count - 1)
+                        if is_last_file and file_content.rstrip().endswith(","):
+                            file_content = file_content.rstrip().rstrip(",") + file_content[len(file_content.rstrip()):]
+                        
+                        files_result.append(file_content)
+                    
+                    # 組合最終代碼
+                    final_code = before_files_loop + "".join(files_result) + after_files_loop
+                else:
+                    # 處理普通模板 (單文件)
+                    # 使用第一個文件的數據
+                    first_file = self.excel_files[0]
+                    df = self.dfs[first_file]
+                    selected_data = df.iloc[start_row:end_row+1, start_col:end_col+1]
+                    
+                    # 處理模板中的循環部分
+                    if "{{LOOP_START}}" in template and "{{LOOP_END}}" in template:
+                        parts = template.split("{{LOOP_START}}")
+                        before_loop = parts[0]
+                        
+                        loop_and_after = parts[1].split("{{LOOP_END}}")
+                        loop_content = loop_and_after[0]
+                        after_loop = loop_and_after[1] if len(loop_and_after) > 1 else ""
+                        
+                        loop_result = []
+                        
+                        # 逐行處理所選數據
+                        for i, row in selected_data.iterrows():
+                            row_idx = i - start_row
+                            
+                            # 處理當前行
+                            line = loop_content
+                            
+                            # 替換ROW_INDEX
+                            line = line.replace("{{ROW_INDEX}}", str(row_idx))
+                            
+                            # 處理 {{ALL_COLUMNS}} 標記
+                            if "{{ALL_COLUMNS}}" in line:
+                                all_values = []
+                                for col_idx in range(len(row)):
+                                    value = row.iloc[col_idx]
+                                    if pd.isna(value):
+                                        all_values.append("0")
+                                    elif isinstance(value, (int, float)):
+                                        if isinstance(value, float) and value.is_integer():
+                                            all_values.append(str(int(value)))
+                                        else:
+                                            all_values.append(str(value))
+                                    else:
+                                        all_values.append(f'"{value}"')
+                                
+                                # 連接所有值，以逗號分隔
+                                all_columns_str = ", ".join(all_values)
+                                line = line.replace("{{ALL_COLUMNS}}", all_columns_str)
+                            
+                            # 處理 {{ROW:n}} 標記
+                            row_references = re.findall(r'{{ROW:(\d+)}}', line)
+                            for ref in row_references:
+                                ref_idx = int(ref)
+                                if 0 <= ref_idx < len(row):
+                                    ref_value = row.iloc[ref_idx]
+                                    if pd.isna(ref_value):
+                                        ref_str = "0"
+                                    elif isinstance(ref_value, (int, float)):
+                                        if isinstance(ref_value, float) and ref_value.is_integer():
+                                            ref_str = str(int(ref_value))
+                                        else:
+                                            ref_str = str(ref_value)
+                                    else:
+                                        ref_str = f'"{ref_value}"'
+                                    line = line.replace(f"{{{{ROW:{ref}}}}}", ref_str)
+                            
+                            # 處理 {{COL:n}} 標記
+                            col_references = re.findall(r'{{COL:(\d+)}}', line)
+                            for ref in col_references:
+                                ref_idx = int(ref)
+                                if 0 <= ref_idx < len(selected_data.columns):
+                                    col_name = selected_data.columns[ref_idx]
+                                    col_value = row[col_name]
+                                    if pd.isna(col_value):
+                                        col_str = "0"
+                                    elif isinstance(col_value, (int, float)):
+                                        if isinstance(col_value, float) and col_value.is_integer():
+                                            col_str = str(int(col_value))
+                                        else:
+                                            col_str = str(col_value)
+                                    else:
+                                        col_str = f'"{col_value}"'
+                                    line = line.replace(f"{{{{COL:{ref}}}}}", col_str)
+                            
+                            # 替換VALUE為第一個列的值
+                            if len(row) > 0:
+                                value = row.iloc[0]
+                                if pd.isna(value):
+                                    str_value = "0"
+                                elif isinstance(value, (int, float)):
+                                    if isinstance(value, float) and value.is_integer():
+                                        str_value = str(int(value))
+                                    else:
+                                        str_value = str(value)
+                                else:
+                                    str_value = f'"{value}"'
+                                line = line.replace("{{VALUE}}", str_value)
+                            
+                            # 處理最後一行的逗號
+                            is_last_row = (row_idx == row_count - 1)
+                            if is_last_row and line.rstrip().endswith(","):
+                                line = line.rstrip().rstrip(",") + line[len(line.rstrip()):]
+                            
+                            loop_result.append(line)
+                        
+                        # 組合最終代碼
+                        final_code = before_loop + "".join(loop_result) + after_loop
+                    else:
+                        final_code = template  # 如果沒有循環標記
+                
+                # 在主線程中顯示生成的代碼
+                self.root.after(0, lambda: self.code_text.delete("1.0", tk.END))
+                self.root.after(0, lambda: self.code_text.insert("1.0", final_code))
+                
+                self.root.after(0, lambda: self.save_button.config(state="normal"))
+                self.root.after(0, lambda: self.copy_button.config(state="normal"))
+                
+            except Exception as e:
+                self.root.after(0, lambda: messagebox.showerror("錯誤", f"生成程式碼時發生錯誤: {str(e)}"))
+                # 顯示詳細的錯誤信息
+                import traceback
+                print(traceback.format_exc())
+            finally:
+                self.root.after(0, self.hide_loading_screen)
+        
+        thread = threading.Thread(target=generate_task)
+        thread.daemon = True
+        thread.start()
+
+    def save_code(self):
+        save_path = filedialog.asksaveasfilename(
+            title="儲存程式碼",
+            defaultextension=".c",
+            filetypes=[("C 程式碼", "*.c"), ("C++ 程式碼", "*.cpp"), ("所有檔案", "*.*")]
+        )
+        
+        if save_path:
+            with open(save_path, "w", encoding="utf-8") as f:
+                f.write(self.code_text.get("1.0", tk.END))
+            messagebox.showinfo("成功", f"程式碼已儲存至 {save_path}")
+
+    def copy_to_clipboard(self):
+        self.root.clipboard_clear()
+        self.root.clipboard_append(self.code_text.get("1.0", tk.END))
+        messagebox.showinfo("成功", "程式碼已複製到剪貼簿")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = ExcelToCodeApp(root)
+    root.mainloop()
