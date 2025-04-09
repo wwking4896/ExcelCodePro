@@ -11,3 +11,5 @@ py -3.13 -c "import sys; print(sys.version)" 2>nul && (
 
 REM 複製 README.md 到 dist 目錄
 copy README.md dist\ > nul
+
+py -3.13 -m pip freeze > requirements.txt

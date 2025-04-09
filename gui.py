@@ -6,6 +6,7 @@ import os
 import pandas as pd
 import time
 import re
+import json
 from excel_handler import ExcelHandler
 from code_generator import CodeGenerator
 from utils import excel_notation_to_index, save_config, load_config, get_templates_directory, get_resource_path
@@ -45,6 +46,7 @@ class ExcelToCodeApp:
         self.selected_sheet = None
         self.selected_range = None
         self.selected_ranges = []  # 新增多選範圍列表
+        self.named_ranges = {}  # 新增命名範圍字典
         self.code_template = None
         self.config_loading_completed = True  # 預設為已完成狀態
         self.loading_window = None  # 初始化 loading_window 為 None
@@ -100,6 +102,11 @@ class ExcelToCodeApp:
         file_menu.add_command(label="載入設定", command=self.load_config_from_file)
         file_menu.add_separator()
         file_menu.add_command(label="結束", command=self.on_closing)
+        
+        # 範圍選單 (新增)
+        range_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="範圍", menu=range_menu)
+        range_menu.add_command(label="管理命名範圍", command=self.manage_named_ranges)
         
         # 幫助選單
         help_menu = tk.Menu(menubar, tearoff=0)
@@ -200,6 +207,11 @@ class ExcelToCodeApp:
                                         command=self.preview_data, state="disabled")
         self.view_data_btn.pack(side="right")
         
+        # 命名範圍按鈕 (新增)
+        self.manage_ranges_btn = ttk.Button(range_btns_frame, text="管理範圍", width=10,
+                                           command=self.manage_named_ranges, state="disabled")
+        self.manage_ranges_btn.pack(side="right", padx=(0, 5))
+        
         # 4. 程式碼樣板 - 更緊湊的布局
         template_frame = ttk.LabelFrame(self.control_frame, text="4. 設定程式碼樣板")
         template_frame.pack(fill="x", pady=(0, 5))
@@ -238,7 +250,7 @@ class ExcelToCodeApp:
         self.template_combo.pack(side="left", fill="x", expand=True, padx=0)
         self.template_combo['values'] = ("陣列初始化", "二維陣列", "三維陣列", 
                                         "四維陣列 (範圍優先)", "四維陣列 (檔案優先)", 
-                                        "三維多範圍陣列", "權重表設定", "多範圍處理")
+                                        "三維多範圍陣列", "權重表設定", "多範圍處理", "命名範圍處理")
         self.template_combo.bind("<<ComboboxSelected>>", self.on_template_selected)
         
         self.template_preview = ttk.Label(template_frame, text="尚未設定樣板")
@@ -319,7 +331,7 @@ class ExcelToCodeApp:
         self.log_text.config(state="disabled")
         
         # 同時在控制台輸出，方便開發者查看
-        # self.log(f"[{current_time}] {message}")
+        # print(f"[{current_time}] {message}")
 
     def toggle_control_panel(self):
         """切換控制區的顯示/隱藏狀態"""
@@ -710,7 +722,7 @@ class ExcelToCodeApp:
         save_path = filedialog.asksaveasfilename(
             title="儲存程式碼",
             defaultextension=".c",
-            filetypes=[("C 程式碼", "*.c"), ("C++ 程式碼", "*.cpp"), ("所有檔案", "*.*")]
+            filetypes=[("C++ 標頭檔", "*.h"), ("C++ 程式碼", "*.cpp"), ("C 程式碼", "*.c"), ("所有檔案", "*.*")]
         )
         
         if save_path:
@@ -760,7 +772,7 @@ class ExcelToCodeApp:
             config_data["code_template"] = self.code_template
         
         # 儲存設定到檔案
-        if save_config(config_data, file_path):
+        if save_config(config_data, file_path, self):
             messagebox.showinfo("成功", f"設定已儲存至 {file_path}")
         else:
             messagebox.showerror("錯誤", "儲存設定檔時發生錯誤")
@@ -836,6 +848,7 @@ class ExcelToCodeApp:
             self.root.after(0, lambda: self.import_template_btn.config(state="disabled"))
             self.root.after(0, lambda: self.manage_templates_btn.config(state="disabled"))
             self.root.after(0, lambda: self.generate_button.config(state="disabled"))
+            self.root.after(0, lambda: self.manage_ranges_btn.config(state="disabled"))
             
             # 清空之前選擇的範圍
             self.selected_range = None
@@ -860,7 +873,7 @@ class ExcelToCodeApp:
             return  # 使用者取消了操作
         
         # 載入設定資料
-        config_data = load_config(file_path)
+        config_data = load_config(file_path, self)
         if not config_data:
             messagebox.showerror("錯誤", "載入設定檔時發生錯誤")
             return
@@ -918,6 +931,11 @@ class ExcelToCodeApp:
                     self.code_template = config_data["code_template"]
                     self.root.after(0, lambda: self.template_preview.config(text="已載入自訂樣板"))
                     self.root.after(0, lambda: self.template_combo.set(""))  # 清空預設模板選擇
+                
+                # 處理命名範圍
+                if "named_ranges" in config_data:
+                    self.named_ranges = config_data["named_ranges"]
+                    self.log(f"已載入 {len(self.named_ranges)} 個命名範圍")
                 
                 # 套用設定
                 # 1. 載入 Excel 檔案
@@ -978,6 +996,7 @@ class ExcelToCodeApp:
                                                 self.template_combo.config(state="normal")
                                                 self.import_template_btn.config(state="normal")
                                                 self.manage_templates_btn.config(state="normal")
+                                                self.manage_ranges_btn.config(state="normal")
                                                 
                                                 # 確保在有範圍和樣板的情況下啟用生成按鈕
                                                 if self.code_template:
@@ -1194,12 +1213,150 @@ class ExcelToCodeApp:
     def show_about(self):
         """顯示關於對話框"""
         about_text = "ExcelCode Pro\n\n"
-        about_text += "版本: 1.0.0\n\n"
+        about_text += f"版本: {VERSION}\n\n"
         about_text += "此工具用於將 Excel 表格資料轉換為 C/C++ 程式碼。\n"
         about_text += "支援單檔案和多檔案處理，多範圍選擇，\n"
-        about_text += "以及自訂程式碼樣板。\n\n"
-        about_text += "© 2024 WWKing - Alphabet Studio 版權所有"
+        about_text += "命名範圍設定，以及自訂程式碼樣板。\n\n"
+        about_text += "© 2025 WWKing - Alphabet Studio 版權所有"
         
         messagebox.showinfo("關於", about_text)
 
-    
+    def manage_named_ranges(self):
+        """管理已定義的命名範圍"""
+        if not hasattr(self, 'named_ranges'):
+            self.named_ranges = {}
+        
+        # 建立管理窗口
+        range_dialog = tk.Toplevel(self.root)
+        range_dialog.title("管理命名範圍")
+        range_dialog.geometry("500x300")
+        range_dialog.grab_set()
+        
+        # 範圍列表框架
+        list_frame = ttk.LabelFrame(range_dialog, text="已定義的範圍")
+        list_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        # 建立範圍列表框
+        range_listbox = tk.Listbox(list_frame)
+        range_listbox.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+        
+        # 滾動條
+        scrollbar = ttk.Scrollbar(list_frame, orient="vertical", command=range_listbox.yview)
+        scrollbar.pack(side="right", fill="y")
+        range_listbox.config(yscrollcommand=scrollbar.set)
+        
+        # 填充範圍列表
+        for name, range_str in self.named_ranges.items():
+            range_listbox.insert(tk.END, f"{name}: {range_str}")
+        
+        # 詳細信息框架
+        details_frame = ttk.Frame(range_dialog)
+        details_frame.pack(fill="x", padx=10, pady=5)
+        
+        ttk.Label(details_frame, text="範圍名稱:").grid(row=0, column=0, padx=5, pady=5, sticky="w")
+        name_var = tk.StringVar()
+        name_entry = ttk.Entry(details_frame, textvariable=name_var, width=20)
+        name_entry.grid(row=0, column=1, padx=5, pady=5, sticky="we")
+        
+        ttk.Label(details_frame, text="Excel 範圍:").grid(row=1, column=0, padx=5, pady=5, sticky="w")
+        range_var = tk.StringVar()
+        range_entry = ttk.Entry(details_frame, textvariable=range_var, width=20)
+        range_entry.grid(row=1, column=1, padx=5, pady=5, sticky="we")
+        
+        # 顯示選中範圍的詳細信息
+        def show_range_details(event):
+            selection = range_listbox.curselection()
+            if selection:
+                selected_idx = selection[0]
+                selected_text = range_listbox.get(selected_idx)
+                
+                # 解析名稱和範圍
+                name, range_str = selected_text.split(": ", 1)
+                
+                name_var.set(name)
+                range_var.set(range_str)
+        
+        range_listbox.bind("<<ListboxSelect>>", show_range_details)
+        
+        # 按鈕功能
+        def add_or_update_range():
+            name = name_var.get().strip()
+            range_str = range_var.get().strip()
+            
+            if not name:
+                messagebox.showerror("錯誤", "請輸入範圍名稱", parent=range_dialog)
+                return
+                
+            if not range_str:
+                messagebox.showerror("錯誤", "請輸入有效的Excel範圍", parent=range_dialog)
+                return
+                
+            try:
+                # 驗證範圍格式
+                if ":" in range_str:
+                    start, end = range_str.split(":")
+                    # 這裡可以加入更多驗證邏輯
+                else:
+                    messagebox.showerror("錯誤", "範圍格式不正確，請使用如 A1:G10 的格式", parent=range_dialog)
+                    return
+                
+                # 儲存/更新範圍
+                old_entry = None
+                for i, item in enumerate(range_listbox.get(0, tk.END)):
+                    item_name = item.split(": ")[0]
+                    if item_name == name:
+                        old_entry = i
+                        break
+                
+                self.named_ranges[name] = range_str
+                
+                # 更新列表顯示
+                if old_entry is not None:
+                    range_listbox.delete(old_entry)
+                    range_listbox.insert(old_entry, f"{name}: {range_str}")
+                else:
+                    range_listbox.insert(tk.END, f"{name}: {range_str}")
+                    
+                # 清空輸入框
+                name_var.set("")
+                range_var.set("")
+                
+                self.log(f"已添加/更新命名範圍: {name} = {range_str}")
+                
+            except Exception as e:
+                messagebox.showerror("錯誤", f"處理範圍時出錯: {str(e)}", parent=range_dialog)
+        
+        def delete_range():
+            selection = range_listbox.curselection()
+            if not selection:
+                messagebox.showinfo("提示", "請選擇要刪除的範圍", parent=range_dialog)
+                return
+                
+            selected_idx = selection[0]
+            selected_text = range_listbox.get(selected_idx)
+            
+            # 解析名稱
+            name = selected_text.split(": ")[0]
+            
+            # 確認刪除
+            if messagebox.askyesno("確認", f"確定要刪除範圍 '{name}' 嗎?", parent=range_dialog):
+                # 刪除範圍
+                if name in self.named_ranges:
+                    del self.named_ranges[name]
+                
+                # 從列表中移除
+                range_listbox.delete(selected_idx)
+                
+                # 清空輸入框
+                name_var.set("")
+                range_var.set("")
+                
+                self.log(f"已刪除命名範圍: {name}")
+        
+        # 按鈕區域
+        btn_frame = ttk.Frame(range_dialog)
+        btn_frame.pack(fill="x", pady=10)
+        
+        ttk.Button(btn_frame, text="添加/更新", command=add_or_update_range).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="刪除所選", command=delete_range).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="關閉", command=range_dialog.destroy).pack(side="right", padx=5)

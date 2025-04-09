@@ -8,3 +8,5 @@ py -3.13 -c "import sys; print(sys.version)" 2>nul && (
     echo Python 3.13 not found, trying to use any available Python 3.x
     py -3 main.py
 )
+
+py -3.13 -m pip freeze > requirements.txt

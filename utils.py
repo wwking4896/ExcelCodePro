@@ -64,41 +64,66 @@ def replace_template_placeholders(template, replacements):
         result = result.replace(f"{{{{{placeholder}}}}}", str(value))
     return result
 
-def save_config(config_data, file_path):
+def save_config(config_data, file_path, gui=None):
     """
     將設定資料儲存為 JSON 檔案
     
     Args:
         config_data (dict): 要儲存的設定資料
         file_path (str): 儲存的檔案路徑
+        gui (object): GUI 實例，用於記錄
     """
     try:
+        # 添加命名範圍資訊到設定
+        if hasattr(gui, 'named_ranges'):
+            config_data["named_ranges"] = gui.named_ranges
+        
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(config_data, f, ensure_ascii=False, indent=4)
+        
+        if gui:
+            gui.log(f"設定已儲存至: {file_path}")
         return True
     except Exception as e:
-        self.gui.log(f"儲存設定檔時出錯: {str(e)}")
+        if gui:
+            gui.log(f"儲存設定檔時出錯: {str(e)}")
+        else:
+            print(f"儲存設定檔時出錯: {str(e)}")
         return False
 
-def load_config(file_path):
+def load_config(file_path, gui=None):
     """
     從 JSON 檔案載入設定資料
     
     Args:
         file_path (str): 設定檔案路徑
+        gui (object): GUI 實例，用於記錄
         
     Returns:
         dict: 設定資料字典，如果載入失敗則返回 None
     """
     try:
         if not os.path.exists(file_path):
+            if gui:
+                gui.log(f"設定檔不存在: {file_path}")
             return None
             
         with open(file_path, 'r', encoding='utf-8') as f:
             config_data = json.load(f)
+        
+        # 載入命名範圍資訊
+        if "named_ranges" in config_data and gui:
+            gui.named_ranges = config_data["named_ranges"]
+            gui.log(f"已載入 {len(gui.named_ranges)} 個命名範圍")
+        
+        if gui:
+            gui.log(f"已從 {file_path} 載入設定")
         return config_data
     except Exception as e:
-        self.gui.log(f"載入設定檔時出錯: {str(e)}")
+        if gui:
+            gui.log(f"載入設定檔時出錯: {str(e)}")
+        else:
+            print(f"載入設定檔時出錯: {str(e)}")
         return None
 
 def get_templates_directory():

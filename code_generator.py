@@ -26,9 +26,9 @@ class CodeGenerator:
         # 建立樣板設定窗口
         template_dialog = tk.Toplevel(self.gui.root)
         template_dialog.title("設定程式碼樣板")
-        template_dialog.geometry("700x650")  # 增加視窗高度，從550改為650
+        template_dialog.geometry("700x700")  # 增加高度以容納更多說明
         template_dialog.grab_set()  # 模态窗口
-        template_dialog.minsize(700, 650)  # 設定最小尺寸，確保按鈕不會被隱藏
+        template_dialog.minsize(700, 700)  # 設定最小尺寸
         
         # 样板说明
         instruction_frame = ttk.Frame(template_dialog)
@@ -36,43 +36,177 @@ class CodeGenerator:
         
         ttk.Label(instruction_frame, text="程式碼樣板說明：", font=("Arial", 10, "bold")).pack(anchor="w")
         instruction_text = """
-    在樣板中，您可以使用以下標記：
-    - {{LOOP_START}} - 資料迴圈開始 (使用第一個選擇的範圍)
-    - {{LOOP_END}} - 資料迴圈結束 (使用第一個選擇的範圍)
-    - {{FILES_LOOP_START}} - 檔案迴圈開始 (用於三維陣列)
-    - {{FILES_LOOP_END}} - 檔案迴圈結束 (用於三維陣列)
-    - {{RANGES_LOOP_START}} - 範圍迴圈開始 (用於四維陣列)
-    - {{RANGES_LOOP_END}} - 範圍迴圈結束 (用於四維陣列)
-    - {{RANGE_DATA_LOOP_START}} - 範圍資料迴圈開始 (用於三維多範圍陣列)
-    - {{RANGE_DATA_LOOP_END}} - 範圍資料迴圈結束 (用於三維多範圍陣列)
-    - {{FILE_NAME}} - 當前處理的檔案名稱
-    - {{FILE_INDEX}} - 當前檔案索引
-    - {{FILE_COUNT}} - 總檔案數量
-    - {{RANGE_INDEX}} - 當前範圍索引
-    - {{RANGE_STR}} - 當前範圍字串表示
-    - {{RANGE_COUNT}} - 總範圍數量
-    - {{RANGE_ROW_COUNT}} - 當前範圍的行數
-    - {{RANGE_COL_COUNT}} - 當前範圍的列數
-    - {{MAX_ROW_COUNT}} - 所有範圍中的最大行數
-    - {{MAX_COL_COUNT}} - 所有範圍中的最大列數
-    - {{ROW_INDEX}} - 當前資料列索引
-    - {{COL_INDEX}} - 當前資料行索引
-    - {{VALUE}} - 當前儲存格值
-    - {{ALL_COLUMNS}} - 當前行的所有欄位值
-    - {{ROW:數字}} - 獲取資料列的數字欄位值（例如：{{ROW:0}}取得該列第1個欄位的值）
-    - {{COL:數字}} - 獲取資料行的數字欄位值（例如：{{COL:0}}取得該行第1個欄位的值）
+在樣板中，您可以使用以下標記：
 
-    多範圍處理標記：
-    - {{RANGE:n_LOOP_START}} - 第n個範圍的資料迴圈開始 (n從1開始)
-    - {{RANGE:n_LOOP_END}} - 第n個範圍的資料迴圈結束
-    - {{RANGE_n_ROW_COUNT}} - 第n個範圍的資料列數
-    - {{RANGE_n_COL_COUNT}} - 第n個範圍的資料行數
-        """
+基本標記:
+- {{LOOP_START}} - 資料迴圈開始 (使用第一個選擇的範圍)
+- {{LOOP_END}} - 資料迴圈結束
+- {{VALUE}} - 當前儲存格值
+- {{ROW_INDEX}} - 當前資料列索引
+- {{COL_INDEX}} - 當前資料行索引
+- {{ALL_COLUMNS}} - 當前行的所有欄位值
+
+多範圍精確標記:
+- {{RANGE[範圍名稱]_LOOP_START}} - 指定範圍的資料迴圈開始
+- {{RANGE[範圍名稱]_LOOP_END}} - 指定範圍的資料迴圈結束
+- {{RANGE[範圍名稱]_ROW_COUNT}} - 指定範圍的資料列數
+- {{RANGE[範圍名稱]_COL_COUNT}} - 指定範圍的資料行數
+- {{RANGE[範圍名稱]_VALUE[行,列]}} - 指定範圍的特定儲存格值
+
+檔案相關標記:
+- {{FILE_NAME}} - 當前處理的檔案名稱
+- {{FILE_INDEX}} - 當前檔案索引
+- {{FILE_COUNT}} - 總檔案數量
+
+範例: 
+{{RANGE[左上]_VALUE[0,0]}} - 讀取名為"左上"的範圍中第一列第一行的值
+{{RANGE[權重表]_LOOP_START}} - 開始迴圈處理名為"權重表"的範圍
+"""
             
-        instruction_box = ScrolledText(instruction_frame, height=12, font=("Courier New", 9))
+        instruction_box = ScrolledText(instruction_frame, height=15, font=("Courier New", 9))
         instruction_box.pack(fill="x", pady=5)
         instruction_box.insert("1.0", instruction_text)
         instruction_box.config(state="disabled")
+        
+        # 範圍定義區域 (新增)
+        range_frame = ttk.LabelFrame(template_dialog, text="範圍定義")
+        range_frame.pack(fill="x", padx=10, pady=5)
+        
+        range_list_frame = ttk.Frame(range_frame)
+        range_list_frame.pack(fill="x", padx=5, pady=5)
+        
+        # 顯示已定義的範圍
+        ttk.Label(range_list_frame, text="已定義的範圍:").pack(side="left", padx=5)
+        
+        range_names = tk.StringVar()
+        range_entry = ttk.Entry(range_list_frame, textvariable=range_names, width=40, state="readonly")
+        range_entry.pack(side="left", padx=5, fill="x", expand=True)
+        
+        # 初始化顯示已有的命名範圍
+        if hasattr(self.gui, 'named_ranges'):
+            range_names.set(", ".join(self.gui.named_ranges.keys()))
+        
+        # 範圍定義按鈕
+        def define_range():
+            # 建立範圍定義對話框
+            range_dialog = tk.Toplevel(template_dialog)
+            range_dialog.title("定義範圍")
+            range_dialog.geometry("400x200")
+            range_dialog.grab_set()
+            
+            ttk.Label(range_dialog, text="範圍名稱:").grid(row=0, column=0, padx=5, pady=5, sticky="w")
+            name_var = tk.StringVar()
+            name_entry = ttk.Entry(range_dialog, textvariable=name_var, width=20)
+            name_entry.grid(row=0, column=1, padx=5, pady=5, sticky="we")
+            
+            ttk.Label(range_dialog, text="Excel 範圍 (例如: A1:G10):").grid(row=1, column=0, padx=5, pady=5, sticky="w")
+            range_var = tk.StringVar()
+            range_entry = ttk.Entry(range_dialog, textvariable=range_var, width=20)
+            range_entry.grid(row=1, column=1, padx=5, pady=5, sticky="we")
+            
+            # 定義範圍字典 (如果尚未存在)
+            if not hasattr(self.gui, 'named_ranges'):
+                self.gui.named_ranges = {}
+            
+            def save_range():
+                name = name_var.get().strip()
+                range_str = range_var.get().strip()
+                
+                if not name:
+                    messagebox.showerror("錯誤", "請輸入範圍名稱", parent=range_dialog)
+                    return
+                    
+                if not range_str:
+                    messagebox.showerror("錯誤", "請輸入有效的Excel範圍", parent=range_dialog)
+                    return
+                    
+                try:
+                    # 驗證範圍格式
+                    if ":" in range_str:
+                        start, end = range_str.split(":")
+                        # 這裡可以加入更多驗證邏輯
+                    else:
+                        messagebox.showerror("錯誤", "範圍格式不正確，請使用如 A1:G10 的格式", parent=range_dialog)
+                        return
+                    
+                    # 存儲範圍定義
+                    self.gui.named_ranges[name] = range_str
+                    
+                    # 更新範圍列表顯示
+                    range_names.set(", ".join(self.gui.named_ranges.keys()))
+                    
+                    # 關閉對話框
+                    range_dialog.destroy()
+                    
+                except Exception as e:
+                    messagebox.showerror("錯誤", f"處理範圍時出錯: {str(e)}", parent=range_dialog)
+            
+            # 確認和取消按鈕
+            btn_frame = ttk.Frame(range_dialog)
+            btn_frame.grid(row=2, column=0, columnspan=2, pady=10)
+            
+            ttk.Button(btn_frame, text="儲存範圍", command=save_range).pack(side="left", padx=5)
+            ttk.Button(btn_frame, text="取消", command=range_dialog.destroy).pack(side="left", padx=5)
+            
+            # 設置初始焦點
+            name_entry.focus_set()
+        
+        # 刪除範圍功能
+        def delete_range():
+            if not hasattr(self.gui, 'named_ranges') or not self.gui.named_ranges:
+                messagebox.showinfo("提示", "沒有定義的範圍可刪除", parent=template_dialog)
+                return
+                
+            # 建立範圍選擇對話框
+            select_dialog = tk.Toplevel(template_dialog)
+            select_dialog.title("選擇要刪除的範圍")
+            select_dialog.geometry("300x200")
+            select_dialog.grab_set()
+            
+            ttk.Label(select_dialog, text="選擇要刪除的範圍:").pack(padx=5, pady=5, anchor="w")
+            
+            # 建立範圍列表框
+            range_listbox = tk.Listbox(select_dialog)
+            range_listbox.pack(fill="both", expand=True, padx=5, pady=5)
+            
+            # 填充範圍列表
+            for name in self.gui.named_ranges.keys():
+                range_listbox.insert(tk.END, name)
+            
+            def confirm_delete():
+                selected = range_listbox.curselection()
+                if not selected:
+                    messagebox.showinfo("提示", "請選擇要刪除的範圍", parent=select_dialog)
+                    return
+                    
+                # 獲取選擇的範圍名稱
+                selected_idx = selected[0]
+                selected_name = range_listbox.get(selected_idx)
+                
+                # 確認刪除
+                if messagebox.askyesno("確認", f"確定要刪除範圍 '{selected_name}' 嗎?", parent=select_dialog):
+                    # 刪除範圍
+                    del self.gui.named_ranges[selected_name]
+                    
+                    # 更新範圍列表顯示
+                    range_names.set(", ".join(self.gui.named_ranges.keys()))
+                    
+                    # 關閉對話框
+                    select_dialog.destroy()
+            
+            # 確認和取消按鈕
+            btn_frame = ttk.Frame(select_dialog)
+            btn_frame.pack(pady=10)
+            
+            ttk.Button(btn_frame, text="刪除", command=confirm_delete).pack(side="left", padx=5)
+            ttk.Button(btn_frame, text="取消", command=select_dialog.destroy).pack(side="left", padx=5)
+        
+        # 範圍操作按鈕
+        btn_frame = ttk.Frame(range_frame)
+        btn_frame.pack(fill="x", pady=5)
+        
+        ttk.Button(btn_frame, text="定義新範圍", command=define_range).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="刪除範圍", command=delete_range).pack(side="left", padx=5)
         
         # 新增「從檔案載入」按鈕
         load_frame = ttk.Frame(template_dialog)
@@ -107,36 +241,32 @@ class CodeGenerator:
         if self.gui.code_template:
             template_text.insert("1.0", self.gui.code_template)
         else:
-            # 预设样板 - 添加多範圍支持
-            multi_range_template = """// 多範圍數據處理範例
-    #define RANGE_1_ROW_COUNT {{RANGE_1_ROW_COUNT}}
-    #define RANGE_1_COL_COUNT {{RANGE_1_COL_COUNT}}
-    #define RANGE_2_ROW_COUNT {{RANGE_2_ROW_COUNT}}
-    #define RANGE_2_COL_COUNT {{RANGE_2_COL_COUNT}}
+            # 預設範例樣板 - 添加命名範圍支持
+            named_range_template = """// 命名範圍資料處理範例
+#define LEFT_TOP_ROWS {{RANGE[左上]_ROW_COUNT}}
+#define LEFT_TOP_COLS {{RANGE[左上]_COL_COUNT}}
+#define RIGHT_TOP_ROWS {{RANGE[右上]_ROW_COUNT}}
+#define RIGHT_TOP_COLS {{RANGE[右上]_COL_COUNT}}
 
-    // 第一個範圍的數據
-    unsigned int first_area[RANGE_1_ROW_COUNT][RANGE_1_COL_COUNT] = {
-    {{RANGE:1_LOOP_START}}
-        { {{ALL_COLUMNS}} },  // Row {{ROW_INDEX}}
-    {{RANGE:1_LOOP_END}}
-    };
+// 左上角區域數據
+unsigned int left_top_area[LEFT_TOP_ROWS][LEFT_TOP_COLS] = {
+{{RANGE[左上]_LOOP_START}}
+    { {{ALL_COLUMNS}} },  // Row {{ROW_INDEX}}
+{{RANGE[左上]_LOOP_END}}
+};
 
-    // 第二個範圍的數據
-    unsigned int second_area[RANGE_2_ROW_COUNT][RANGE_2_COL_COUNT] = {
-    {{RANGE:2_LOOP_START}}
-        { {{ALL_COLUMNS}} },  // Row {{ROW_INDEX}}
-    {{RANGE:2_LOOP_END}}
-    };
+// 右上角區域數據
+unsigned int right_top_area[RIGHT_TOP_ROWS][RIGHT_TOP_COLS] = {
+{{RANGE[右上]_LOOP_START}}
+    { {{ALL_COLUMNS}} },  // Row {{ROW_INDEX}}
+{{RANGE[右上]_LOOP_END}}
+};
 
-    // 範例：將兩個區域的數據組合處理的函數
-    void process_combined_data() {
-        for (int i = 0; i < RANGE_1_ROW_COUNT && i < RANGE_2_ROW_COUNT; i++) {
-            // 範例處理邏輯
-            first_area[i][0] += second_area[i][0];
-        }
-    }
-    """
-            template_text.insert("1.0", multi_range_template)
+// 特定欄位值示例
+int left_top_first_value = {{RANGE[左上]_VALUE[0,0]}};
+int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
+"""
+            template_text.insert("1.0", named_range_template)
         
         # 按鈕區域
         btn_frame = ttk.Frame(template_dialog)
@@ -195,272 +325,472 @@ class CodeGenerator:
         """獲取預設樣板內容"""
         if template_name == "陣列初始化":
             return """// 一維陣列初始化
-    #define MAX_SIZE 100
+#define MAX_SIZE 100
 
-    unsigned int weights[MAX_SIZE] = {
-    {{LOOP_START}}
-        {{VALUE}},  // 索引 {{ROW_INDEX}}
-    {{LOOP_END}}
-    };"""
+unsigned int weights[MAX_SIZE] = {
+{{LOOP_START}}
+    {{VALUE}},  // 索引 {{ROW_INDEX}}
+{{LOOP_END}}
+};"""
         elif template_name == "二維陣列":
             return """// 二維陣列初始化
-    #define ROW_COUNT 20
-    #define COL_COUNT 4
+#define ROW_COUNT 20
+#define COL_COUNT 4
 
-    unsigned int table[ROW_COUNT][COL_COUNT] = {
-    {{LOOP_START}}
-        { {{ALL_COLUMNS}} },
-    {{LOOP_END}}
-    };"""
+unsigned int table[ROW_COUNT][COL_COUNT] = {
+{{LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{LOOP_END}}
+};"""
         elif template_name == "三維陣列":
             # 添加三维数组模板
             return """// 三維陣列初始化
-    #define FILE_COUNT {{FILE_COUNT}}
-    #define ROW_COUNT {{ROW_COUNT}}
-    #define COL_COUNT {{COL_COUNT}}
+#define FILE_COUNT {{FILE_COUNT}}
+#define ROW_COUNT {{ROW_COUNT}}
+#define COL_COUNT {{COL_COUNT}}
 
-    unsigned int data3d[FILE_COUNT][ROW_COUNT][COL_COUNT] = {
-    {{FILES_LOOP_START}}
-        // 來自檔案: {{FILE_NAME}}
-        {
-    {{LOOP_START}}
-            { {{ALL_COLUMNS}} },
-    {{LOOP_END}}
-        },
-    {{FILES_LOOP_END}}
-    };"""
+unsigned int data3d[FILE_COUNT][ROW_COUNT][COL_COUNT] = {
+{{FILES_LOOP_START}}
+    // 來自檔案: {{FILE_NAME}}
+    {
+{{LOOP_START}}
+        { {{ALL_COLUMNS}} },
+{{LOOP_END}}
+    },
+{{FILES_LOOP_END}}
+};"""
         elif template_name == "四維陣列 (範圍優先)":
             # 原版四維陣列樣板 - 以範圍為優先
             return """// 四維陣列初始化 - 範圍優先 [範圍][檔案][行][列]
-    #define RANGE_COUNT {{RANGE_COUNT}}  // 範圍數量
-    #define FILE_COUNT {{FILE_COUNT}}    // 檔案數量
-    #define ROW_COUNT {{ROW_COUNT}}      // 每個範圍的最大行數
-    #define COL_COUNT {{COL_COUNT}}      // 每個範圍的最大列數
+#define RANGE_COUNT {{RANGE_COUNT}}  // 範圍數量
+#define FILE_COUNT {{FILE_COUNT}}    // 檔案數量
+#define ROW_COUNT {{ROW_COUNT}}      // 每個範圍的最大行數
+#define COL_COUNT {{COL_COUNT}}      // 每個範圍的最大列數
 
-    // 定義各個範圍的實際大小
-    unsigned int range_dimensions[RANGE_COUNT][2] = {
-    {{RANGES_LOOP_START}}
-        { {{RANGE_ROW_COUNT}}, {{RANGE_COL_COUNT}} },  // 範圍 {{RANGE_INDEX}}: {{RANGE_STR}}
-    {{RANGES_LOOP_END}}
-    };
+// 定義各個範圍的實際大小
+unsigned int range_dimensions[RANGE_COUNT][2] = {
+{{RANGES_LOOP_START}}
+    { {{RANGE_ROW_COUNT}}, {{RANGE_COL_COUNT}} },  // 範圍 {{RANGE_INDEX}}: {{RANGE_STR}}
+{{RANGES_LOOP_END}}
+};
 
-    // 四維陣列: [範圍][檔案][行][列]
-    unsigned int data4d[RANGE_COUNT][FILE_COUNT][ROW_COUNT][COL_COUNT] = {
-    {{RANGES_LOOP_START}}
-        // 範圍 {{RANGE_INDEX}}: {{RANGE_STR}}
+// 四維陣列: [範圍][檔案][行][列]
+unsigned int data4d[RANGE_COUNT][FILE_COUNT][ROW_COUNT][COL_COUNT] = {
+{{RANGES_LOOP_START}}
+    // 範圍 {{RANGE_INDEX}}: {{RANGE_STR}}
+    {
+{{FILES_LOOP_START}}
+        // 來自檔案: {{FILE_NAME}}
         {
-    {{FILES_LOOP_START}}
-            // 來自檔案: {{FILE_NAME}}
-            {
-    {{RANGE_LOOP_START}}
-                { {{ALL_COLUMNS}} },
-    {{RANGE_LOOP_END}}
-            },
-    {{FILES_LOOP_END}}
+{{RANGE_LOOP_START}}
+            { {{ALL_COLUMNS}} },
+{{RANGE_LOOP_END}}
         },
-    {{RANGES_LOOP_END}}
-    };
+{{FILES_LOOP_END}}
+    },
+{{RANGES_LOOP_END}}
+};
 
-    // 範例：取得特定範圍、特定檔案的資料
-    unsigned int get_value(unsigned int range_idx, unsigned int file_idx, unsigned int row, unsigned int col) {
-        // 邊界檢查
-        if (range_idx >= RANGE_COUNT || file_idx >= FILE_COUNT || 
-            row >= range_dimensions[range_idx][0] || col >= range_dimensions[range_idx][1]) {
-            return 0;  // 超出範圍，返回預設值
-        }
-        
-        return data4d[range_idx][file_idx][row][col];
+// 範例：取得特定範圍、特定檔案的資料
+unsigned int get_value(unsigned int range_idx, unsigned int file_idx, unsigned int row, unsigned int col) {
+    // 邊界檢查
+    if (range_idx >= RANGE_COUNT || file_idx >= FILE_COUNT || 
+        row >= range_dimensions[range_idx][0] || col >= range_dimensions[range_idx][1]) {
+        return 0;  // 超出範圍，返回預設值
     }
+    
+    return data4d[range_idx][file_idx][row][col];
+}
 
-    // 範例：列印特定範圍的資料摘要
-    void print_range_summary(unsigned int range_idx) {
-        if (range_idx >= RANGE_COUNT) {
-            return;
-        }
+// 範例：列印特定範圍的資料摘要
+void print_range_summary(unsigned int range_idx) {
+    if (range_idx >= RANGE_COUNT) {
+        return;
+    }
+    
+    printf("範圍 %u 資料摘要 (行數: %u, 列數: %u):\\n", 
+        range_idx, range_dimensions[range_idx][0], range_dimensions[range_idx][1]);
         
-        printf("範圍 %u 資料摘要 (行數: %u, 列數: %u):\\n", 
-            range_idx, range_dimensions[range_idx][0], range_dimensions[range_idx][1]);
-            
-        // 以第一個檔案為例
-        for (int row = 0; row < range_dimensions[range_idx][0]; row++) {
-            for (int col = 0; col < range_dimensions[range_idx][1]; col++) {
-                printf("%u ", data4d[range_idx][0][row][col]);
-            }
-            printf("\\n");
+    // 以第一個檔案為例
+    for (int row = 0; row < range_dimensions[range_idx][0]; row++) {
+        for (int col = 0; col < range_dimensions[range_idx][1]; col++) {
+            printf("%u ", data4d[range_idx][0][row][col]);
         }
-    }"""
+        printf("\\n");
+    }
+}"""
         elif template_name == "四維陣列 (檔案優先)":
             # 新版四維陣列樣板 - 以檔案為優先
             return """// 四維陣列初始化 - 檔案優先 [檔案][範圍][行][列]
-    #define FILE_COUNT {{FILE_COUNT}}     // 檔案數量
-    #define RANGE_COUNT {{RANGE_COUNT}}   // 範圍數量
-    #define ROW_COUNT {{ROW_COUNT}}       // 每個範圍的最大行數
-    #define COL_COUNT {{COL_COUNT}}       // 每個範圍的最大列數
+#define FILE_COUNT {{FILE_COUNT}}     // 檔案數量
+#define RANGE_COUNT {{RANGE_COUNT}}   // 範圍數量
+#define ROW_COUNT {{ROW_COUNT}}       // 每個範圍的最大行數
+#define COL_COUNT {{COL_COUNT}}       // 每個範圍的最大列數
 
-    // 定義各個範圍的實際大小
-    unsigned int range_dimensions[RANGE_COUNT][2] = {
-    {{RANGES_LOOP_START}}
-        { {{RANGE_ROW_COUNT}}, {{RANGE_COL_COUNT}} },  // 範圍 {{RANGE_INDEX}}: {{RANGE_STR}}
-    {{RANGES_LOOP_END}}
-    };
+// 定義各個範圍的實際大小
+unsigned int range_dimensions[RANGE_COUNT][2] = {
+{{RANGES_LOOP_START}}
+    { {{RANGE_ROW_COUNT}}, {{RANGE_COL_COUNT}} },  // 範圍 {{RANGE_INDEX}}: {{RANGE_STR}}
+{{RANGES_LOOP_END}}
+};
 
-    // 四維陣列: [檔案][範圍][行][列]
-    unsigned int data4d[FILE_COUNT][RANGE_COUNT][ROW_COUNT][COL_COUNT] = {
-    {{FILES_LOOP_START}}
-        // 來自檔案: {{FILE_NAME}}
+// 四維陣列: [檔案][範圍][行][列]
+unsigned int data4d[FILE_COUNT][RANGE_COUNT][ROW_COUNT][COL_COUNT] = {
+{{FILES_LOOP_START}}
+    // 來自檔案: {{FILE_NAME}}
+    {
+{{RANGES_LOOP_START}}
+        // 範圍 {{RANGE_INDEX}}: {{RANGE_STR}}
         {
-    {{RANGES_LOOP_START}}
-            // 範圍 {{RANGE_INDEX}}: {{RANGE_STR}}
-            {
-    {{RANGE_LOOP_START}}
-                { {{ALL_COLUMNS}} },
-    {{RANGE_LOOP_END}}
-            },
-    {{RANGES_LOOP_END}}
+{{RANGE_LOOP_START}}
+            { {{ALL_COLUMNS}} },
+{{RANGE_LOOP_END}}
         },
-    {{FILES_LOOP_END}}
-    };
+{{RANGES_LOOP_END}}
+    },
+{{FILES_LOOP_END}}
+};
 
-    // 範例：取得特定檔案、特定範圍的資料
-    unsigned int get_value(unsigned int file_idx, unsigned int range_idx, unsigned int row, unsigned int col) {
-        // 邊界檢查
-        if (file_idx >= FILE_COUNT || range_idx >= RANGE_COUNT || 
-            row >= range_dimensions[range_idx][0] || col >= range_dimensions[range_idx][1]) {
-            return 0;  // 超出範圍，返回預設值
-        }
-        
-        return data4d[file_idx][range_idx][row][col];
+// 範例：取得特定檔案、特定範圍的資料
+unsigned int get_value(unsigned int file_idx, unsigned int range_idx, unsigned int row, unsigned int col) {
+    // 邊界檢查
+    if (file_idx >= FILE_COUNT || range_idx >= RANGE_COUNT || 
+        row >= range_dimensions[range_idx][0] || col >= range_dimensions[range_idx][1]) {
+        return 0;  // 超出範圍，返回預設值
     }
+    
+    return data4d[file_idx][range_idx][row][col];
+}
 
-    // 範例：列印特定檔案、特定範圍的資料摘要
-    void print_range_summary(unsigned int file_idx, unsigned int range_idx) {
-        if (file_idx >= FILE_COUNT || range_idx >= RANGE_COUNT) {
-            return;
-        }
+// 範例：列印特定檔案、特定範圍的資料摘要
+void print_range_summary(unsigned int file_idx, unsigned int range_idx) {
+    if (file_idx >= FILE_COUNT || range_idx >= RANGE_COUNT) {
+        return;
+    }
+    
+    printf("檔案 %u, 範圍 %u 資料摘要 (行數: %u, 列數: %u):\\n", 
+        file_idx, range_idx, range_dimensions[range_idx][0], range_dimensions[range_idx][1]);
         
-        printf("檔案 %u, 範圍 %u 資料摘要 (行數: %u, 列數: %u):\\n", 
-            file_idx, range_idx, range_dimensions[range_idx][0], range_dimensions[range_idx][1]);
-            
-        for (int row = 0; row < range_dimensions[range_idx][0]; row++) {
-            for (int col = 0; col < range_dimensions[range_idx][1]; col++) {
-                printf("%u ", data4d[file_idx][range_idx][row][col]);
-            }
-            printf("\\n");
+    for (int row = 0; row < range_dimensions[range_idx][0]; row++) {
+        for (int col = 0; col < range_dimensions[range_idx][1]; col++) {
+            printf("%u ", data4d[file_idx][range_idx][row][col]);
         }
-    }"""
+        printf("\\n");
+    }
+}"""
         elif template_name == "三維多範圍陣列":
             return """// 三維多範圍陣列初始化
-    #define FILE_COUNT {{FILE_COUNT}}           // 檔案數量
-    #define RANGE_COUNT {{RANGE_COUNT}}         // 範圍數量
-    #define MAX_ROW_COUNT {{MAX_ROW_COUNT}}     // 最大行數
-    #define MAX_COL_COUNT {{MAX_COL_COUNT}}     // 最大列數
+#define FILE_COUNT {{FILE_COUNT}}           // 檔案數量
+#define RANGE_COUNT {{RANGE_COUNT}}         // 範圍數量
+#define MAX_ROW_COUNT {{MAX_ROW_COUNT}}     // 最大行數
+#define MAX_COL_COUNT {{MAX_COL_COUNT}}     // 最大列數
 
-    // 定義各個範圍的實際大小
-    unsigned int range_dimensions[RANGE_COUNT][2] = {
-    {{RANGES_LOOP_START}}
-        { {{RANGE_ROW_COUNT}}, {{RANGE_COL_COUNT}} },  // 範圍 {{RANGE_INDEX}}: {{RANGE_STR}}
-    {{RANGES_LOOP_END}}
-    };
+// 定義各個範圍的實際大小
+unsigned int range_dimensions[RANGE_COUNT][2] = {
+{{RANGES_LOOP_START}}
+    { {{RANGE_ROW_COUNT}}, {{RANGE_COL_COUNT}} },  // 範圍 {{RANGE_INDEX}}: {{RANGE_STR}}
+{{RANGES_LOOP_END}}
+};
 
-    // 三維多範圍陣列: [檔案][範圍][行][列]
-    unsigned int data3d_multi[FILE_COUNT][RANGE_COUNT][MAX_ROW_COUNT][MAX_COL_COUNT] = {
-    {{FILES_LOOP_START}}
-        // 來自檔案: {{FILE_NAME}}
+// 三維多範圍陣列: [檔案][範圍][行][列]
+unsigned int data3d_multi[FILE_COUNT][RANGE_COUNT][MAX_ROW_COUNT][MAX_COL_COUNT] = {
+{{FILES_LOOP_START}}
+    // 來自檔案: {{FILE_NAME}}
+    {
+{{RANGES_LOOP_START}}
+        // 範圍 {{RANGE_INDEX}}: {{RANGE_STR}}
         {
-    {{RANGES_LOOP_START}}
-            // 範圍 {{RANGE_INDEX}}: {{RANGE_STR}}
-            {
-    {{RANGE_DATA_LOOP_START}}
-                { {{ALL_COLUMNS}} },
-    {{RANGE_DATA_LOOP_END}}
-            },
-    {{RANGES_LOOP_END}}
+{{RANGE_DATA_LOOP_START}}
+            { {{ALL_COLUMNS}} },
+{{RANGE_DATA_LOOP_END}}
         },
-    {{FILES_LOOP_END}}
-    };
+{{RANGES_LOOP_END}}
+    },
+{{FILES_LOOP_END}}
+};
 
-    // 範例：取得特定檔案、特定範圍的資料
-    unsigned int get_value(unsigned int file_idx, unsigned int range_idx, unsigned int row, unsigned int col) {
-        // 邊界檢查
-        if (file_idx >= FILE_COUNT || range_idx >= RANGE_COUNT || 
-            row >= range_dimensions[range_idx][0] || col >= range_dimensions[range_idx][1]) {
-            return 0;  // 超出範圍，返回預設值
-        }
-        
-        return data3d_multi[file_idx][range_idx][row][col];
+// 範例：取得特定檔案、特定範圍的資料
+unsigned int get_value(unsigned int file_idx, unsigned int range_idx, unsigned int row, unsigned int col) {
+    // 邊界檢查
+    if (file_idx >= FILE_COUNT || range_idx >= RANGE_COUNT || 
+        row >= range_dimensions[range_idx][0] || col >= range_dimensions[range_idx][1]) {
+        return 0;  // 超出範圍，返回預設值
     }
+    
+    return data3d_multi[file_idx][range_idx][row][col];
+}
 
-    // 範例：列印特定檔案、特定範圍的資料
-    void print_range_data(unsigned int file_idx, unsigned int range_idx) {
-        if (file_idx >= FILE_COUNT || range_idx >= RANGE_COUNT) {
-            return;
-        }
+// 範例：列印特定檔案、特定範圍的資料
+void print_range_data(unsigned int file_idx, unsigned int range_idx) {
+    if (file_idx >= FILE_COUNT || range_idx >= RANGE_COUNT) {
+        return;
+    }
+    
+    printf("檔案 %u, 範圍 %u 資料摘要 (行數: %u, 列數: %u):\\n", 
+        file_idx, range_idx, range_dimensions[range_idx][0], range_dimensions[range_idx][1]);
         
-        printf("檔案 %u, 範圍 %u 資料摘要 (行數: %u, 列數: %u):\\n", 
-            file_idx, range_idx, range_dimensions[range_idx][0], range_dimensions[range_idx][1]);
-            
-        for (int row = 0; row < range_dimensions[range_idx][0]; row++) {
-            for (int col = 0; col < range_dimensions[range_idx][1]; col++) {
-                printf("%u ", data3d_multi[file_idx][range_idx][row][col]);
-            }
-            printf("\\n");
+    for (int row = 0; row < range_dimensions[range_idx][0]; row++) {
+        for (int col = 0; col < range_dimensions[range_idx][1]; col++) {
+            printf("%u ", data3d_multi[file_idx][range_idx][row][col]);
         }
-    }"""
+        printf("\\n");
+    }
+}"""
         elif template_name == "權重表設定":
             return """// 遊戲權重表初始化
-    void initVariableWeights() {
-    {{LOOP_START}}
-        normal_table_weight[{{COL:0}}][{{COL:1}}][{{COL:2}}][{{COL:3}}] = {{VALUE}};
-    {{LOOP_END}}
-    }"""
+void initVariableWeights() {
+{{LOOP_START}}
+    normal_table_weight[{{COL:0}}][{{COL:1}}][{{COL:2}}][{{COL:3}}] = {{VALUE}};
+{{LOOP_END}}
+}"""
         elif template_name == "多範圍處理":
             return """// 多範圍數據處理
-    #define RANGE_1_ROW_COUNT {{RANGE_1_ROW_COUNT}}
-    #define RANGE_1_COL_COUNT {{RANGE_1_COL_COUNT}}
-    #define RANGE_2_ROW_COUNT {{RANGE_2_ROW_COUNT}}
-    #define RANGE_2_COL_COUNT {{RANGE_2_COL_COUNT}}
+#define RANGE_1_ROW_COUNT {{RANGE_1_ROW_COUNT}}
+#define RANGE_1_COL_COUNT {{RANGE_1_COL_COUNT}}
+#define RANGE_2_ROW_COUNT {{RANGE_2_ROW_COUNT}}
+#define RANGE_2_COL_COUNT {{RANGE_2_COL_COUNT}}
 
-    // 第一個範圍的數據
-    unsigned int first_area[RANGE_1_ROW_COUNT][RANGE_1_COL_COUNT] = {
-    {{RANGE:1_LOOP_START}}
-        { {{ALL_COLUMNS}} },  // Row {{ROW_INDEX}}
-    {{RANGE:1_LOOP_END}}
-    };
+// 第一個範圍的數據
+unsigned int first_area[RANGE_1_ROW_COUNT][RANGE_1_COL_COUNT] = {
+{{RANGE:1_LOOP_START}}
+    { {{ALL_COLUMNS}} },  // Row {{ROW_INDEX}}
+{{RANGE:1_LOOP_END}}
+};
 
-    // 第二個範圍的數據
-    unsigned int second_area[RANGE_2_ROW_COUNT][RANGE_2_COL_COUNT] = {
-    {{RANGE:2_LOOP_START}}
-        { {{ALL_COLUMNS}} },  // Row {{ROW_INDEX}}
-    {{RANGE:2_LOOP_END}}
-    };
+// 第二個範圍的數據
+unsigned int second_area[RANGE_2_ROW_COUNT][RANGE_2_COL_COUNT] = {
+{{RANGE:2_LOOP_START}}
+    { {{ALL_COLUMNS}} },  // Row {{ROW_INDEX}}
+{{RANGE:2_LOOP_END}}
+};
 
-    // 處理兩個區域數據的函數
-    void process_dual_data() {
-        // 範例處理邏輯
-        for (int i = 0; i < RANGE_1_ROW_COUNT && i < RANGE_2_ROW_COUNT; i++) {
-            // 示例操作
-            printf("Row %d: First area value = %d, Second area value = %d\\n", 
-                i, first_area[i][0], second_area[i][0]);
-        }
-    }"""
+// 處理兩個區域數據的函數
+void process_dual_data() {
+    // 範例處理邏輯
+    for (int i = 0; i < RANGE_1_ROW_COUNT && i < RANGE_2_ROW_COUNT; i++) {
+        // 示例操作
+        printf("Row %d: First area value = %d, Second area value = %d\\n", 
+            i, first_area[i][0], second_area[i][0]);
+    }
+}"""
+        elif template_name == "命名範圍處理":
+            # 新增支援命名範圍的模板
+            return """// 命名範圍資料處理範例
+#define LEFT_TOP_ROWS {{RANGE[左上]_ROW_COUNT}}
+#define LEFT_TOP_COLS {{RANGE[左上]_COL_COUNT}}
+#define RIGHT_TOP_ROWS {{RANGE[右上]_ROW_COUNT}}
+#define RIGHT_TOP_COLS {{RANGE[右上]_COL_COUNT}}
+
+// 左上角區域數據
+unsigned int left_top_area[LEFT_TOP_ROWS][LEFT_TOP_COLS] = {
+{{RANGE[左上]_LOOP_START}}
+    { {{ALL_COLUMNS}} },  // Row {{ROW_INDEX}}
+{{RANGE[左上]_LOOP_END}}
+};
+
+// 右上角區域數據
+unsigned int right_top_area[RIGHT_TOP_ROWS][RIGHT_TOP_COLS] = {
+{{RANGE[右上]_LOOP_START}}
+    { {{ALL_COLUMNS}} },  // Row {{ROW_INDEX}}
+{{RANGE[右上]_LOOP_END}}
+};
+
+// 特定欄位值示例
+int left_top_first_value = {{RANGE[左上]_VALUE[0,0]}};
+int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
+"""
         else:
             return ""
     
+    def convert_range_notation_to_indices(self, range_name):
+        """
+        將範圍名稱轉換為索引資訊
+        
+        Args:
+            range_name (str): 範圍名稱
+        
+        Returns:
+            tuple: (start_row, start_col, end_row, end_col) 或 None 如果範圍不存在
+        """
+        # 檢查範圍是否存在
+        if not hasattr(self.gui, 'named_ranges') or range_name not in self.gui.named_ranges:
+            self.gui.log(f"警告: 未找到命名範圍 '{range_name}'")
+            return None
+        
+        # 獲取範圍
+        range_str = self.gui.named_ranges[range_name]
+        
+        try:
+            # 解析範圍
+            start, end = range_str.split(":")
+            from utils import excel_notation_to_index
+            start_row, start_col = excel_notation_to_index(start)
+            end_row, end_col = excel_notation_to_index(end)
+            
+            return (start_row, start_col, end_row, end_col)
+        except Exception as e:
+            self.gui.log(f"解析範圍 '{range_name}' 時出錯: {str(e)}")
+            return None
+    
+    def process_named_range_value(self, template, dfs, excel_files):
+        """處理模板中的命名範圍特定值引用"""
+        # 正則表達式匹配所有命名範圍的值引用，例如 {{RANGE[範圍名]_VALUE[0,0]}}
+        value_pattern = r'{{RANGE\[([^\]]+)\]_VALUE\[(\d+),(\d+)\]}}'
+        matches = re.findall(value_pattern, template)
+        
+        result = template
+        
+        for range_name, row_idx, col_idx in matches:
+            placeholder = f"{{{{RANGE[{range_name}]_VALUE[{row_idx},{col_idx}]}}}}"
+            
+            # 檢查命名範圍是否存在
+            if not hasattr(self.gui, 'named_ranges') or range_name not in self.gui.named_ranges:
+                # 範圍未定義，保留原始標記
+                self.gui.log(f"警告: 未找到命名範圍 '{range_name}'")
+                continue
+                
+            # 獲取範圍
+            range_indices = self.convert_range_notation_to_indices(range_name)
+            if not range_indices:
+                continue
+            
+            start_row, start_col, end_row, end_col = range_indices
+            
+            try:
+                # 取得目標儲存格的相對位置
+                target_row = start_row + int(row_idx)
+                target_col = start_col + int(col_idx)
+                
+                # 檢查位置是否在範圍內
+                if target_row > end_row or target_col > end_col:
+                    self.gui.log(f"警告: 位置 [{row_idx},{col_idx}] 超出範圍 '{range_name}' 的界限")
+                    continue
+                
+                # 使用第一個文件的資料
+                first_file = excel_files[0]
+                df = dfs[first_file]
+                
+                # 獲取目標值
+                if target_row < df.shape[0] and target_col < df.shape[1]:
+                    value = df.iloc[target_row, target_col]
+                    formatted_value = self.format_cell_value(value)
+                    result = result.replace(placeholder, formatted_value)
+                else:
+                    self.gui.log(f"警告: 位置 [{target_row},{target_col}] 超出資料範圍")
+            except Exception as e:
+                self.gui.log(f"處理命名範圍值時出錯: {str(e)}")
+        
+        return result
+
+    def process_named_range_metadata(self, template):
+        """處理模板中的命名範圍元數據，如行數和列數"""
+        # 處理行數
+        row_count_pattern = r'{{RANGE\[([^\]]+)\]_ROW_COUNT}}'
+        matches = re.findall(row_count_pattern, template)
+        
+        result = template
+        
+        for range_name in matches:
+            placeholder = f"{{{{RANGE[{range_name}]_ROW_COUNT}}}}"
+            
+            # 檢查命名範圍是否存在
+            range_indices = self.convert_range_notation_to_indices(range_name)
+            if not range_indices:
+                continue
+                
+            start_row, start_col, end_row, end_col = range_indices
+            
+            try:
+                # 計算行數
+                row_count = end_row - start_row + 1
+                
+                # 替換標記
+                result = result.replace(placeholder, str(row_count))
+            except Exception as e:
+                self.gui.log(f"處理命名範圍行數時出錯: {str(e)}")
+        
+        # 處理列數
+        col_count_pattern = r'{{RANGE\[([^\]]+)\]_COL_COUNT}}'
+        matches = re.findall(col_count_pattern, template)
+        
+        for range_name in matches:
+            placeholder = f"{{{{RANGE[{range_name}]_COL_COUNT}}}}"
+            
+            # 檢查命名範圍是否存在
+            range_indices = self.convert_range_notation_to_indices(range_name)
+            if not range_indices:
+                continue
+                
+            start_row, start_col, end_row, end_col = range_indices
+            
+            try:
+                # 計算列數
+                col_count = end_col - start_col + 1
+                
+                # 替換標記
+                result = result.replace(placeholder, str(col_count))
+            except Exception as e:
+                self.gui.log(f"處理命名範圍列數時出錯: {str(e)}")
+        
+        return result
+
+    def process_named_range_loops(self, template, dfs, excel_files):
+        """處理模板中的命名範圍循環"""
+        # 找出所有命名範圍循環
+        loop_pattern = r'{{RANGE\[([^\]]+)\]_LOOP_START}}(.*?){{RANGE\[(\1)\]_LOOP_END}}'
+        matches = re.findall(loop_pattern, template, re.DOTALL)
+        
+        result = template
+        
+        for range_name, loop_content, _ in matches:
+            start_tag = f"{{{{RANGE[{range_name}]_LOOP_START}}}}"
+            end_tag = f"{{{{RANGE[{range_name}]_LOOP_END}}}}"
+            full_pattern = f"{start_tag}{loop_content}{end_tag}"
+            
+            # 檢查命名範圍是否存在
+            range_indices = self.convert_range_notation_to_indices(range_name)
+            if not range_indices:
+                continue
+                
+            start_row, start_col, end_row, end_col = range_indices
+            
+            try:
+                # 使用第一個文件的資料
+                first_file = excel_files[0]
+                df = dfs[first_file]
+                
+                # 提取所選範圍的數據
+                selected_data = df.iloc[start_row:end_row+1, start_col:end_col+1]
+                
+                # 生成循環內容
+                loop_result = []
+                for i, row in selected_data.iterrows():
+                    row_idx = i - start_row
+                    line = self.process_row_data(row, loop_content, start_row, row_idx, end_row - start_row + 1)
+                    loop_result.append(line)
+                
+                # 替換整個循環區塊
+                result = result.replace(full_pattern, "".join(loop_result))
+                
+            except Exception as e:
+                self.gui.log(f"處理命名範圍循環時出錯: {str(e)}")
+                import traceback
+                self.gui.log(traceback.format_exc())
+        
+        return result
+
     def generate_code(self, excel_files, dfs, selected_ranges, code_template, selected_range):
         """生成程式碼"""
-        # 檢查樣板類型
-        is_3d_template = "{{FILES_LOOP_START}}" in code_template and "{{FILES_LOOP_END}}" in code_template
-        is_4d_template = "{{RANGES_LOOP_START}}" in code_template and "{{RANGES_LOOP_END}}" in code_template
-        is_multi_range = "{{RANGE:" in code_template
-        is_3d_multi_range = is_3d_template and is_4d_template and "{{RANGE_DATA_LOOP_START}}" in code_template
-        is_4d_range_first = "unsigned int data4d[RANGE_COUNT][FILE_COUNT]" in code_template
-        is_4d_file_first = "unsigned int data4d[FILE_COUNT][RANGE_COUNT]" in code_template
+        # 首先檢查是否有檔案和範圍
+        if not excel_files or not selected_ranges:
+            messagebox.showerror("錯誤", "請先選擇文件和資料範圍")
+            return code_template
         
-        # 使用第一個選擇的範圍作為主範圍
+        # 使用第一個選擇的範圍作為主範圍（為了向下相容）
         if selected_ranges:
             selected_range = selected_ranges[0]
         
-        # 提取範圍
+        # 提取主範圍
         start_row = selected_range['start_row']
         start_col = selected_range['start_col']
         end_row = selected_range['end_row']
@@ -481,8 +811,19 @@ class CodeGenerator:
             max_row_count = max(max_row_count, range_row_count)
             max_col_count = max(max_col_count, range_col_count)
         
-        # 準備最終代碼 - 直接替換所有變數，不使用正則表達式
+        # 初始化最終模板
         template = code_template
+        
+        # 1. 處理命名範圍的值引用 ({{RANGE[名稱]_VALUE[行,列]}})
+        template = self.process_named_range_value(template, dfs, excel_files)
+        
+        # 2. 處理命名範圍的元數據 ({{RANGE[名稱]_ROW_COUNT}})
+        template = self.process_named_range_metadata(template)
+        
+        # 3. 處理命名範圍的循環 ({{RANGE[名稱]_LOOP_START}} ... {{RANGE[名稱]_LOOP_END}})
+        template = self.process_named_range_loops(template, dfs, excel_files)
+        
+        # 4. 替換標準變數
         template = template.replace("{{ROW_COUNT}}", str(row_count))
         template = template.replace("{{COL_COUNT}}", str(col_count))
         template = template.replace("{{FILE_COUNT}}", str(file_count))
@@ -490,18 +831,20 @@ class CodeGenerator:
         template = template.replace("{{MAX_ROW_COUNT}}", str(max_row_count))
         template = template.replace("{{MAX_COL_COUNT}}", str(max_col_count))
         
-        # 處理不同類型的模板
+        # 5. 檢查樣板類型並處理
+        is_3d_template = "{{FILES_LOOP_START}}" in template and "{{FILES_LOOP_END}}" in template
+        is_4d_template = "{{RANGES_LOOP_START}}" in template and "{{RANGES_LOOP_END}}" in template
+        is_multi_range = "{{RANGE:" in template
+        is_3d_multi_range = is_3d_template and is_4d_template and "{{RANGE_DATA_LOOP_START}}" in template
+        
+        # 根據樣板類型採用適當的處理函數
         if is_3d_multi_range:
             return self.process_3d_multi_range_template(template, excel_files, dfs, selected_ranges, file_count)
-        elif is_4d_file_first:
-            # 處理以檔案為優先的四維陣列
-            return self.process_4d_file_first_template(template, excel_files, dfs, selected_ranges, file_count, row_count, col_count)
-        elif is_4d_range_first:
-            # 處理以範圍為優先的四維陣列
-            return self.process_4d_range_first_template(template, excel_files, dfs, selected_ranges, file_count, row_count, col_count)
         elif is_4d_template:
-            # 如果無法確定確切類型，使用通用的四維處理
-            return self.process_4d_template(template, excel_files, dfs, selected_ranges, file_count, row_count, col_count)
+            if "unsigned int data4d[RANGE_COUNT][FILE_COUNT]" in template:
+                return self.process_4d_range_first_template(template, excel_files, dfs, selected_ranges, file_count, row_count, col_count)
+            else:
+                return self.process_4d_file_first_template(template, excel_files, dfs, selected_ranges, file_count, row_count, col_count)
         elif is_multi_range:
             return self.process_multi_range_template(template, excel_files, dfs, selected_ranges)
         elif is_3d_template:
@@ -523,14 +866,15 @@ class CodeGenerator:
             range_dim_parts = final_code.split("unsigned int range_dimensions[RANGE_COUNT][2] = {")
             before_range_dim = range_dim_parts[0]
             
-            range_dim_and_after = range_dim_parts[1].split("};")
-            range_dim_content = "unsigned int range_dimensions[RANGE_COUNT][2] = {" + range_dim_and_after[0] + "};"
-            after_range_dim = range_dim_and_after[1] if len(range_dim_and_after) > 1 else ""
-            
-            range_dim_result = self.process_range_dimensions(range_dim_content, selected_ranges)
-            
-            # 將處理後的範圍維度部分重新組合回代碼中
-            final_code = before_range_dim + range_dim_result + after_range_dim
+            if len(range_dim_parts) > 1:
+                range_dim_and_after = range_dim_parts[1].split("};")
+                range_dim_content = "unsigned int range_dimensions[RANGE_COUNT][2] = {" + range_dim_and_after[0] + "};"
+                after_range_dim = range_dim_and_after[1] if len(range_dim_and_after) > 1 else ""
+                
+                range_dim_result = self.process_range_dimensions(range_dim_content, selected_ranges)
+                
+                # 將處理後的範圍維度部分重新組合回代碼中
+                final_code = before_range_dim + range_dim_result + after_range_dim
         
         # 處理檔案循環
         if "{{FILES_LOOP_START}}" in final_code and "{{FILES_LOOP_END}}" in final_code:
@@ -616,6 +960,43 @@ class CodeGenerator:
             
             # 組合所有檔案
             final_code = before_files_loop + "".join(files_result) + after_files_loop
+        
+        # 處理完所有標記後，檢查模板中是否有剩餘文本需要保留
+        try:
+            # 找出最後一個標記
+            last_tags = ["{{FILES_LOOP_END}}", "{{RANGES_LOOP_END}}", "{{RANGE_DATA_LOOP_END}}"]
+            original_template = template
+            processed_template = final_code
+            
+            # 找出模板中最後一個標記的位置
+            last_tag_pos = -1
+            last_tag = None
+            for tag in last_tags:
+                pos = original_template.rfind(tag)
+                if pos > last_tag_pos:
+                    last_tag_pos = pos
+                    last_tag = tag
+            
+            if last_tag_pos != -1:
+                # 計算標記結束位置
+                last_tag_end = last_tag_pos + len(last_tag)
+                # 提取標記之後的文本
+                remaining_text = original_template[last_tag_end:]
+                
+                if remaining_text.strip():
+                    self.gui.log(f"找到模板中的剩餘文本: {remaining_text[:20]}...")
+                    
+                    # 在處理後的代碼中找到對應標記的位置
+                    final_tag_pos = processed_template.rfind(last_tag)
+                    if final_tag_pos != -1:
+                        final_tag_end = final_tag_pos + len(last_tag)
+                        # 添加剩餘文本到最終代碼
+                        final_code = processed_template[:final_tag_end] + remaining_text
+                        self.gui.log("已添加模板中的剩餘文本到生成的代碼")
+        except Exception as e:
+            self.gui.log(f"處理模板剩餘文本時出錯: {str(e)}")
+            import traceback
+            self.gui.log(traceback.format_exc())
         
         return final_code
 
@@ -760,6 +1141,43 @@ class CodeGenerator:
             # 組合所有範圍
             final_code = before_ranges_loop + "".join(ranges_result) + after_ranges_loop
         
+        # 處理完所有標記後，檢查模板中是否有剩餘文本需要保留
+        try:
+            # 找出最後一個標記
+            last_tags = ["{{RANGES_LOOP_END}}", "{{FILES_LOOP_END}}", "{{RANGE_LOOP_END}}"]
+            original_template = template
+            processed_template = final_code
+            
+            # 找出模板中最後一個標記的位置
+            last_tag_pos = -1
+            last_tag = None
+            for tag in last_tags:
+                pos = original_template.rfind(tag)
+                if pos > last_tag_pos:
+                    last_tag_pos = pos
+                    last_tag = tag
+            
+            if last_tag_pos != -1:
+                # 計算標記結束位置
+                last_tag_end = last_tag_pos + len(last_tag)
+                # 提取標記之後的文本
+                remaining_text = original_template[last_tag_end:]
+                
+                if remaining_text.strip():
+                    self.gui.log(f"找到模板中的剩餘文本: {remaining_text[:20]}...")
+                    
+                    # 在處理後的代碼中找到對應標記的位置
+                    final_tag_pos = processed_template.rfind(last_tag)
+                    if final_tag_pos != -1:
+                        final_tag_end = final_tag_pos + len(last_tag)
+                        # 添加剩餘文本到最終代碼
+                        final_code = processed_template[:final_tag_end] + remaining_text
+                        self.gui.log("已添加模板中的剩餘文本到生成的代碼")
+        except Exception as e:
+            self.gui.log(f"處理模板剩餘文本時出錯: {str(e)}")
+            import traceback
+            self.gui.log(traceback.format_exc())
+        
         return final_code
 
     def process_4d_file_first_template(self, template, excel_files, dfs, selected_ranges, file_count, row_count, col_count):
@@ -772,17 +1190,42 @@ class CodeGenerator:
         
         # 處理範圍維度定義部分
         if "{{RANGES_LOOP_START}}" in final_code and "{{RANGES_LOOP_END}}" in final_code:
-            range_dim_parts = final_code.split("unsigned int range_dimensions[RANGE_COUNT][2] = {")
-            before_range_dim = range_dim_parts[0]
-            
-            range_dim_and_after = range_dim_parts[1].split("};")
-            range_dim_content = "unsigned int range_dimensions[RANGE_COUNT][2] = {" + range_dim_and_after[0] + "};"
-            after_range_dim = range_dim_and_after[1] if len(range_dim_and_after) > 1 else ""
-            
-            range_dim_result = self.process_range_dimensions(range_dim_content, selected_ranges)
-            
-            # 將處理後的範圍維度部分重新組合回代碼中
-            final_code = before_range_dim + range_dim_result + after_range_dim
+            try:
+                range_dim_parts = final_code.split("unsigned int range_dimensions[RANGE_COUNT][2] = {")
+                if len(range_dim_parts) > 1:
+                    range_dim_and_after = range_dim_parts[1].split("};")
+                    range_dim_content = "unsigned int range_dimensions[RANGE_COUNT][2] = {" + range_dim_and_after[0] + "};"
+                    after_range_dim = range_dim_and_after[1] if len(range_dim_and_after) > 1 else ""
+                    
+                    range_dim_result = self.process_range_dimensions(range_dim_content, selected_ranges)
+                    
+                    # 將處理後的範圍維度部分重新組合回代碼中
+                    final_code = range_dim_parts[0] + range_dim_result + after_range_dim
+                else:
+                    self.gui.log("警告: 未找到標準範圍維度定義格式，嘗試替代格式")
+                    # 嘗試其他可能的格式，例如 static 或不同的維度
+                    alt_patterns = [
+                        "static unsigned int range_dimensions[NORMAL_TABLE_COUNT][3] = {",
+                        "unsigned int range_dimensions[NORMAL_TABLE_COUNT][2] = {"
+                    ]
+                    for pattern in alt_patterns:
+                        if pattern in final_code:
+                            self.gui.log(f"使用替代格式: {pattern}")
+                            range_dim_parts = final_code.split(pattern)
+                            if len(range_dim_parts) > 1:
+                                range_dim_and_after = range_dim_parts[1].split("};")
+                                range_dim_content = pattern + range_dim_and_after[0] + "};"
+                                after_range_dim = range_dim_and_after[1] if len(range_dim_and_after) > 1 else ""
+                                
+                                range_dim_result = self.process_range_dimensions(range_dim_content, selected_ranges)
+                                
+                                # 將處理後的範圍維度部分重新組合回代碼中
+                                final_code = range_dim_parts[0] + range_dim_result + after_range_dim
+                                break
+            except Exception as e:
+                self.gui.log(f"處理範圍維度時出錯: {str(e)}")
+                import traceback
+                self.gui.log(traceback.format_exc())
         
         # 處理檔案循環
         if "{{FILES_LOOP_START}}" in final_code and "{{FILES_LOOP_END}}" in final_code:
@@ -868,6 +1311,49 @@ class CodeGenerator:
             
             # 組合所有檔案
             final_code = before_files_loop + "".join(files_result) + after_files_loop
+        
+        # 處理完所有標記後，檢查模板中是否有剩餘文本需要保留
+        try:
+            # 找出最後一個標記，考慮多層巢狀結構
+            last_tags = [
+                "{{FILES_LOOP_END}}", 
+                "{{RANGES_LOOP_END}}", 
+                "{{RANGE_LOOP_END}}", 
+            ]
+            
+            original_template = template
+            processed_template = final_code
+            
+            # 找出模板中最後一個標記的位置
+            last_tag_pos = -1
+            last_tag = None
+            for tag in last_tags:
+                pos = original_template.rfind(tag)
+                if pos > last_tag_pos:
+                    last_tag_pos = pos
+                    last_tag = tag
+            
+            self.gui.log(f"找到的最後標記: {last_tag}")
+            self.gui.log(f"最後標記位置: {last_tag_pos}")
+            
+            if last_tag_pos != -1:
+                # 計算標記結束位置
+                last_tag_end = last_tag_pos + len(last_tag)
+                # 提取標記之後的文本
+                remaining_text = original_template[last_tag_end:]
+                
+                if remaining_text.strip():
+                    self.gui.log(f"找到的剩餘文本: {remaining_text[:50]}...")
+                    
+                    # 將剩餘文本直接添加到最終代碼的最後
+                    final_code += remaining_text
+                    
+                    self.gui.log("已添加模板中的剩餘文本到生成的代碼")
+                
+        except Exception as e:
+            self.gui.log(f"處理模板剩餘文本時出錯: {str(e)}")
+            import traceback
+            self.gui.log(traceback.format_exc())
         
         return final_code
 
@@ -974,6 +1460,43 @@ class CodeGenerator:
                 
                 # 更新代码
                 final_code = before_loop + "".join(loop_result) + after_loop
+            
+        # 處理完所有標記後，檢查模板中是否有剩餘文本需要保留
+        try:
+            # 找出最後一個標記
+            last_tags = ["{{FILES_LOOP_END}}", "{{RANGES_LOOP_END}}", "{{RANGE_DATA_LOOP_END}}"]
+            original_template = template
+            processed_template = final_code
+            
+            # 找出模板中最後一個標記的位置
+            last_tag_pos = -1
+            last_tag = None
+            for tag in last_tags:
+                pos = original_template.rfind(tag)
+                if pos > last_tag_pos:
+                    last_tag_pos = pos
+                    last_tag = tag
+            
+            if last_tag_pos != -1:
+                # 計算標記結束位置
+                last_tag_end = last_tag_pos + len(last_tag)
+                # 提取標記之後的文本
+                remaining_text = original_template[last_tag_end:]
+                
+                if remaining_text.strip():
+                    self.gui.log(f"找到模板中的剩餘文本: {remaining_text[:20]}...")
+                    
+                    # 在處理後的代碼中找到對應標記的位置
+                    final_tag_pos = processed_template.rfind(last_tag)
+                    if final_tag_pos != -1:
+                        final_tag_end = final_tag_pos + len(last_tag)
+                        # 添加剩餘文本到最終代碼
+                        final_code = processed_template[:final_tag_end] + remaining_text
+                        self.gui.log("已添加模板中的剩餘文本到生成的代碼")
+        except Exception as e:
+            self.gui.log(f"處理模板剩餘文本時出錯: {str(e)}")
+            import traceback
+            self.gui.log(traceback.format_exc())
         
         return final_code
     
@@ -1313,4 +1836,3 @@ class CodeGenerator:
         
         # 其他任何類型，轉為字串並添加引號
         return f'"{str(value)}"'
-
