@@ -24,10 +24,10 @@ def excel_notation_to_index(notation, gui=None):
     row_idx = int(row_str) - 1
     
     # 使用 gui.log 如果提供，否則使用 print
-    if gui:
-        gui.log(f"Excel標記 {notation} 轉換為索引: ({row_idx}, {col_idx})")
-    else:
-        print(f"Excel標記 {notation} 轉換為索引: ({row_idx}, {col_idx})")
+    # if gui:
+    #     gui.log(f"Excel標記 {notation} 轉換為索引: ({row_idx}, {col_idx})")
+    # else:
+    #     print(f"Excel標記 {notation} 轉換為索引: ({row_idx}, {col_idx})")
     
     return row_idx, col_idx
 

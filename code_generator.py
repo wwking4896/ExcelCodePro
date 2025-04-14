@@ -654,8 +654,8 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
             # 解析範圍
             start, end = range_str.split(":")
             from utils import excel_notation_to_index
-            start_row, start_col = excel_notation_to_index(start)
-            end_row, end_col = excel_notation_to_index(end)
+            start_row, start_col = excel_notation_to_index(start, self.gui)
+            end_row, end_col = excel_notation_to_index(end, self.gui)
             
             return (start_row, start_col, end_row, end_col)
         except Exception as e:
@@ -737,7 +737,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                 # 替換標記
                 result = result.replace(placeholder, str(row_count))
             except Exception as e:
-                self.gui.log(f"處理命名範圍行數時出錯: {str(e)}")
+                self.gui.log(f"處理命名範圍 {range_name} 行數時出錯: {str(e)}")
         
         # 處理列數
         col_count_pattern = r'{{RANGE\[([^\]]+)\]_COL_COUNT}}'
@@ -760,7 +760,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                 # 替換標記
                 result = result.replace(placeholder, str(col_count))
             except Exception as e:
-                self.gui.log(f"處理命名範圍列數時出錯: {str(e)}")
+                self.gui.log(f"處理命名範圍 {range_name} 列數時出錯: {str(e)}")
         
         return result
 
@@ -849,37 +849,9 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
             messagebox.showerror("錯誤", "請先選擇文件和資料範圍")
             return code_template
         
-        # 使用第一個選擇的範圍作為主範圍（為了向下相容）
-        if selected_ranges:
-            selected_range = selected_ranges[0]
-        
-        # 提取主範圍
-        start_row = selected_range['start_row']
-        start_col = selected_range['start_col']
-        end_row = selected_range['end_row']
-        end_col = selected_range['end_col']
-        
-        # 計算實際的行數和列數
-        row_count = end_row - start_row + 1
-        col_count = end_col - start_col + 1
-        file_count = len(excel_files)
-        range_count = len(selected_ranges)
-        
-        # 計算所有範圍中的最大行數和列數
-        max_row_count = 0
-        max_col_count = 0
-        for range_info in selected_ranges:
-            range_row_count = range_info['end_row'] - range_info['start_row'] + 1
-            range_col_count = range_info['end_col'] - range_info['start_col'] + 1
-            max_row_count = max(max_row_count, range_row_count)
-            max_col_count = max(max_col_count, range_col_count)
-        
-        # 初始化最終模板
-        template = code_template
-        
         # 移除所有方向控制標記，但記住最後的設定
-        is_column_mode = "{{DIRECTION:COLUMN}}" in template
-        template = template.replace("{{DIRECTION:ROW}}", "")
+        is_column_mode = "{{DIRECTION:COLUMN}}" in code_template
+        template = code_template.replace("{{DIRECTION:ROW}}", "")
         template = template.replace("{{DIRECTION:COLUMN}}", "")
         
         # 如果全域有方向設定，使用它
@@ -888,43 +860,122 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
         
         self.gui.log(f"讀取方向: {'直向(Column)' if is_column_mode else '橫向(Row)'}")
         
-        # 處理命名範圍的值引用 ({{RANGE[名稱]_VALUE[行,列]}})
-        template = self.process_named_range_value(template, dfs, excel_files)
+        # 處理檔案數量
+        template = template.replace("{{FILE_COUNT}}", str(len(excel_files)))
         
-        # 處理命名範圍的元數據 ({{RANGE[名稱]_ROW_COUNT}})
-        template = self.process_named_range_metadata(template)
+        # 計算最大行數和列數（通用方法）
+        max_row_count = max(
+            range_info['end_row'] - range_info['start_row'] + 1 
+            for range_info in selected_ranges
+        )
         
-        # 處理命名範圍的循環 ({{RANGE[名稱]_LOOP_START}} ... {{RANGE[名稱]_LOOP_END}})
-        template = self.process_named_range_loops(template, dfs, excel_files)
+        max_col_count = max(
+            range_info['end_col'] - range_info['start_col'] + 1 
+            for range_info in selected_ranges
+        )
         
-        # 替換標準變數
-        template = template.replace("{{ROW_COUNT}}", str(row_count))
-        template = template.replace("{{COL_COUNT}}", str(col_count))
-        template = template.replace("{{FILE_COUNT}}", str(file_count))
-        template = template.replace("{{RANGE_COUNT}}", str(range_count))
         template = template.replace("{{MAX_ROW_COUNT}}", str(max_row_count))
         template = template.replace("{{MAX_COL_COUNT}}", str(max_col_count))
         
-        # 檢查樣板類型並處理
-        is_3d_template = "{{FILES_LOOP_START}}" in template and "{{FILES_LOOP_END}}" in template
-        is_4d_template = "{{RANGES_LOOP_START}}" in template and "{{RANGES_LOOP_END}}" in template
-        is_multi_range = "{{RANGE:" in template
-        is_3d_multi_range = is_3d_template and is_4d_template and "{{RANGE_DATA_LOOP_START}}" in template
+        # 處理命名範圍的行列數
+        template = self.process_named_range_metadata(template)
         
-        # 根據樣板類型採用適當的處理函數
-        if is_3d_multi_range:
-            return self.process_3d_multi_range_template(template, excel_files, dfs, selected_ranges, file_count, is_column_mode)
-        elif is_4d_template:
-            if "unsigned int data4d[RANGE_COUNT][FILE_COUNT]" in template:
-                return self.process_4d_range_first_template(template, excel_files, dfs, selected_ranges, file_count, row_count, col_count, is_column_mode)
-            else:
-                return self.process_4d_file_first_template(template, excel_files, dfs, selected_ranges, file_count, row_count, col_count, is_column_mode)
-        elif is_multi_range:
-            return self.process_multi_range_template(template, excel_files, dfs, selected_ranges, is_column_mode)
-        elif is_3d_template:
-            return self.process_3d_template(template, excel_files, dfs, start_row, start_col, end_row, end_col, file_count, row_count, is_column_mode)
-        else:
-            return self.process_standard_template(template, excel_files, dfs, start_row, start_col, end_row, end_col, row_count, is_column_mode)
+        # 使用正則表達式找出所有參數區塊
+        argument_pattern = r'{{ARGUMENT_START:(\w+)}}(.*?){{ARGUMENT_END:\1}}'
+        arguments = re.findall(argument_pattern, template, re.DOTALL)
+
+        for argument_name, argument_content in arguments:
+            # 從備註中提取範圍名稱
+            range_match = re.search(r'範圍名稱=([^\n]+)', argument_content)
+            if range_match:
+                range_names = [name.strip() for name in range_match.group(1).split(',')]
+                
+                # 處理這個參數的內容
+                processed_argument = self.process_argument(
+                    argument_content, 
+                    excel_files, 
+                    dfs, 
+                    range_names, 
+                    is_column_mode
+                )
+                
+                # 替換原始內容
+                template = template.replace(
+                    f'{{{{ARGUMENT_START:{argument_name}}}}}' + argument_content + f'{{{{ARGUMENT_END:{argument_name}}}}}', 
+                    processed_argument
+                )
+
+        return template
+    
+    def process_argument(self, template, excel_files, dfs, range_names, is_column_mode):
+        """處理特定參數的範圍內容"""
+        final_code = template
+        
+        # 處理檔案循環
+        if "{{FILES_LOOP_START}}" in final_code and "{{FILES_LOOP_END}}" in final_code:
+            parts = final_code.split("{{FILES_LOOP_START}}")
+            before_files_loop = parts[0]
+            
+            files_loop_and_after = parts[1].split("{{FILES_LOOP_END}}")
+            files_loop_content = files_loop_and_after[0]
+            after_files_loop = files_loop_and_after[1] if len(files_loop_and_after) > 1 else ""
+            
+            files_result = []
+            
+            # 處理每個檔案
+            for file_idx, file_path in enumerate(excel_files):
+                df = dfs[file_path]
+                file_content = files_loop_content.replace("{{FILE_INDEX}}", str(file_idx))
+                file_content = file_content.replace("{{FILE_NAME}}", os.path.basename(file_path))
+                
+                # 處理每個指定的命名範圍
+                for range_name in range_names:
+                    if f"{{{{RANGE[{range_name}]_LOOP_START}}}}" in file_content:
+                        range_indices = self.convert_range_notation_to_indices(range_name)
+                        if range_indices:
+                            start_row, start_col, end_row, end_col = range_indices
+                            
+                            selected_data = df.iloc[start_row:end_row+1, start_col:end_col+1]
+                            
+                            # 找出當前範圍的循環部分
+                            range_loop_start = f"{{{{RANGE[{range_name}]_LOOP_START}}}}"
+                            range_loop_end = f"{{{{RANGE[{range_name}]_LOOP_END}}}}"
+                            
+                            range_parts = file_content.split(range_loop_start)
+                            before_range_loop = range_parts[0]
+                            
+                            range_loop_and_after = range_parts[1].split(range_loop_end)
+                            range_loop_content = range_loop_and_after[0]
+                            after_range_loop = range_loop_and_after[1] if len(range_loop_and_after) > 1 else ""
+                            
+                            loop_result = []
+                            
+                            local_is_column_mode = self.check_direction_mode(range_loop_content) or is_column_mode
+                            
+                            if local_is_column_mode:
+                                # 直向讀取 - 按列處理
+                                for col_idx in range(selected_data.shape[1]):
+                                    column_data = selected_data.iloc[:, col_idx]
+                                    line = self.process_column_data(column_data, range_loop_content, start_col, col_idx, selected_data.shape[1])
+                                    loop_result.append(line)
+                            else:
+                                # 橫向讀取 - 按行處理
+                                for row_idx in range(selected_data.shape[0]):
+                                    row_data = selected_data.iloc[row_idx, :]
+                                    line = self.process_row_data(row_data, range_loop_content, start_row, row_idx, selected_data.shape[0])
+                                    loop_result.append(line)
+                            
+                            file_content = file_content.replace(
+                                f"{range_loop_start}{range_loop_content}{range_loop_end}", 
+                                "".join(loop_result)
+                            )
+                
+                files_result.append(file_content)
+            
+            # 組合所有檔案
+            final_code = before_files_loop + "".join(files_result) + after_files_loop
+        
+        return final_code
     
     def process_3d_multi_range_template(self, template, excel_files, dfs, selected_ranges, file_count, is_column_mode=False):
         """處理三維多範圍陣列樣板"""
@@ -1258,36 +1309,36 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
         if "{{RANGES_LOOP_START}}" in final_code and "{{RANGES_LOOP_END}}" in final_code:
             try:
                 range_dim_parts = final_code.split("unsigned int range_dimensions[RANGE_COUNT][2] = {")
-                if len(range_dim_parts) > 1:
-                    range_dim_and_after = range_dim_parts[1].split("};")
-                    range_dim_content = "unsigned int range_dimensions[RANGE_COUNT][2] = {" + range_dim_and_after[0] + "};"
-                    after_range_dim = range_dim_and_after[1] if len(range_dim_and_after) > 1 else ""
+                # if len(range_dim_parts) > 1:
+                #     range_dim_and_after = range_dim_parts[1].split("};")
+                #     range_dim_content = "unsigned int range_dimensions[RANGE_COUNT][2] = {" + range_dim_and_after[0] + "};"
+                #     after_range_dim = range_dim_and_after[1] if len(range_dim_and_after) > 1 else ""
                     
-                    range_dim_result = self.process_range_dimensions(range_dim_content, selected_ranges, is_column_mode)
+                #     range_dim_result = self.process_range_dimensions(range_dim_content, selected_ranges, is_column_mode)
                     
-                    # 將處理後的範圍維度部分重新組合回代碼中
-                    final_code = range_dim_parts[0] + range_dim_result + after_range_dim
-                else:
-                    self.gui.log("警告: 未找到標準範圍維度定義格式，嘗試替代格式")
-                    # 嘗試其他可能的格式，例如 static 或不同的維度
-                    alt_patterns = [
-                        "static unsigned int range_dimensions[NORMAL_TABLE_COUNT][3] = {",
-                        "unsigned int range_dimensions[NORMAL_TABLE_COUNT][2] = {"
-                    ]
-                    for pattern in alt_patterns:
-                        if pattern in final_code:
-                            self.gui.log(f"使用替代格式: {pattern}")
-                            range_dim_parts = final_code.split(pattern)
-                            if len(range_dim_parts) > 1:
-                                range_dim_and_after = range_dim_parts[1].split("};")
-                                range_dim_content = pattern + range_dim_and_after[0] + "};"
-                                after_range_dim = range_dim_and_after[1] if len(range_dim_and_after) > 1 else ""
+                #     # 將處理後的範圍維度部分重新組合回代碼中
+                #     final_code = range_dim_parts[0] + range_dim_result + after_range_dim
+                # else:
+                #     self.gui.log("警告: 未找到標準範圍維度定義格式，嘗試替代格式")
+                #     # 嘗試其他可能的格式，例如 static 或不同的維度
+                #     alt_patterns = [
+                #         "static unsigned int range_dimensions[NORMAL_TABLE_COUNT][3] = {",
+                #         "unsigned int range_dimensions[NORMAL_TABLE_COUNT][2] = {"
+                #     ]
+                #     for pattern in alt_patterns:
+                #         if pattern in final_code:
+                #             self.gui.log(f"使用替代格式: {pattern}")
+                #             range_dim_parts = final_code.split(pattern)
+                #             if len(range_dim_parts) > 1:
+                #                 range_dim_and_after = range_dim_parts[1].split("};")
+                #                 range_dim_content = pattern + range_dim_and_after[0] + "};"
+                #                 after_range_dim = range_dim_and_after[1] if len(range_dim_and_after) > 1 else ""
                                 
-                                range_dim_result = self.process_range_dimensions(range_dim_content, selected_ranges, is_column_mode)
+                #                 range_dim_result = self.process_range_dimensions(range_dim_content, selected_ranges, is_column_mode)
                                 
-                                # 將處理後的範圍維度部分重新組合回代碼中
-                                final_code = range_dim_parts[0] + range_dim_result + after_range_dim
-                                break
+                #                 # 將處理後的範圍維度部分重新組合回代碼中
+                #                 final_code = range_dim_parts[0] + range_dim_result + after_range_dim
+                #                 break
             except Exception as e:
                 self.gui.log(f"處理範圍維度時出錯: {str(e)}")
                 import traceback
@@ -1824,7 +1875,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                     (inner_value.replace('.', '', 1).isdigit() and inner_value.count('.') == 1):
                         str_value = inner_value
                 line = line.replace("{{VALUE}}", str_value)
-                self.gui.log(f"VALUE = {str_value}")
+                # self.gui.log(f"VALUE = {str_value}")
             except Exception as e:
                 self.gui.log(f"處理 VALUE 時出錯: {str(e)}")
                 line = line.replace("{{VALUE}}", "0")

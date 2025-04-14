@@ -1080,7 +1080,7 @@ class ExcelToCodeApp:
                     ))
                     return
                 
-                self.log(f"檢查載入狀態 (已等待 {elapsed_time:.1f}秒): config_loading_completed = {getattr(self, 'config_loading_completed', False)}")
+                # self.log(f"檢查載入狀態 (已等待 {elapsed_time:.1f}秒): config_loading_completed = {getattr(self, 'config_loading_completed', False)}")
             
             if not hasattr(self, 'config_loading_completed'):
                 self.log("警告: 找不到 config_loading_completed 變數")
