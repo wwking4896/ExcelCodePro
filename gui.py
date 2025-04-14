@@ -248,9 +248,16 @@ class ExcelToCodeApp:
         ttk.Label(preset_frame, text="或選擇預設:").pack(side="left", padx=(0, 5))
         self.template_combo = ttk.Combobox(preset_frame, state="disabled", width=20)
         self.template_combo.pack(side="left", fill="x", expand=True, padx=0)
-        self.template_combo['values'] = ("陣列初始化", "二維陣列", "三維陣列", 
-                                        "四維陣列 (範圍優先)", "四維陣列 (檔案優先)", 
-                                        "三維多範圍陣列", "權重表設定", "多範圍處理", "命名範圍處理")
+        self.template_combo['values'] = (
+            "陣列初始化", "二維陣列", "二維陣列-直向讀取", 
+            "三維陣列", "三維陣列-直向讀取", 
+            "四維陣列 (範圍優先)", "四維陣列-直向讀取", 
+            "四維陣列 (檔案優先)", 
+            "三維多範圍陣列", 
+            "權重表設定", "權重表設定-直向讀取", 
+            "多範圍處理", 
+            "命名範圍處理"
+        )
         self.template_combo.bind("<<ComboboxSelected>>", self.on_template_selected)
         
         self.template_preview = ttk.Label(template_frame, text="尚未設定樣板")
