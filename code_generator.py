@@ -905,6 +905,32 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                     processed_argument
                 )
 
+        # 也檢查不配對的參數區塊標籤，修復可能的錯誤
+        mismatch_pattern = r'{{ARGUMENT_START:(\w+)}}(.*?){{ARGUMENT_END:(\w+)}}'
+        mismatch_arguments = re.findall(mismatch_pattern, template, re.DOTALL)
+        
+        for start_name, content, end_name in mismatch_arguments:
+            if start_name != end_name:  # 檢測到標籤不匹配
+                self.gui.log(f"警告: 參數區塊標籤不匹配 - 開始: {start_name}, 結束: {end_name}")
+                # 嘗試處理該區塊
+                range_match = re.search(r'範圍名稱=([^\n]+)', content)
+                if range_match:
+                    range_names = [name.strip() for name in range_match.group(1).split(',')]
+                    
+                    processed_argument = self.process_argument(
+                        content, 
+                        excel_files, 
+                        dfs, 
+                        range_names, 
+                        is_column_mode
+                    )
+                    
+                    # 替換原始內容，使用檢測到的不匹配標籤
+                    template = template.replace(
+                        f'{{{{ARGUMENT_START:{start_name}}}}}' + content + f'{{{{ARGUMENT_END:{end_name}}}}}', 
+                        processed_argument
+                    )
+
         return template
     
     def process_argument(self, template, excel_files, dfs, range_names, is_column_mode):
