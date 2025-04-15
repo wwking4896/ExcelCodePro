@@ -656,6 +656,9 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
             from utils import excel_notation_to_index
             start_row, start_col = excel_notation_to_index(start, self.gui)
             end_row, end_col = excel_notation_to_index(end, self.gui)
+
+            self.gui.log(f"範圍 {range_name}: 原始輸入 {range_str}")
+            self.gui.log(f"範圍 {range_name}: 轉換後索引 start_row={start_row}, start_col={start_col}, end_row={end_row}, end_col={end_col}")
             
             return (start_row, start_col, end_row, end_col)
         except Exception as e:
@@ -990,6 +993,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                         
                         if range_indices:
                             start_row, start_col, end_row, end_col = range_indices
+                            self.gui.log(f"處理引數 範圍 {range_name}: {start_row}:{end_row}, {start_col}:{end_col}")
                             
                             # 提取所選範圍的數據
                             selected_data = df.iloc[start_row:end_row+1, start_col:end_col+1]

@@ -53,7 +53,7 @@ class ExcelHandler:
                     # 逐个加载每个文件的选定工作表
                     for file_path in self.gui.excel_files:
                         # 修改讀取方式，先用 object 讀取所有數據，再嘗試轉換為數值類型
-                        df = pd.read_excel(file_path, sheet_name=selected_sheet, dtype=object)
+                        df = pd.read_excel(file_path, sheet_name=selected_sheet, dtype=object, header=None)
                         # 嘗試將可以轉換為數值的列轉為數值類型
                         df = df.apply(pd.to_numeric, errors='ignore')
                         # 重置索引，確保從0開始連續
@@ -150,43 +150,9 @@ class ExcelHandler:
                 if ":" in range_str:
                     start, end = range_str.split(":")
                     
-                    # 解析開始和結束座標
-                    match_start = re.match(r'([A-Z]+)([0-9]+)', start.upper())
-                    match_end = re.match(r'([A-Z]+)([0-9]+)', end.upper())
-                    
-                    if match_start and match_end:
-                        # 提取列字母和行號
-                        start_col_str, start_row_str = match_start.groups()
-                        end_col_str, end_row_str = match_end.groups()
-                        
-                        # 將行號向下調整一行，因為目前的行號偏移導致實際選擇的是向下一行的數據
-                        start_row = int(start_row_str)
-                        end_row = int(end_row_str)
-                        
-                        # 如果目前輸入K3實際選擇的是K4的數據，那麼我們需要將行號-1來糾正
-                        adjusted_start_row = start_row - 1
-                        adjusted_end_row = end_row - 1
-                        
-                        # 打印調整信息
-                        self.gui.log(f"使用者輸入範圍: {range_str}")
-                        self.gui.log(f"調整為: {start_col_str}{adjusted_start_row}:{end_col_str}{adjusted_end_row}")
-                        
-                        # 轉換調整後的座標為索引
-                        adjusted_start = f"{start_col_str}{adjusted_start_row}"
-                        adjusted_end = f"{end_col_str}{adjusted_end_row}"
-                        
-                        # 使用調整後的座標獲取列索引和行索引
-                        excel_start_row, start_col = excel_notation_to_index(adjusted_start)
-                        excel_end_row, end_col = excel_notation_to_index(adjusted_end)
-                        
-                        # excel_notation_to_index 已經會將行號-1轉為索引
-                        start_row = excel_start_row
-                        end_row = excel_end_row
-                        
-                    else:
-                        # 如果無法解析，使用原始功能進行解析
-                        start_row, start_col = excel_notation_to_index(start)
-                        end_row, end_col = excel_notation_to_index(end)
+                    # 使用 utils.py 中的轉換函數
+                    start_row, start_col = excel_notation_to_index(start)
+                    end_row, end_col = excel_notation_to_index(end)
                     
                     # 驗證範圍有效性
                     if start_row > end_row or start_col > end_col:
@@ -197,9 +163,6 @@ class ExcelHandler:
                     if start_row < 0 or start_col < 0:
                         messagebox.showerror("錯誤", "範圍無效: 索引不能為負數", parent=range_dialog)
                         return
-                    
-                    # 打印最終使用的索引
-                    self.gui.log(f"最終使用的DataFrame索引: 從 ({start_row}, {start_col}) 到 ({end_row}, {end_col})")
                     
                     # 創建範圍信息
                     range_info = {
@@ -218,8 +181,6 @@ class ExcelHandler:
                     messagebox.showerror("錯誤", "範圍格式不正確，請使用如 A1:G10 的格式", parent=range_dialog)
             except Exception as e:
                 messagebox.showerror("錯誤", f"無法解析範圍: {str(e)}", parent=range_dialog)
-                import traceback
-                self.gui.log(traceback.format_exc())
 
         def remove_range():
             selected_idx = ranges_listbox.curselection()

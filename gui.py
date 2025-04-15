@@ -826,7 +826,7 @@ class ExcelToCodeApp:
             # 逐个加载每个文件的选定工作表
             for file_path in self.excel_files:
                 # 修改讀取方式，先用 object 讀取所有數據，再嘗試轉換為數值類型
-                df = pd.read_excel(file_path, sheet_name=sheet_name, dtype=object)
+                df = pd.read_excel(file_path, sheet_name=sheet_name, dtype=object, header=None)
 
                 # 定義轉換函數，避免使用 errors='ignore'
                 def convert_to_numeric(column):
