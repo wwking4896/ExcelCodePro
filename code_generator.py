@@ -713,12 +713,20 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
         return result
 
     def process_named_range_metadata(self, template):
-        """處理模板中的命名範圍元數據，如行數和列數"""
+        """
+        處理模板中的命名範圍元數據，如行數、列數和範圍全名
+        
+        Args:
+            template (str): 包含命名範圍標記的模板字符串
+            
+        Returns:
+            str: 處理後的模板字符串，替換了相關標記
+        """
+        result = template
+        
         # 處理行數
         row_count_pattern = r'{{RANGE\[([^\]]+)\]_ROW_COUNT}}'
-        matches = re.findall(row_count_pattern, template)
-        
-        result = template
+        matches = re.findall(row_count_pattern, result)
         
         for range_name in matches:
             placeholder = f"{{{{RANGE[{range_name}]_ROW_COUNT}}}}"
@@ -741,7 +749,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
         
         # 處理列數
         col_count_pattern = r'{{RANGE\[([^\]]+)\]_COL_COUNT}}'
-        matches = re.findall(col_count_pattern, template)
+        matches = re.findall(col_count_pattern, result)
         
         for range_name in matches:
             placeholder = f"{{{{RANGE[{range_name}]_COL_COUNT}}}}"
@@ -761,6 +769,30 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                 result = result.replace(placeholder, str(col_count))
             except Exception as e:
                 self.gui.log(f"處理命名範圍 {range_name} 列數時出錯: {str(e)}")
+        
+        # 處理範圍全名 (新增功能)
+        full_name_pattern = r'{{RANGE\[([^\]]+)\]_FULL_NAME}}'
+        matches = re.findall(full_name_pattern, result)
+        
+        for range_name in matches:
+            placeholder = f"{{{{RANGE[{range_name}]_FULL_NAME}}}}"
+            
+            # 檢查命名範圍是否存在
+            if not hasattr(self.gui, 'named_ranges') or range_name not in self.gui.named_ranges:
+                self.gui.log(f"警告: 未找到命名範圍 '{range_name}'")
+                result = result.replace(placeholder, range_name)
+                continue
+            
+            try:
+                # 獲取實際範圍字串
+                range_str = self.gui.named_ranges[range_name]
+                full_name = f"{range_name} ({range_str})"
+                
+                # 替換標記
+                result = result.replace(placeholder, full_name)
+            except Exception as e:
+                self.gui.log(f"處理命名範圍 {range_name} 全名時出錯: {str(e)}")
+                result = result.replace(placeholder, range_name)
         
         return result
 
