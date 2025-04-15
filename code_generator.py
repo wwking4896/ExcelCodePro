@@ -892,10 +892,10 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
         
         self.gui.log(f"讀取方向: {'直向(Column)' if is_column_mode else '橫向(Row)'}")
         
-        # 處理檔案數量
+        # # 處理檔案數量
         template = template.replace("{{FILE_COUNT}}", str(len(excel_files)))
         
-        # 計算最大行數和列數（通用方法）
+        # # 計算最大行數和列數（通用方法）
         max_row_count = max(
             range_info['end_row'] - range_info['start_row'] + 1 
             for range_info in selected_ranges
@@ -919,23 +919,25 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
         for argument_name, argument_content in arguments:
             # 從備註中提取範圍名稱
             range_match = re.search(r'範圍名稱=([^\n]+)', argument_content)
+            range_names = []
+
             if range_match:
                 range_names = [name.strip() for name in range_match.group(1).split(',')]
                 
-                # 處理這個參數的內容
-                processed_argument = self.process_argument(
-                    argument_content, 
-                    excel_files, 
-                    dfs, 
-                    range_names, 
-                    is_column_mode
-                )
-                
-                # 替換原始內容
-                template = template.replace(
-                    f'{{{{ARGUMENT_START:{argument_name}}}}}' + argument_content + f'{{{{ARGUMENT_END:{argument_name}}}}}', 
-                    processed_argument
-                )
+            # 處理這個參數的內容
+            processed_argument = self.process_argument(
+                argument_content, 
+                excel_files, 
+                dfs, 
+                range_names, 
+                is_column_mode
+            )
+            
+            # 替換原始內容
+            template = template.replace(
+                f'{{{{ARGUMENT_START:{argument_name}}}}}' + argument_content + f'{{{{ARGUMENT_END:{argument_name}}}}}', 
+                processed_argument
+            )
 
         # 也檢查不配對的參數區塊標籤，修復可能的錯誤
         mismatch_pattern = r'{{ARGUMENT_START:(\w+)}}(.*?){{ARGUMENT_END:(\w+)}}'
