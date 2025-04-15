@@ -1845,7 +1845,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
             temp, remainder = divmod(temp - 1, 26)
             result = chr(65 + remainder) + result
         return result
-    
+
     def process_row_data(self, row, loop_content, start_row, row_idx, row_count):
         """
         處理單行資料的模板替換 (橫向讀取模式)
@@ -1856,7 +1856,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
             start_row: 開始行索引
             row_idx: 當前行索引
             row_count: 總行數
-            
+                
         Returns:
             str: 替換後的程式碼行
         """
@@ -2003,7 +2003,6 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                     (inner_value.replace('.', '', 1).isdigit() and inner_value.count('.') == 1):
                         str_value = inner_value
                 line = line.replace("{{VALUE}}", str_value)
-                # self.gui.log(f"VALUE = {str_value}")
             except Exception as e:
                 self.gui.log(f"處理 VALUE 時出錯: {str(e)}")
                 line = line.replace("{{VALUE}}", "0")
@@ -2011,10 +2010,24 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
             self.gui.log("沒有資料可用於 VALUE")
             line = line.replace("{{VALUE}}", "0")
         
-        # 處理最後一行的逗號
+        # 修改這一段逗號處理邏輯
         is_last_row = (row_idx == row_count - 1)
-        if is_last_row and line.rstrip().endswith(","):
-            line = line.rstrip().rstrip(",") + line[len(line.rstrip()):]
+        
+        # 檢查是否是陣列初始化項目
+        contains_array_item = ("{" in line and "}" in line)
+        is_array_element = "{" in line or "}" in line
+        
+        # 移除現有的行尾逗號（如果有）
+        if line.rstrip().endswith(","):
+            line = line.rstrip()[:-1]
+        
+        # 根據陣列結構和位置決定是否添加逗號
+        if is_last_row and "}" in line and not "{" in line:
+            # 如果是陣列最後一行且包含閉合括號，不添加逗號
+            pass
+        else:
+            # 所有其他行都需要添加逗號
+            line = line.rstrip() + ","
         
         return line
 
