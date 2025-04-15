@@ -972,7 +972,71 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
         final_code = template
         
         # 處理檔案循環
-        if "{{FILES_LOOP_START}}" in final_code and "{{FILES_LOOP_END}}" in final_code:
+        # 如果沒有 FILES_LOOP_START，直接使用第一個檔案
+        if "{{FILES_LOOP_START}}" not in final_code and "{{FILES_LOOP_END}}" not in final_code:
+            # 使用第一個檔案的資料
+            if excel_files:
+                file_path = excel_files[0]
+                df = dfs[file_path]
+                
+                # 處理命名範圍循環
+                for range_name in range_names:
+                    range_loop_start = f"{{{{RANGE[{range_name}]_LOOP_START}}}}"
+                    range_loop_end = f"{{{{RANGE[{range_name}]_LOOP_END}}}}"
+                    
+                    if range_loop_start in final_code:
+                        # 使用convert_range_notation_to_indices获取范围信息
+                        range_indices = self.convert_range_notation_to_indices(range_name)
+                        
+                        if range_indices:
+                            start_row, start_col, end_row, end_col = range_indices
+                            
+                            # 提取所選範圍的數據
+                            selected_data = df.iloc[start_row:end_row+1, start_col:end_col+1]
+                            
+                            # 分割模板以获取循环内容
+                            parts = final_code.split(range_loop_start)
+                            before_loop = parts[0]
+                            
+                            loop_and_after = parts[1].split(range_loop_end)
+                            loop_content = loop_and_after[0]
+                            after_loop = loop_and_after[1] if len(loop_and_after) > 1 else ""
+                            
+                            loop_result = []
+                            
+                            # 检查循环内容是否指定了读取方向
+                            local_is_column_mode = self.check_direction_mode(loop_content) or is_column_mode
+                            
+                            if local_is_column_mode:
+                                # 直向读取 - 按列处理
+                                for col_idx in range(selected_data.shape[1]):
+                                    column_data = selected_data.iloc[:, col_idx]
+                                    line = self.process_column_data(column_data, loop_content, start_col, col_idx, selected_data.shape[1])
+                                    loop_result.append(line)
+                            else:
+                                # 橫向讀取 - 按行處理
+                                for row_idx in range(selected_data.shape[0]):
+                                    row_data = selected_data.iloc[row_idx, :]
+                                    line = self.process_row_data(row_data, loop_content, start_row, row_idx, selected_data.shape[0])
+                                    loop_result.append(line)
+                            
+                            # 替换循环内容
+                            final_code = before_loop + "".join(loop_result) + after_loop
+                
+                # 如果还有常规循环，处理它
+                if "{{LOOP_START}}" in final_code:
+                    final_code = self.process_standard_template(
+                        final_code, 
+                        [file_path], 
+                        {file_path: df}, 
+                        0, 0, 
+                        df.shape[0] - 1, 
+                        df.shape[1] - 1, 
+                        df.shape[0], 
+                        is_column_mode
+                    )
+        else:
+        # if "{{FILES_LOOP_START}}" in final_code and "{{FILES_LOOP_END}}" in final_code:
             parts = final_code.split("{{FILES_LOOP_START}}")
             before_files_loop = parts[0]
             
