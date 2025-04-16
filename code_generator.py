@@ -971,34 +971,34 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
         return template
     
     def process_argument(self, template, excel_files, dfs, range_names, is_column_mode):
-        """處理特定參數的範圍內容"""
+        """Process a specific argument block with its ranges"""
         final_code = template
         
-        # 處理檔案循環
-        # 如果沒有 FILES_LOOP_START，直接使用第一個檔案
+        # Process file loops
+        # If no FILES_LOOP_START, use the first file
         if "{{FILES_LOOP_START}}" not in final_code and "{{FILES_LOOP_END}}" not in final_code:
-            # 使用第一個檔案的資料
+            # Use data from the first file
             if excel_files:
                 file_path = excel_files[0]
                 df = dfs[file_path]
                 
-                # 處理命名範圍循環
+                # Process named range loops
                 for range_name in range_names:
                     range_loop_start = f"{{{{RANGE[{range_name}]_LOOP_START}}}}"
                     range_loop_end = f"{{{{RANGE[{range_name}]_LOOP_END}}}}"
                     
                     if range_loop_start in final_code:
-                        # 使用convert_range_notation_to_indices获取范围信息
+                        # Get range information using convert_range_notation_to_indices
                         range_indices = self.convert_range_notation_to_indices(range_name)
                         
                         if range_indices:
                             start_row, start_col, end_row, end_col = range_indices
-                            self.gui.log(f"處理引數 範圍 {range_name}: {start_row}:{end_row}, {start_col}:{end_col}")
+                            self.gui.log(f"處理引數範圍 {range_name}: {start_row}:{end_row}, {start_col}:{end_col}")
                             
-                            # 提取所選範圍的數據
+                            # Extract data for the selected range
                             selected_data = df.iloc[start_row:end_row+1, start_col:end_col+1]
                             
-                            # 分割模板以获取循环内容
+                            # Split template to get loop content
                             parts = final_code.split(range_loop_start)
                             before_loop = parts[0]
                             
@@ -1008,26 +1008,26 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                             
                             loop_result = []
                             
-                            # 检查循环内容是否指定了读取方向
+                            # Check if loop content specifies read direction
                             local_is_column_mode = self.check_direction_mode(loop_content) or is_column_mode
                             
                             if local_is_column_mode:
-                                # 直向读取 - 按列处理
+                                # Column-wise reading
                                 for col_idx in range(selected_data.shape[1]):
                                     column_data = selected_data.iloc[:, col_idx]
                                     line = self.process_column_data(column_data, loop_content, start_col, col_idx, selected_data.shape[1])
                                     loop_result.append(line)
                             else:
-                                # 橫向讀取 - 按行處理
+                                # Row-wise reading
                                 for row_idx in range(selected_data.shape[0]):
                                     row_data = selected_data.iloc[row_idx, :]
                                     line = self.process_row_data(row_data, loop_content, start_row, row_idx, selected_data.shape[0])
                                     loop_result.append(line)
                             
-                            # 替换循环内容
+                            # Replace loop content
                             final_code = before_loop + "".join(loop_result) + after_loop
                 
-                # 如果还有常规循环，处理它
+                # If there's still a standard loop, process it
                 if "{{LOOP_START}}" in final_code:
                     final_code = self.process_standard_template(
                         final_code, 
@@ -1040,7 +1040,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                         is_column_mode
                     )
         else:
-        # if "{{FILES_LOOP_START}}" in final_code and "{{FILES_LOOP_END}}" in final_code:
+            # Process file loops when FILES_LOOP_START and FILES_LOOP_END are present
             parts = final_code.split("{{FILES_LOOP_START}}")
             before_files_loop = parts[0]
             
@@ -1050,25 +1050,25 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
             
             files_result = []
             
-            # 處理每個檔案
+            # Process each file
             for file_idx, file_path in enumerate(excel_files):
                 df = dfs[file_path]
                 file_content = files_loop_content.replace("{{FILE_INDEX}}", str(file_idx))
                 file_content = file_content.replace("{{FILE_NAME}}", os.path.basename(file_path))
                 
-                # 處理每個指定的命名範圍
+                # Process each named range within this file
                 for range_name in range_names:
-                    if f"{{{{RANGE[{range_name}]_LOOP_START}}}}" in file_content:
+                    range_loop_start = f"{{{{RANGE[{range_name}]_LOOP_START}}}}"
+                    range_loop_end = f"{{{{RANGE[{range_name}]_LOOP_END}}}}"
+                    
+                    if range_loop_start in file_content:
                         range_indices = self.convert_range_notation_to_indices(range_name)
                         if range_indices:
                             start_row, start_col, end_row, end_col = range_indices
                             
                             selected_data = df.iloc[start_row:end_row+1, start_col:end_col+1]
                             
-                            # 找出當前範圍的循環部分
-                            range_loop_start = f"{{{{RANGE[{range_name}]_LOOP_START}}}}"
-                            range_loop_end = f"{{{{RANGE[{range_name}]_LOOP_END}}}}"
-                            
+                            # Split template to get range loop content
                             range_parts = file_content.split(range_loop_start)
                             before_range_loop = range_parts[0]
                             
@@ -1081,26 +1081,32 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                             local_is_column_mode = self.check_direction_mode(range_loop_content) or is_column_mode
                             
                             if local_is_column_mode:
-                                # 直向讀取 - 按列處理
+                                # Column-wise reading
                                 for col_idx in range(selected_data.shape[1]):
                                     column_data = selected_data.iloc[:, col_idx]
                                     line = self.process_column_data(column_data, range_loop_content, start_col, col_idx, selected_data.shape[1])
                                     loop_result.append(line)
                             else:
-                                # 橫向讀取 - 按行處理
+                                # Row-wise reading
                                 for row_idx in range(selected_data.shape[0]):
                                     row_data = selected_data.iloc[row_idx, :]
                                     line = self.process_row_data(row_data, range_loop_content, start_row, row_idx, selected_data.shape[0])
                                     loop_result.append(line)
                             
+                            # Replace range loop content
                             file_content = file_content.replace(
                                 f"{range_loop_start}{range_loop_content}{range_loop_end}", 
                                 "".join(loop_result)
                             )
                 
+                # Process last file comma handling
+                is_last_file = (file_idx == len(excel_files) - 1)
+                if is_last_file and file_content.rstrip().endswith(","):
+                    file_content = file_content.rstrip().rstrip(",") + file_content[len(file_content.rstrip()):]
+                
                 files_result.append(file_content)
             
-            # 組合所有檔案
+            # Combine all files
             final_code = before_files_loop + "".join(files_result) + after_files_loop
         
         return final_code
