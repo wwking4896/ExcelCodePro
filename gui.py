@@ -1236,7 +1236,7 @@ class ExcelToCodeApp:
         # 建立管理窗口
         range_dialog = tk.Toplevel(self.root)
         range_dialog.title("管理命名範圍")
-        range_dialog.geometry("500x300")
+        range_dialog.geometry("500x400")  # 增加高度，確保有足夠空間顯示按鈕
         range_dialog.grab_set()
         
         # 範圍列表框架
@@ -1293,11 +1293,11 @@ class ExcelToCodeApp:
             if not name:
                 messagebox.showerror("錯誤", "請輸入範圍名稱", parent=range_dialog)
                 return
-                
+                    
             if not range_str:
                 messagebox.showerror("錯誤", "請輸入有效的Excel範圍", parent=range_dialog)
                 return
-                
+                    
             try:
                 # 驗證範圍格式
                 if ":" in range_str:
@@ -1323,7 +1323,7 @@ class ExcelToCodeApp:
                     range_listbox.insert(old_entry, f"{name}: {range_str}")
                 else:
                     range_listbox.insert(tk.END, f"{name}: {range_str}")
-                    
+                        
                 # 清空輸入框
                 name_var.set("")
                 range_var.set("")
@@ -1338,13 +1338,13 @@ class ExcelToCodeApp:
             if not selection:
                 messagebox.showinfo("提示", "請選擇要刪除的範圍", parent=range_dialog)
                 return
-                
+                    
             selected_idx = selection[0]
             selected_text = range_listbox.get(selected_idx)
-            
+                
             # 解析名稱
             name = selected_text.split(": ")[0]
-            
+                
             # 確認刪除
             if messagebox.askyesno("確認", f"確定要刪除範圍 '{name}' 嗎?", parent=range_dialog):
                 # 刪除範圍
@@ -1360,10 +1360,19 @@ class ExcelToCodeApp:
                 
                 self.log(f"已刪除命名範圍: {name}")
         
-        # 按鈕區域
+        # 按鈕區域 - 確保這些按鈕可見
         btn_frame = ttk.Frame(range_dialog)
-        btn_frame.pack(fill="x", pady=10)
+        btn_frame.pack(fill="x", pady=10, padx=10, side="bottom")
         
-        ttk.Button(btn_frame, text="添加/更新", command=add_or_update_range).pack(side="left", padx=5)
-        ttk.Button(btn_frame, text="刪除所選", command=delete_range).pack(side="left", padx=5)
-        ttk.Button(btn_frame, text="關閉", command=range_dialog.destroy).pack(side="right", padx=5)
+        # 使用特定的布局以確保按鈕可見且定位正確
+        add_btn = ttk.Button(btn_frame, text="添加/更新", command=add_or_update_range, width=12)
+        add_btn.pack(side="left", padx=5)
+        
+        delete_btn = ttk.Button(btn_frame, text="刪除所選", command=delete_range, width=12)
+        delete_btn.pack(side="left", padx=5)
+        
+        close_btn = ttk.Button(btn_frame, text="關閉", command=range_dialog.destroy, width=10)
+        close_btn.pack(side="right", padx=5)
+        
+        # 設置焦點
+        name_entry.focus_set()
