@@ -880,7 +880,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
     def generate_code(self, excel_files, dfs, selected_ranges, code_template, selected_range):
         """生成程式碼"""
         # 首先檢查是否有檔案和範圍
-        if not excel_files or not selected_ranges:
+        if not excel_files:
             messagebox.showerror("錯誤", "請先選擇文件和資料範圍")
             return code_template
         
