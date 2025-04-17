@@ -700,9 +700,48 @@ class ExcelToCodeApp:
         ttk.Button(btn_frame, text="關閉", command=manager_dialog.destroy).pack(side="right", padx=5)
     
     def generate_code(self):
-        if not self.selected_range or not self.code_template or not self.excel_files:
+        # 記錄一些偵錯資訊
+        self.log("嘗試生成程式碼...")
+        self.log(f"檢查條件: selected_range={self.selected_range is not None}, code_template={self.code_template is not None}, excel_files={len(self.excel_files)}")
+        
+        # 如果有命名範圍但沒有選定範圍，則從命名範圍建立選定範圍
+        if hasattr(self, 'named_ranges') and len(self.named_ranges) > 0 and \
+        (not hasattr(self, 'selected_ranges') or len(self.selected_ranges) == 0):
+            self.log("從命名範圍建立選定範圍...")
+            self.selected_ranges = []
+            
+            for name, range_str in self.named_ranges.items():
+                try:
+                    from utils import excel_notation_to_index
+                    start, end = range_str.split(":")
+                    start_row, start_col = excel_notation_to_index(start, self)
+                    end_row, end_col = excel_notation_to_index(end, self)
+                    
+                    range_info = {
+                        'start_row': start_row,
+                        'start_col': start_col,
+                        'end_row': end_row,
+                        'end_col': end_col,
+                        'range_str': range_str
+                    }
+                    self.selected_ranges.append(range_info)
+                    self.log(f"已添加範圍: {name} = {range_str}")
+                except Exception as e:
+                    self.log(f"處理範圍 {name} 時出錯: {str(e)}")
+            
+            # 設置第一個範圍為默認選定範圍
+            if self.selected_ranges:
+                self.selected_range = self.selected_ranges[0]
+        
+        # 檢查是否有必要的條件
+        has_valid_range = (self.selected_range is not None) or \
+                        (hasattr(self, 'selected_ranges') and len(self.selected_ranges) > 0)
+        
+        if not has_valid_range or not self.code_template or not self.excel_files:
+            self.log("缺少必要條件，無法生成程式碼")
             return
         
+        # 顯示載入畫面
         self.show_loading_screen("正在生成程式碼，請稍候...")
         
         def generate_task():
@@ -1016,7 +1055,6 @@ class ExcelToCodeApp:
                                                 if hasattr(self, 'range_manager_btn'):
                                                     self.range_manager_btn.config(state="normal")
                                                 # 有些舊代碼可能引用了這個按鈕
-                                                # 所以我們不要在此處刪除對其的引用，而是確保它不會導致錯誤
                                                 try:
                                                     if hasattr(self, 'manage_ranges_btn'):
                                                         self.manage_ranges_btn.config(state="normal")
@@ -1063,6 +1101,32 @@ class ExcelToCodeApp:
                         "警告", 
                         "設定檔中沒有指定檔案路徑，請手動選擇檔案"
                     ))
+
+                # 在設定檔載入完成後，明確檢查條件並啟用按鈕
+                def final_button_update():
+                    # 檢查是否同時滿足有範圍和有樣板的條件
+                    has_ranges = (hasattr(self, 'selected_ranges') and len(self.selected_ranges) > 0) or \
+                            (hasattr(self, 'named_ranges') and len(self.named_ranges) > 0)
+                    has_template = hasattr(self, 'code_template') and self.code_template is not None
+                    
+                    if has_ranges and has_template:
+                        self.log("設定已完成載入，啟用生成程式碼按鈕...")
+                        self.generate_button.config(state="normal")
+                        # 同時更新範圍標籤和樣板預覽，確保使用者可以看到載入的內容
+                        if hasattr(self, 'named_ranges') and self.named_ranges:
+                            range_names = list(self.named_ranges.keys())
+                            self.range_label.config(text=f"已載入 {len(range_names)} 個命名範圍: {', '.join(range_names[:3])}" + 
+                                                ("..." if len(range_names) > 3 else ""))
+                        if hasattr(self, 'code_template') and self.code_template:
+                            self.template_preview.config(text="已載入自訂樣板")
+
+                        # 確保範圍管理按鈕也被啟用
+                        if hasattr(self, 'range_manager_btn'):
+                            self.range_manager_btn.config(state="normal")
+                
+                # 在UI線程中執行最終更新
+                self.root.after(500, final_button_update)
+                
             except Exception as e:
                 # 發生例外時的處理
                 self.log(f"載入設定時發生未預期的錯誤: {e}")
@@ -1077,6 +1141,10 @@ class ExcelToCodeApp:
                 # 標記載入完成並關閉載入視窗
                 self.config_loading_completed = True
                 self.root.after(0, self.hide_loading_screen)
+                # 在設定檔載入完成後，明確檢查條件並啟用按鈕
+                self.root.after(0, self.refresh_ui_after_loading)
+                # 另外，為了確保UI更新確實執行，再添加一個延遲更長的備用呼叫
+                self.root.after(1000, self.refresh_ui_after_loading)
         
         # 啟動處理任務
         thread = threading.Thread(target=apply_config)
@@ -1097,8 +1165,6 @@ class ExcelToCodeApp:
                         "載入設定超時，請檢查檔案狀態或重試"
                     ))
                     return
-                
-                # self.log(f"檢查載入狀態 (已等待 {elapsed_time:.1f}秒): config_loading_completed = {getattr(self, 'config_loading_completed', False)}")
             
             if not hasattr(self, 'config_loading_completed'):
                 self.log("警告: 找不到 config_loading_completed 變數")
@@ -1116,6 +1182,93 @@ class ExcelToCodeApp:
         
         # 開始檢查載入狀態
         self.root.after(500, check_loading_completed)
+
+    # 在load_config_from_file函數中添加一個完整的UI更新函數
+    def refresh_ui_after_loading(self):
+        """完整刷新UI狀態，根據當前載入的設定啟用相關按鈕"""
+        try:
+            self.log("正在完整刷新UI狀態...")
+            
+            # 1. 檢查Excel檔案是否已載入
+            has_excel_files = hasattr(self, 'excel_files') and len(self.excel_files) > 0
+            
+            # 2. 檢查是否已選擇工作表
+            has_selected_sheet = hasattr(self, 'selected_sheet') and self.selected_sheet is not None
+            
+            # 3. 檢查是否有範圍定義
+            has_ranges = False
+            if (hasattr(self, 'selected_ranges') and len(self.selected_ranges) > 0) or \
+            (hasattr(self, 'named_ranges') and len(self.named_ranges) > 0):
+                has_ranges = True
+            
+            # 4. 檢查是否有程式碼樣板
+            has_template = hasattr(self, 'code_template') and self.code_template is not None
+            
+            self.log(f"UI狀態檢查: 有檔案={has_excel_files}, 有工作表={has_selected_sheet}, " +
+                    f"有範圍={has_ranges}, 有樣板={has_template}")
+            
+            # 根據條件啟用對應的UI元素
+            
+            # 如果有檔案，啟用工作表選擇
+            if has_excel_files:
+                if hasattr(self, 'sheet_combobox'):
+                    self.sheet_combobox.config(state="readonly")
+            
+            # 如果有檔案且已選擇工作表，啟用範圍選擇相關按鈕
+            if has_excel_files and has_selected_sheet:
+                if hasattr(self, 'range_manager_btn'):
+                    self.range_manager_btn.config(state="normal")
+            
+            # 如果有範圍，啟用範圍相關按鈕和樣板選擇
+            if has_ranges:
+                # 更新範圍標籤
+                range_label_text = ""
+                if hasattr(self, 'selected_ranges') and len(self.selected_ranges) > 0:
+                    range_strs = [r['range_str'] for r in self.selected_ranges]
+                    range_label_text = f"已選擇 {len(range_strs)} 個範圍: {', '.join(range_strs[:3])}" + \
+                                ("..." if len(range_strs) > 3 else "")
+                elif hasattr(self, 'named_ranges') and len(self.named_ranges) > 0:
+                    range_names = list(self.named_ranges.keys())
+                    range_label_text = f"已載入 {len(range_names)} 個命名範圍: {', '.join(range_names[:3])}" + \
+                                ("..." if len(range_names) > 3 else "")
+                
+                if range_label_text and hasattr(self, 'range_label'):
+                    self.range_label.config(text=range_label_text)
+                
+                # 啟用範圍相關按鈕
+                if hasattr(self, 'view_data_btn'):
+                    self.view_data_btn.config(state="normal")
+                
+                # 啟用樣板相關按鈕
+                if hasattr(self, 'template_btn'):
+                    self.template_btn.config(state="normal")
+                if hasattr(self, 'template_combo'):
+                    self.template_combo.config(state="normal")
+                if hasattr(self, 'import_template_btn'):
+                    self.import_template_btn.config(state="normal")
+                if hasattr(self, 'manage_templates_btn'):
+                    self.manage_templates_btn.config(state="normal")
+            
+            # 如果有樣板，更新樣板預覽
+            if has_template:
+                template_label = "已載入自訂樣板"
+                if hasattr(self, 'template_preview'):
+                    self.template_preview.config(text=template_label)
+            
+            # 如果同時有範圍和樣板，啟用生成按鈕
+            if has_ranges and has_template:
+                self.log("條件滿足: 啟用生成程式碼按鈕")
+                if hasattr(self, 'generate_button'):
+                    self.generate_button.config(state="normal")
+                    self.log("生成程式碼按鈕已啟用!")
+            
+            self.log("UI刷新完成")
+            
+        except Exception as e:
+            self.log(f"刷新UI時發生錯誤: {str(e)}")
+            import traceback
+            self.log(traceback.format_exc())
+
 
     def remember_recent_files(self):
         """記住最近使用的文件"""
@@ -1251,7 +1404,7 @@ class ExcelToCodeApp:
         # 使用第一个文件的数据框来设置范围
         if not self.excel_files or not self.dfs:
             return
-                
+                    
         first_file = self.excel_files[0]
         df = self.dfs[first_file]  # 使用第一个文件设置范围
         
@@ -1565,9 +1718,39 @@ class ExcelToCodeApp:
         
         # ===== 底部確認按鈕 =====
         def confirm_ranges():
-            if not self.selected_ranges:
+            # 檢查是否有範圍，可以既檢查 selected_ranges 也檢查列表框
+            if not self.selected_ranges and ranges_listbox.size() == 0:
                 messagebox.showwarning("警告", "尚未選擇任何範圍", parent=range_dialog)
                 return
+            
+            # 確保 selected_ranges 包含所有在列表框中的範圍
+            # 這部分確保界面和數據同步
+            if ranges_listbox.size() > 0 and not self.selected_ranges:
+                # 如果列表框有項目但 selected_ranges 是空的，嘗試從列表框重建 selected_ranges
+                for i in range(ranges_listbox.size()):
+                    item_text = ranges_listbox.get(i)
+                    # 解析範圍字符串 (可能是 "name: A1:B2" 或 "A1:B2" 格式)
+                    if ": " in item_text:
+                        range_str = item_text.split(": ")[1].strip()
+                    else:
+                        range_str = item_text.strip()
+                    
+                    # 嘗試解析範圍並添加到 selected_ranges
+                    try:
+                        start, end = range_str.split(":")
+                        start_row, start_col = excel_notation_to_index(start)
+                        end_row, end_col = excel_notation_to_index(end)
+                        
+                        range_info = {
+                            'start_row': start_row,
+                            'start_col': start_col,
+                            'end_row': end_row,
+                            'end_col': end_col,
+                            'range_str': range_str
+                        }
+                        self.selected_ranges.append(range_info)
+                    except Exception as e:
+                        self.log(f"解析範圍 {range_str} 時出錯: {str(e)}")
             
             # 更新界面顯示 - 格式化範圍顯示，確保與設定儲存/載入相容
             range_strs = []
@@ -1587,7 +1770,8 @@ class ExcelToCodeApp:
             self.range_label.config(text=f"已選擇 {len(range_strs)} 個範圍: {', '.join(range_strs)}")
             
             # 更新為兼容原始邏輯的 selected_range
-            self.selected_range = self.selected_ranges[0]  # 保留第一個範圍作為默認
+            if self.selected_ranges:
+                self.selected_range = self.selected_ranges[0]  # 保留第一個範圍作為默認
             
             # 輸出日誌
             self.log(f"已確認 {len(self.selected_ranges)} 個資料範圍:")
