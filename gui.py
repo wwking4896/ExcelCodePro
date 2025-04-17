@@ -199,18 +199,27 @@ class ExcelToCodeApp:
         self.range_label = ttk.Label(range_frame, text="尚未選擇範圍")
         self.range_label.pack(fill="x", padx=5, pady=3)
         
-        self.select_range_btn = ttk.Button(range_btns_frame, text="選擇範圍", width=10,
-                                        command=self.select_multiple_ranges, state="disabled")
-        self.select_range_btn.pack(side="left", padx=(0, 5))
+        # self.select_range_btn = ttk.Button(range_btns_frame, text="選擇範圍", width=10,
+        #                                 command=self.select_multiple_ranges, state="disabled")
+        # self.select_range_btn.pack(side="left", padx=(0, 5))
         
-        self.view_data_btn = ttk.Button(range_btns_frame, text="預覽資料", width=10,
-                                        command=self.preview_data, state="disabled")
-        self.view_data_btn.pack(side="right")
+        # self.view_data_btn = ttk.Button(range_btns_frame, text="預覽資料", width=10,
+        #                                 command=self.preview_data, state="disabled")
+        # self.view_data_btn.pack(side="right")
         
         # 命名範圍按鈕 (新增)
-        self.manage_ranges_btn = ttk.Button(range_btns_frame, text="管理範圍", width=10,
-                                           command=self.manage_named_ranges, state="disabled")
-        self.manage_ranges_btn.pack(side="right", padx=(0, 5))
+        # self.manage_ranges_btn = ttk.Button(range_btns_frame, text="管理範圍", width=10,
+        #                                    command=self.manage_named_ranges, state="disabled")
+        # self.manage_ranges_btn.pack(side="right", padx=(0, 5))
+        
+        # 範圍管理按鈕 (新增)
+        self.range_manager_btn = ttk.Button(range_btns_frame, text="範圍管理", width=10,
+                                        command=self.integrated_range_manager, state="disabled")
+        self.range_manager_btn.pack(side="left", padx=(0, 5))
+
+        self.view_data_btn = ttk.Button(range_btns_frame, text="預覽資料", width=10,
+                                    command=self.preview_data, state="disabled")
+        self.view_data_btn.pack(side="right")
         
         # 4. 程式碼樣板 - 更緊湊的布局
         template_frame = ttk.LabelFrame(self.control_frame, text="4. 設定程式碼樣板")
@@ -847,7 +856,7 @@ class ExcelToCodeApp:
                 self.dfs[file_path] = df
             
             # 在主線程中更新UI
-            self.root.after(0, lambda: self.select_range_btn.config(state="normal"))
+            self.root.after(0, lambda: self.range_manager_btn.config(state="normal"))
             self.root.after(0, lambda: self.range_label.config(text="尚未選擇範圍"))
             self.root.after(0, lambda: self.view_data_btn.config(state="disabled"))
             self.root.after(0, lambda: self.template_btn.config(state="disabled"))
@@ -855,7 +864,7 @@ class ExcelToCodeApp:
             self.root.after(0, lambda: self.import_template_btn.config(state="disabled"))
             self.root.after(0, lambda: self.manage_templates_btn.config(state="disabled"))
             self.root.after(0, lambda: self.generate_button.config(state="disabled"))
-            self.root.after(0, lambda: self.manage_ranges_btn.config(state="disabled"))
+            # self.root.after(0, lambda: self.manage_ranges_btn.config(state="disabled"))
             
             # 清空之前選擇的範圍
             self.selected_range = None
@@ -1003,13 +1012,22 @@ class ExcelToCodeApp:
                                                 self.template_combo.config(state="normal")
                                                 self.import_template_btn.config(state="normal")
                                                 self.manage_templates_btn.config(state="normal")
-                                                self.manage_ranges_btn.config(state="normal")
+                                                # 確保使用正確的按鈕名稱
+                                                if hasattr(self, 'range_manager_btn'):
+                                                    self.range_manager_btn.config(state="normal")
+                                                # 有些舊代碼可能引用了這個按鈕
+                                                # 所以我們不要在此處刪除對其的引用，而是確保它不會導致錯誤
+                                                try:
+                                                    if hasattr(self, 'manage_ranges_btn'):
+                                                        self.manage_ranges_btn.config(state="normal")
+                                                except Exception:
+                                                    pass
                                                 
                                                 # 確保在有範圍和樣板的情況下啟用生成按鈕
                                                 if self.code_template:
                                                     self.log("啟用生成程式碼按鈕...")
                                                     self.generate_button.config(state="normal")
-                                            
+
                                             self.root.after(0, update_range_ui)
                                 except Exception as e:
                                     self.log(f"選擇工作表 '{target_sheet}' 時發生錯誤: {str(e)}")
@@ -1227,6 +1245,379 @@ class ExcelToCodeApp:
         about_text += "© 2025 WWKing - Alphabet Studio 版權所有"
         
         messagebox.showinfo("關於", about_text)
+
+    def integrated_range_manager(self):
+        """整合範圍選擇與管理功能"""
+        # 使用第一个文件的数据框来设置范围
+        if not self.excel_files or not self.dfs:
+            return
+                
+        first_file = self.excel_files[0]
+        df = self.dfs[first_file]  # 使用第一个文件设置范围
+        
+        # 建立一个范围管理窗口
+        range_dialog = tk.Toplevel(self.root)
+        range_dialog.title("範圍設定")
+        range_dialog.geometry("700x550")
+        range_dialog.grab_set()  # 模态窗口
+        
+        # 創建整合的界面布局
+        main_frame = ttk.Frame(range_dialog)
+        main_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        # 左側 - 範圍選擇與命名
+        left_frame = ttk.Frame(main_frame)
+        left_frame.pack(side="left", fill="both", expand=True, padx=(0, 5))
+        
+        # 右側 - 範圍預覽
+        right_frame = ttk.Frame(main_frame)
+        right_frame.pack(side="right", fill="both", expand=True, padx=(5, 0))
+        
+        # ===== 左側 - 範圍選擇與命名 =====
+        
+        # 范围输入区域
+        input_frame = ttk.LabelFrame(left_frame, text="新增範圍")
+        input_frame.pack(fill="x", pady=5)
+        
+        ttk.Label(input_frame, text="Excel 範圍:").pack(anchor="w", padx=5, pady=(5, 0))
+        
+        range_var = tk.StringVar()
+        range_entry = ttk.Entry(input_frame, textvariable=range_var)
+        range_entry.pack(fill="x", padx=5, pady=(0, 5))
+        
+        name_frame = ttk.Frame(input_frame)
+        name_frame.pack(fill="x", padx=5, pady=(0, 5))
+        
+        ttk.Label(name_frame, text="範圍名稱:").pack(side="left")
+        
+        name_var = tk.StringVar()
+        name_entry = ttk.Entry(name_frame, textvariable=name_var)
+        name_entry.pack(side="left", fill="x", expand=True, padx=5)
+        
+        ttk.Label(input_frame, text="提示：命名範圍可在模板中使用 {{RANGE[名稱]}} 引用").pack(anchor="w", padx=5, pady=(0, 5))
+        
+        # 按鈕區域
+        btn_frame = ttk.Frame(input_frame)
+        btn_frame.pack(fill="x", pady=5)
+        
+        def add_range():
+            range_str = range_var.get().strip()
+            range_name = name_var.get().strip()
+            
+            if not range_str:
+                messagebox.showerror("錯誤", "請輸入有效的範圍", parent=range_dialog)
+                return
+            
+            try:
+                # 解析範圍
+                if ":" in range_str:
+                    start, end = range_str.split(":")
+                    
+                    # 使用 utils.py 中的轉換函數
+                    from utils import excel_notation_to_index
+                    start_row, start_col = excel_notation_to_index(start)
+                    end_row, end_col = excel_notation_to_index(end)
+                    
+                    # 驗證範圍有效性
+                    if start_row > end_row or start_col > end_col:
+                        messagebox.showerror("錯誤", "範圍無效: 起始位置必須小於等於結束位置", parent=range_dialog)
+                        return
+                    
+                    # 檢查是否為負數
+                    if start_row < 0 or start_col < 0:
+                        messagebox.showerror("錯誤", "範圍無效: 索引不能為負數", parent=range_dialog)
+                        return
+                    
+                    # 創建範圍信息
+                    range_info = {
+                        'start_row': start_row,
+                        'start_col': start_col,
+                        'end_row': end_row,
+                        'end_col': end_col,
+                        'range_str': range_str  # 保留原始輸入
+                    }
+                    
+                    # 添加到範圍列表
+                    self.selected_ranges.append(range_info)
+                    
+                    # 更新範圍列表顯示
+                    range_item = range_str
+                    if range_name:
+                        range_item = f"{range_name}: {range_str}"
+                    ranges_listbox.insert(tk.END, range_item)
+                    
+                    # 如果提供了名稱，添加到命名範圍
+                    if range_name:
+                        self.named_ranges[range_name] = range_str
+                        self.log(f"已添加命名範圍: {range_name} = {range_str}")
+                    
+                    # 清空輸入框
+                    range_var.set("")
+                    name_var.set("")
+                    
+                    # 更新預覽
+                    update_preview(range_info)
+                else:
+                    messagebox.showerror("錯誤", "範圍格式不正確，請使用如 A1:G10 的格式", parent=range_dialog)
+            except Exception as e:
+                messagebox.showerror("錯誤", f"無法解析範圍: {str(e)}", parent=range_dialog)
+        
+        ttk.Button(btn_frame, text="新增範圍", command=add_range).pack(side="left", padx=5)
+        
+        # 已選範圍列表框架
+        ranges_frame = ttk.LabelFrame(left_frame, text="已設定的範圍")
+        ranges_frame.pack(fill="both", expand=True, pady=5)
+        
+        ranges_listbox = tk.Listbox(ranges_frame)
+        ranges_listbox.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+        
+        # 滾動條
+        scrollbar = ttk.Scrollbar(ranges_frame, orient="vertical", command=ranges_listbox.yview)
+        scrollbar.pack(side="right", fill="y")
+        ranges_listbox.config(yscrollcommand=scrollbar.set)
+        
+        # 填充已有的範圍和命名範圍
+        range_items = []  # 用於跟踪已添加的項目
+        
+        # 先添加命名範圍項目
+        for name, range_str in self.named_ranges.items():
+            ranges_listbox.insert(tk.END, f"{name}: {range_str}")
+            range_items.append(range_str)
+        
+        # 再添加未命名範圍項目
+        for range_info in self.selected_ranges:
+            range_str = range_info['range_str']
+            if range_str not in range_items:  # 避免重複添加
+                ranges_listbox.insert(tk.END, range_str)
+                range_items.append(range_str)
+        
+        # 範圍操作按鈕
+        range_ops_frame = ttk.Frame(left_frame)
+        range_ops_frame.pack(fill="x", pady=5)
+        
+        def remove_range():
+            selected_idx = ranges_listbox.curselection()
+            if not selected_idx:
+                messagebox.showinfo("提示", "請選擇要刪除的範圍", parent=range_dialog)
+                return
+            
+            idx = selected_idx[0]
+            selected_text = ranges_listbox.get(idx)
+            
+            # 判斷是否為命名範圍
+            if ":" in selected_text and len(selected_text.split(":")) > 2:
+                # 命名範圍格式為 "name: A1:B2"
+                name = selected_text.split(":")[0].strip()
+                range_str = ":".join(selected_text.split(":")[1:]).strip()
+                
+                # 從命名範圍字典中刪除
+                if name in self.named_ranges:
+                    del self.named_ranges[name]
+                    self.log(f"已刪除命名範圍: {name}")
+            else:
+                # 非命名範圍，格式為 "A1:B2"
+                range_str = selected_text
+            
+            # 從選擇範圍列表中找到並刪除對應項目
+            for i, range_info in enumerate(self.selected_ranges):
+                if range_info['range_str'] == range_str:
+                    del self.selected_ranges[i]
+                    break
+            
+            # 從列表框中刪除
+            ranges_listbox.delete(idx)
+        
+        def rename_range():
+            selected_idx = ranges_listbox.curselection()
+            if not selected_idx:
+                messagebox.showinfo("提示", "請選擇要重命名的範圍", parent=range_dialog)
+                return
+            
+            idx = selected_idx[0]
+            selected_text = ranges_listbox.get(idx)
+            
+            # 判斷是否已命名
+            if ":" in selected_text and len(selected_text.split(":")) > 2:
+                # 已命名範圍，格式為 "name: A1:B2"
+                old_name = selected_text.split(":")[0].strip()
+                range_str = ":".join(selected_text.split(":")[1:]).strip()
+                
+                new_name = simpledialog.askstring("重命名範圍", 
+                                                f"請輸入範圍 {range_str} 的新名稱\n(當前名稱: {old_name}):", 
+                                                initialvalue=old_name,
+                                                parent=range_dialog)
+                
+                if new_name and new_name.strip():
+                    # 刪除舊名稱
+                    if old_name in self.named_ranges:
+                        del self.named_ranges[old_name]
+                    
+                    # 添加新名稱
+                    self.named_ranges[new_name.strip()] = range_str
+                    
+                    # 更新列表顯示
+                    ranges_listbox.delete(idx)
+                    ranges_listbox.insert(idx, f"{new_name.strip()}: {range_str}")
+                    
+                    self.log(f"已將範圍 {range_str} 的名稱從 {old_name} 改為 {new_name.strip()}")
+            else:
+                # 未命名範圍，格式為 "A1:B2"
+                range_str = selected_text
+                
+                new_name = simpledialog.askstring("命名範圍", 
+                                                f"請為範圍 {range_str} 輸入名稱:", 
+                                                parent=range_dialog)
+                
+                if new_name and new_name.strip():
+                    # 添加新名稱
+                    self.named_ranges[new_name.strip()] = range_str
+                    
+                    # 更新列表顯示
+                    ranges_listbox.delete(idx)
+                    ranges_listbox.insert(idx, f"{new_name.strip()}: {range_str}")
+                    
+                    self.log(f"已為範圍 {range_str} 命名為 {new_name.strip()}")
+        
+        ttk.Button(range_ops_frame, text="刪除所選", command=remove_range).pack(side="left", padx=5)
+        ttk.Button(range_ops_frame, text="命名/重命名", command=rename_range).pack(side="left", padx=5)
+        
+        # ===== 右側 - 資料預覽 =====
+        
+        preview_frame = ttk.LabelFrame(right_frame, text="資料預覽")
+        preview_frame.pack(fill="both", expand=True, pady=5)
+        
+        preview_text = ScrolledText(preview_frame, height=20, font=("Courier New", 9))
+        preview_text.pack(fill="both", expand=True, padx=5, pady=5)
+        
+        def update_preview(range_info=None):
+            preview_text.config(state="normal")
+            preview_text.delete("1.0", tk.END)
+            
+            # 如果沒有指定範圍，使用第一個範圍
+            if range_info is None and self.selected_ranges:
+                range_info = self.selected_ranges[0]
+            
+            if range_info:
+                try:
+                    start_row = range_info['start_row']
+                    start_col = range_info['start_col']
+                    end_row = range_info['end_row']
+                    end_col = range_info['end_col']
+                    
+                    # 顯示範圍信息
+                    preview_text.insert("end", f"範圍: {range_info['range_str']}\n")
+                    preview_text.insert("end", f"開始位置: 行={start_row+1}, 列={chr(65+start_col)}\n")
+                    preview_text.insert("end", f"結束位置: 行={end_row+1}, 列={chr(65+end_col)}\n")
+                    preview_text.insert("end", f"範圍大小: {end_row-start_row+1}行 x {end_col-start_col+1}列\n\n")
+                    
+                    # 添加列標題行
+                    headers = [f"{chr(65+i)}" for i in range(start_col, min(end_col+1, start_col+10))]
+                    preview_text.insert("end", "行號  " + "  ".join(headers) + "\n")
+                    preview_text.insert("end", "───" + "─"*50 + "\n")
+                    
+                    # 顯示預覽資料
+                    max_rows = min(end_row, start_row + 9)  # 最多顯示10行
+                    for i in range(start_row, max_rows+1):
+                        if i < df.shape[0]:
+                            row_data = df.iloc[i, start_col:min(end_col+1, start_col+10)]
+                            row_str = f"{i+1:3d} │ "  # 顯示Excel行號，從1開始
+                            row_str += " │ ".join([str(val)[:8] for val in row_data])
+                            preview_text.insert("end", row_str + "\n")
+                    
+                    # 如果資料超過10行，顯示省略號
+                    if end_row > max_rows:
+                        preview_text.insert("end", "...(更多行省略)...\n")
+                except Exception as e:
+                    preview_text.insert("1.0", f"載入預覽資料時出錯: {str(e)}\n")
+                    import traceback
+                    preview_text.insert("end", traceback.format_exc())
+            else:
+                preview_text.insert("1.0", "尚未選擇範圍，請新增範圍以預覽資料")
+            
+            preview_text.config(state="disabled")
+        
+        # 當選擇列表中的範圍時，更新預覽
+        def on_range_select(event):
+            selected_idx = ranges_listbox.curselection()
+            if selected_idx:
+                idx = selected_idx[0]
+                selected_text = ranges_listbox.get(idx)
+                
+                # 解析範圍字符串
+                if ":" in selected_text:
+                    if len(selected_text.split(":")) > 2:
+                        # 命名範圍格式為 "name: A1:B2"
+                        range_str = ":".join(selected_text.split(":")[1:]).strip()
+                    else:
+                        # 非命名範圍，格式為 "A1:B2"
+                        range_str = selected_text
+                    
+                    # 尋找對應的範圍信息
+                    for range_info in self.selected_ranges:
+                        if range_info['range_str'] == range_str:
+                            update_preview(range_info)
+                            break
+        
+        ranges_listbox.bind("<<ListboxSelect>>", on_range_select)
+        
+        # 初始預覽
+        update_preview()
+        
+        # ===== 底部確認按鈕 =====
+        def confirm_ranges():
+            if not self.selected_ranges:
+                messagebox.showwarning("警告", "尚未選擇任何範圍", parent=range_dialog)
+                return
+            
+            # 更新界面顯示 - 格式化範圍顯示，確保與設定儲存/載入相容
+            range_strs = []
+            for range_info in self.selected_ranges:
+                range_str = range_info['range_str']
+                # 檢查是否有命名
+                has_name = False
+                for name, r_str in self.named_ranges.items():
+                    if r_str == range_str:
+                        range_strs.append(f"{name}({range_str})")
+                        has_name = True
+                        break
+                # 如果沒有命名，直接添加範圍字串
+                if not has_name:
+                    range_strs.append(range_str)
+            
+            self.range_label.config(text=f"已選擇 {len(range_strs)} 個範圍: {', '.join(range_strs)}")
+            
+            # 更新為兼容原始邏輯的 selected_range
+            self.selected_range = self.selected_ranges[0]  # 保留第一個範圍作為默認
+            
+            # 輸出日誌
+            self.log(f"已確認 {len(self.selected_ranges)} 個資料範圍:")
+            for i, r in enumerate(self.selected_ranges):
+                self.log(f"範圍 {i+1}: {r['range_str']}, 索引從 ({r['start_row']}, {r['start_col']}) 到 ({r['end_row']}, {r['end_col']})")
+            
+            if self.named_ranges:
+                self.log(f"已定義 {len(self.named_ranges)} 個命名範圍:")
+                for name, range_str in self.named_ranges.items():
+                    self.log(f"命名範圍: {name} = {range_str}")
+            
+            # 啟用其他按鈕
+            self.view_data_btn.config(state="normal")
+            self.template_btn.config(state="normal")
+            self.template_combo.config(state="normal")
+            self.import_template_btn.config(state="normal")
+            self.manage_templates_btn.config(state="normal")
+            
+            range_dialog.destroy()
+        
+        bottom_frame = ttk.Frame(range_dialog)
+        bottom_frame.pack(fill="x", pady=10)
+        
+        ttk.Button(bottom_frame, text="確認範圍設定", command=confirm_ranges, width=20).pack(pady=5)
+        
+        # 綁定回車鍵到添加範圍
+        range_entry.bind("<Return>", lambda event: add_range())
+        
+        # 設置初始焦點
+        range_entry.focus_set()
 
     def manage_named_ranges(self):
         """管理已定義的命名範圍"""
