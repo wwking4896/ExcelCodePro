@@ -30,12 +30,22 @@ class ExcelHandler:
                 self.gui.root.after(0, lambda: self.gui.sheet_combobox.config(values=sheets, state="readonly"))
                 self.gui.root.after(0, lambda: self.gui.sheet_combobox.current(0))
                 
+                # 自動觸發工作表選擇事件
+                def auto_select_sheet():
+                    self.gui.selected_sheet = sheets[0]  # 保存選中的工作表名稱
+                    self.on_sheet_selected(None)  # 自動呼叫 on_sheet_selected 方法
+                    self.gui.log(f"已自動選擇工作表: {sheets[0]}")
+                
+                # 延遲一小段時間再執行，確保 UI 已更新
+                self.gui.root.after(100, auto_select_sheet)
+                
             except Exception as e:
                 # 在主線程中顯示錯誤
                 self.gui.root.after(0, lambda: messagebox.showerror("錯誤", f"無法讀取 Excel 檔案: {str(e)}"))
             finally:
-                # 在主線程中關閉等待畫面
-                self.gui.root.after(0, self.gui.hide_loading_screen)
+                # 在主線程中關閉等待畫面 - 改為在 on_sheet_selected 方法中關閉
+                # 這裡不要關閉，因為資料載入尚未完成
+                pass
             
         # 啟動一個獨立線程來執行耗時任務
         thread = threading.Thread(target=load_task)
@@ -49,17 +59,18 @@ class ExcelHandler:
             self.gui.show_loading_screen("正在讀取所選工作表中的數據...")
             
             def load_data_task():
+                success = False  # Track if data loading was successful
                 try:
-                    # 逐个加载每个文件的选定工作表
+                    # Load each selected file's worksheet
                     for file_path in self.gui.excel_files:
-                        # 修改讀取方式，先用 object 讀取所有數據，再嘗試轉換為數值類型
+                        # Read all data as object first, then convert to numeric where possible
                         df = pd.read_excel(file_path, sheet_name=selected_sheet, dtype=object, header=None)
-                        # 嘗試將可以轉換為數值的列轉為數值類型
+                        # Try to convert numeric columns
                         df = df.apply(pd.to_numeric, errors='ignore')
-                        # 重置索引，確保從0開始連續
+                        # Reset index to ensure it starts from 0
                         df = df.reset_index(drop=True)
                         
-                        # 打印数据框信息
+                        # Log data frame information
                         self.gui.log(f"讀取檔案: {os.path.basename(file_path)}")
                         self.gui.log(f"資料框形狀: {df.shape}")
                         self.gui.log(f"資料框欄位: {df.columns.tolist()}")
@@ -67,27 +78,42 @@ class ExcelHandler:
                         
                         self.gui.dfs[file_path] = df
                     
-                    # 在主線程中更新UI
-                    self.gui.root.after(0, lambda: self.gui.select_range_btn.config(state="normal"))
-                    self.gui.root.after(0, lambda: self.gui.range_label.config(text="尚未選擇範圍"))
-                    self.gui.root.after(0, lambda: self.gui.view_data_btn.config(state="disabled"))
-                    self.gui.root.after(0, lambda: self.gui.template_btn.config(state="disabled"))
-                    self.gui.root.after(0, lambda: self.gui.template_combo.config(state="disabled"))
-                    self.gui.root.after(0, lambda: self.gui.generate_button.config(state="disabled"))
-                    
-                    # 清空之前選擇的範圍
-                    self.gui.root.after(0, lambda: setattr(self.gui, 'selected_range', None))
-                    self.gui.root.after(0, lambda: setattr(self.gui, 'selected_ranges', []))
+                    success = True  # Mark loading as successful
                     
                 except Exception as e:
                     self.gui.root.after(0, lambda: messagebox.showerror("錯誤", f"無法讀取工作表: {str(e)}"))
-                    self.gui.root.after(0, lambda: self.gui.select_range_btn.config(state="disabled"))
                     # 顯示詳細錯誤
                     import traceback
                     self.gui.log(traceback.format_exc())
                 finally:
-                    # 確保在所有操作完成後關閉loading視窗
-                    self.gui.root.after(0, self.gui.hide_loading_screen)
+                    # Always run UI updates in the main thread
+                    def update_ui():
+                        if success:
+                            # Enable range management explicitly
+                            self.gui.range_manager_btn.config(state="normal")
+                            self.gui.log("已啟用範圍管理按鈕")
+                            
+                            # Update other UI elements
+                            self.gui.range_label.config(text="尚未選擇範圍")
+                            self.gui.view_data_btn.config(state="disabled")
+                            self.gui.template_btn.config(state="disabled")
+                            self.gui.template_combo.config(state="disabled")
+                            self.gui.import_template_btn.config(state="disabled")
+                            self.gui.manage_templates_btn.config(state="disabled")
+                            self.gui.generate_button.config(state="disabled")
+                            
+                            # Clear previous ranges
+                            self.gui.selected_range = None
+                            self.gui.selected_ranges = []
+                        else:
+                            # If loading failed, ensure button stays disabled
+                            self.gui.range_manager_btn.config(state="disabled")
+                        
+                        # Always hide the loading screen
+                        self.gui.hide_loading_screen()
+                    
+                    # Schedule UI updates on the main thread
+                    self.gui.root.after(0, update_ui)
             
             # 使用新的線程執行耗時的數據讀取操作
             thread = threading.Thread(target=load_data_task)
