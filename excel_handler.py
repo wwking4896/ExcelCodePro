@@ -274,6 +274,32 @@ class ExcelHandler:
     
     def preview_data(self):
         """預覽所選範圍的數據"""
+        # 確保在沒有選定範圍但有命名範圍時進行轉換
+        if not hasattr(self.gui, 'selected_ranges') or not self.gui.selected_ranges:
+            if hasattr(self.gui, 'named_ranges') and self.gui.named_ranges:
+                self.gui.log("正在從命名範圍建立選定範圍資料...")
+                self.gui.selected_ranges = []
+                for name, range_str in self.gui.named_ranges.items():
+                    try:
+                        start, end = range_str.split(":")
+                        start_row, start_col = excel_notation_to_index(start, self.gui)
+                        end_row, end_col = excel_notation_to_index(end, self.gui)
+                        
+                        range_info = {
+                            'start_row': start_row,
+                            'start_col': start_col,
+                            'end_row': end_row,
+                            'end_col': end_col,
+                            'range_str': range_str
+                        }
+                        self.gui.selected_ranges.append(range_info)
+                        self.gui.log(f"已建立範圍: {name} = {range_str}")
+                    except Exception as e:
+                        self.gui.log(f"處理範圍 {name} 時出錯: {str(e)}")
+                
+                # 設定第一個範圍為默認範圍
+                if self.gui.selected_ranges:
+                    self.gui.selected_range = self.gui.selected_ranges[0]
         if not hasattr(self.gui, 'selected_ranges') or not self.gui.selected_ranges or not self.gui.excel_files:
             return
         

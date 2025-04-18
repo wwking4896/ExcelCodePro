@@ -1195,13 +1195,43 @@ class ExcelToCodeApp:
             # 2. 檢查是否已選擇工作表
             has_selected_sheet = hasattr(self, 'selected_sheet') and self.selected_sheet is not None
             
-            # 3. 檢查是否有範圍定義
+            # 3. 檢查是否有命名範圍但沒有選定範圍，並進行轉換
+            if (hasattr(self, 'named_ranges') and self.named_ranges and 
+                (not hasattr(self, 'selected_ranges') or not self.selected_ranges)):
+                self.log("從命名範圍建立選定範圍...")
+                self.selected_ranges = []
+                
+                for name, range_str in self.named_ranges.items():
+                    try:
+                        from utils import excel_notation_to_index
+                        start, end = range_str.split(":")
+                        start_row, start_col = excel_notation_to_index(start, self)
+                        end_row, end_col = excel_notation_to_index(end, self)
+                        
+                        range_info = {
+                            'start_row': start_row,
+                            'start_col': start_col,
+                            'end_row': end_row,
+                            'end_col': end_col,
+                            'range_str': range_str
+                        }
+                        self.selected_ranges.append(range_info)
+                        self.log(f"已建立選定範圍: {range_str}")
+                    except Exception as e:
+                        self.log(f"處理範圍 {name} 時出錯: {str(e)}")
+                
+                # 設定第一個範圍為預設選定範圍
+                if self.selected_ranges:
+                    self.selected_range = self.selected_ranges[0]
+                    self.log(f"預設範圍設定為: {self.selected_range['range_str']}")
+            
+            # 4. 檢查是否有範圍定義
             has_ranges = False
             if (hasattr(self, 'selected_ranges') and len(self.selected_ranges) > 0) or \
             (hasattr(self, 'named_ranges') and len(self.named_ranges) > 0):
                 has_ranges = True
             
-            # 4. 檢查是否有程式碼樣板
+            # 5. 檢查是否有程式碼樣板
             has_template = hasattr(self, 'code_template') and self.code_template is not None
             
             self.log(f"UI狀態檢查: 有檔案={has_excel_files}, 有工作表={has_selected_sheet}, " +
@@ -1268,7 +1298,6 @@ class ExcelToCodeApp:
             self.log(f"刷新UI時發生錯誤: {str(e)}")
             import traceback
             self.log(traceback.format_exc())
-
 
     def remember_recent_files(self):
         """記住最近使用的文件"""
