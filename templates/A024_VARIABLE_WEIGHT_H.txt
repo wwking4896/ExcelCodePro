@@ -1,0 +1,140 @@
+#ifndef VARIABLE_WEIGHT_H
+#define VARIABLE_WEIGHT_H
+
+// 四維陣列 - 檔案優先結構 [檔案][範圍][行][列]
+#define JACKPOT_FILE_COUNT {{FILE_COUNT}}         // 檔案數量
+#define BALL_TABLE_COUNT 5                 // 普通權重表數量(五個範圍)
+#define BALL_TABLE_WEIGHT_COUNT {{RANGE[NormalWeight1]_ROW_COUNT}}     // 每個範圍的最大行數
+#define BALL_TABLE_TYPE_COUNT {{RANGE[NormalWeight1]_COL_COUNT}}  // 每個範圍的最大列數
+
+{{ARGUMENT_START:initWeightValues}}
+// 參數定義：範圍名稱=NormalWeight1,NormalWeight2,NormalWeight3,NormalWeight4,NormalWeight5
+// 維度：[檔案][範圍][行][列]
+static const unsigned int initWeightValues[JACKPOT_FILE_COUNT][BALL_TABLE_COUNT][BALL_TABLE_WEIGHT_COUNT][BALL_TABLE_TYPE_COUNT] = {
+{{FILES_LOOP_START}}
+    // 來自檔案: {{FILE_NAME}}
+    {
+        // {{RANGE[NormalWeight1]_FULL_NAME}} 
+        {
+{{RANGE[NormalWeight1]_LOOP_START}}
+            { {{ALL_COLUMNS}} },
+{{RANGE[NormalWeight1]_LOOP_END}}
+        },
+        // {{RANGE[NormalWeight2]_FULL_NAME}}
+        {
+{{RANGE[NormalWeight2]_LOOP_START}}
+            { {{ALL_COLUMNS}} },
+{{RANGE[NormalWeight2]_LOOP_END}}
+        },
+        // {{RANGE[NormalWeight3]_FULL_NAME}}
+        {
+{{RANGE[NormalWeight3]_LOOP_START}}
+            { {{ALL_COLUMNS}} },
+{{RANGE[NormalWeight3]_LOOP_END}}
+        },
+        // {{RANGE[NormalWeight4]_FULL_NAME}}
+        {
+{{RANGE[NormalWeight4]_LOOP_START}}
+            { {{ALL_COLUMNS}} },
+{{RANGE[NormalWeight4]_LOOP_END}}
+        },
+        // {{RANGE[NormalWeight5]_FULL_NAME}}
+        {
+{{RANGE[NormalWeight5]_LOOP_START}}
+            { {{ALL_COLUMNS}} },
+{{RANGE[NormalWeight5]_LOOP_END}}
+        }
+    },
+{{FILES_LOOP_END}}
+};
+{{ARGUMENT_END:initWeightValues}}
+
+// Mega權重表範圍大小
+#define MEGA_ROWS {{RANGE[MagaWeight]_ROW_COUNT}}
+#define MEGA_COLS {{RANGE[MagaWeight]_COL_COUNT}}
+
+{{ARGUMENT_START:initMajorWeightValues}}
+// 參數定義：範圍名稱=MagaWeight
+// 維度：[檔案][行][列]
+static const unsigned int initMajorWeightValues[JACKPOT_FILE_COUNT][MEGA_ROWS][MEGA_COLS] = {
+{{FILES_LOOP_START}}
+    // 來自檔案: {{FILE_NAME}}
+    // {{RANGE[MagaWeight]_FULL_NAME}}
+    {
+{{RANGE[MagaWeight]_LOOP_START}}
+        { {{ALL_COLUMNS}} },
+{{RANGE[MagaWeight]_LOOP_END}}
+    },
+{{FILES_LOOP_END}}
+};
+{{ARGUMENT_END:initMajorWeightValues}}
+
+#define MajorIsUseOrNotWeight_VARIABLE_COUNT {{RANGE[MajorIsUseOrNotWeight]_ROW_COUNT}}     // 每個範圍的最大行數
+#define MajorIsUseOrNotWeight_NORMAL_TYPE_COUNT {{RANGE[MajorIsUseOrNotWeight]_COL_COUNT}}  // 每個範圍的最大列數
+{{ARGUMENT_START:initMajorUseOrNot}}
+// 參數定義：範圍名稱=MajorIsUseOrNotWeight
+static const unsigned int initMajorUseOrNot[JACKPOT_FILE_COUNT][MajorIsUseOrNotWeight_VARIABLE_COUNT][MajorIsUseOrNotWeight_NORMAL_TYPE_COUNT] = {
+{{FILES_LOOP_START}}
+    // 來自檔案: {{FILE_NAME}}
+    // {{RANGE[MajorIsUseOrNotWeight]_FULL_NAME}}       
+    {
+{{RANGE[MajorIsUseOrNotWeight]_LOOP_START}}
+        { {{ALL_COLUMNS}} },
+{{RANGE[MajorIsUseOrNotWeight]_LOOP_END}}
+    },
+{{FILES_LOOP_END}}
+};
+{{ARGUMENT_END:initMajorUseOrNot}}
+
+#define GRAND_REEL_WEIGHT_VARIABLE_COUNT {{RANGE[GrandReelWeight]_ROW_COUNT}}     // 每個範圍的最大行數
+#define GRAND_REEL_WEIGHT_NORMAL_TYPE_COUNT {{RANGE[GrandReelWeight]_COL_COUNT}}  // 每個範圍的最大列數
+{{ARGUMENT_START:initgrandReelWeight}}
+// 參數定義：範圍名稱=GrandReelWeight
+static const unsigned int initgrandReelWeight[JACKPOT_FILE_COUNT][GRAND_REEL_WEIGHT_VARIABLE_COUNT][GRAND_REEL_WEIGHT_NORMAL_TYPE_COUNT] = {
+{{FILES_LOOP_START}}
+    // 來自檔案: {{FILE_NAME}}
+    // {{RANGE[GrandReelWeight]_FULL_NAME}}       
+    {
+{{RANGE[GrandReelWeight]_LOOP_START}}
+        { {{ALL_COLUMNS}} },
+{{RANGE[GrandReelWeight]_LOOP_END}}
+    },
+{{FILES_LOOP_END}}
+};
+{{ARGUMENT_END:initgrandReelWeight}}
+
+#define RANDOM_JP_WEIGHT_VARIABLE_COUNT {{RANGE[RandomJPWeight]_ROW_COUNT}}     // 每個範圍的最大行數
+#define RANDOM_JP_WEIGHT_NORMAL_TYPE_COUNT {{RANGE[RandomJPWeight]_COL_COUNT}}  // 每個範圍的最大列數
+{{ARGUMENT_START:init_Random_Jackpot_Avg_Hit_Period}}
+// 參數定義：範圍名稱=RandomJPWeight
+static const unsigned int init_Random_Jackpot_Avg_Hit_Period[JACKPOT_FILE_COUNT][RANDOM_JP_WEIGHT_VARIABLE_COUNT][RANDOM_JP_WEIGHT_NORMAL_TYPE_COUNT] = {
+{{FILES_LOOP_START}}
+    // 來自檔案: {{FILE_NAME}}
+    // {{RANGE[RandomJPWeight]_FULL_NAME}}       
+    {
+{{RANGE[RandomJPWeight]_LOOP_START}}
+        { {{ALL_COLUMNS}} },
+{{RANGE[RandomJPWeight]_LOOP_END}}
+    },
+{{FILES_LOOP_END}}
+};
+{{ARGUMENT_END:init_Random_Jackpot_Avg_Hit_Period}}
+
+#define RANDOM_JP_VALUE_VARIABLE_COUNT {{RANGE[RandomJPValue]_ROW_COUNT}}     // 每個範圍的最大行數
+#define RANDOM_JP_VALUE_NORMAL_TYPE_COUNT {{RANGE[RandomJPValue]_COL_COUNT}}  // 每個範圍的最大列數
+{{ARGUMENT_START:init_Random_Jackpot_Hit_Dice}}
+// 參數定義：範圍名稱=RandomJPValue
+static const unsigned int init_Random_Jackpot_Hit_Dice[JACKPOT_FILE_COUNT][RANDOM_JP_VALUE_VARIABLE_COUNT][RANDOM_JP_VALUE_NORMAL_TYPE_COUNT] = {
+{{FILES_LOOP_START}}
+    // 來自檔案: {{FILE_NAME}}
+    // {{RANGE[RandomJPValue]_FULL_NAME}}       
+    {
+{{RANGE[RandomJPValue]_LOOP_START}}
+        { {{ALL_COLUMNS}} },
+{{RANGE[RandomJPValue]_LOOP_END}}
+    },
+{{FILES_LOOP_END}}
+};
+{{ARGUMENT_END:init_Random_Jackpot_Hit_Dice}}
+
+#endif // VARIABLE_WEIGHT_H

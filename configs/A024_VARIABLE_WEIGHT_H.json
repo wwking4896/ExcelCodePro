@@ -1,0 +1,34 @@
+{
+    "excel_files": [
+        "D:/JumboLandbase/SVN/Generation3/A024/Parsheet/A024_03_Opt01.xlsx",
+        "D:/JumboLandbase/SVN/Generation3/A024/Parsheet/A024_03_Opt02.xlsx",
+        "D:/JumboLandbase/SVN/Generation3/A024/Parsheet/A024_03_Opt03.xlsx",
+        "D:/JumboLandbase/SVN/Generation3/A024/Parsheet/A024_03_Opt04.xlsx",
+        "D:/JumboLandbase/SVN/Generation3/A024/Parsheet/A024_03_Opt05.xlsx",
+        "D:/JumboLandbase/SVN/Generation3/A024/Parsheet/A024_03_Opt06.xlsx",
+        "D:/JumboLandbase/SVN/Generation3/A024/Parsheet/A024_03_Opt07.xlsx",
+        "D:/JumboLandbase/SVN/Generation3/A024/Parsheet/A024_03_Opt08.xlsx"
+    ],
+    "selected_sheet": "Variable Weight",
+    "selected_ranges": [
+    ],
+    "template_type": "custom",
+    "code_template": "#ifndef VARIABLE_WEIGHT_H\n#define VARIABLE_WEIGHT_H\n\n// 四維陣列 - 檔案優先結構 [檔案][範圍][行][列]\n#define JACKPOT_FILE_COUNT {{FILE_COUNT}}         // 檔案數量\n#define BALL_TABLE_COUNT 5                 // 普通權重表數量(五個範圍)\n#define BALL_TABLE_WEIGHT_COUNT {{RANGE[NormalWeight1]_ROW_COUNT}}     // 每個範圍的最大行數\n#define BALL_TABLE_TYPE_COUNT {{RANGE[NormalWeight1]_COL_COUNT}}  // 每個範圍的最大列數\n\n{{ARGUMENT_START:initWeightValues}}\n// 參數定義：範圍名稱=NormalWeight1,NormalWeight2,NormalWeight3,NormalWeight4,NormalWeight5\n// 維度：[檔案][範圍][行][列]\nstatic const unsigned int initWeightValues[JACKPOT_FILE_COUNT][BALL_TABLE_COUNT][BALL_TABLE_WEIGHT_COUNT][BALL_TABLE_TYPE_COUNT] = {\n{{FILES_LOOP_START}}\n    // 來自檔案: {{FILE_NAME}}\n    {\n        // {{RANGE[NormalWeight1]_FULL_NAME}} \n        {\n{{RANGE[NormalWeight1]_LOOP_START}}\n            { {{ALL_COLUMNS}} },\n{{RANGE[NormalWeight1]_LOOP_END}}\n        },\n        // {{RANGE[NormalWeight2]_FULL_NAME}}\n        {\n{{RANGE[NormalWeight2]_LOOP_START}}\n            { {{ALL_COLUMNS}} },\n{{RANGE[NormalWeight2]_LOOP_END}}\n        },\n        // {{RANGE[NormalWeight3]_FULL_NAME}}\n        {\n{{RANGE[NormalWeight3]_LOOP_START}}\n            { {{ALL_COLUMNS}} },\n{{RANGE[NormalWeight3]_LOOP_END}}\n        },\n        // {{RANGE[NormalWeight4]_FULL_NAME}}\n        {\n{{RANGE[NormalWeight4]_LOOP_START}}\n            { {{ALL_COLUMNS}} },\n{{RANGE[NormalWeight4]_LOOP_END}}\n        },\n        // {{RANGE[NormalWeight5]_FULL_NAME}}\n        {\n{{RANGE[NormalWeight5]_LOOP_START}}\n            { {{ALL_COLUMNS}} },\n{{RANGE[NormalWeight5]_LOOP_END}}\n        }\n    },\n{{FILES_LOOP_END}}\n};\n{{ARGUMENT_END:initWeightValues}}\n\n// Mega權重表範圍大小\n#define MEGA_ROWS {{RANGE[MagaWeight]_ROW_COUNT}}\n#define MEGA_COLS {{RANGE[MagaWeight]_COL_COUNT}}\n\n{{ARGUMENT_START:initMajorWeightValues}}\n// 參數定義：範圍名稱=MagaWeight\n// 維度：[檔案][行][列]\nstatic const unsigned int initMajorWeightValues[JACKPOT_FILE_COUNT][MEGA_ROWS][MEGA_COLS] = {\n{{FILES_LOOP_START}}\n    // 來自檔案: {{FILE_NAME}}\n    // {{RANGE[MagaWeight]_FULL_NAME}}\n    {\n{{RANGE[MagaWeight]_LOOP_START}}\n        { {{ALL_COLUMNS}} },\n{{RANGE[MagaWeight]_LOOP_END}}\n    },\n{{FILES_LOOP_END}}\n};\n{{ARGUMENT_END:initMajorWeightValues}}\n\n#define MajorIsUseOrNotWeight_VARIABLE_COUNT {{RANGE[MajorIsUseOrNotWeight]_ROW_COUNT}}     // 每個範圍的最大行數\n#define MajorIsUseOrNotWeight_NORMAL_TYPE_COUNT {{RANGE[MajorIsUseOrNotWeight]_COL_COUNT}}  // 每個範圍的最大列數\n{{ARGUMENT_START:initMajorUseOrNot}}\n// 參數定義：範圍名稱=MajorIsUseOrNotWeight\nstatic const unsigned int initMajorUseOrNot[JACKPOT_FILE_COUNT][MajorIsUseOrNotWeight_VARIABLE_COUNT][MajorIsUseOrNotWeight_NORMAL_TYPE_COUNT] = {\n{{FILES_LOOP_START}}\n    // 來自檔案: {{FILE_NAME}}\n    // {{RANGE[MajorIsUseOrNotWeight]_FULL_NAME}}       \n    {\n{{RANGE[MajorIsUseOrNotWeight]_LOOP_START}}\n        { {{ALL_COLUMNS}} },\n{{RANGE[MajorIsUseOrNotWeight]_LOOP_END}}\n    },\n{{FILES_LOOP_END}}\n};\n{{ARGUMENT_END:initMajorUseOrNot}}\n\n#define GRAND_REEL_WEIGHT_VARIABLE_COUNT {{RANGE[GrandReelWeight]_ROW_COUNT}}     // 每個範圍的最大行數\n#define GRAND_REEL_WEIGHT_NORMAL_TYPE_COUNT {{RANGE[GrandReelWeight]_COL_COUNT}}  // 每個範圍的最大列數\n{{ARGUMENT_START:initgrandReelWeight}}\n// 參數定義：範圍名稱=GrandReelWeight\nstatic const unsigned int initgrandReelWeight[JACKPOT_FILE_COUNT][GRAND_REEL_WEIGHT_VARIABLE_COUNT][GRAND_REEL_WEIGHT_NORMAL_TYPE_COUNT] = {\n{{FILES_LOOP_START}}\n    // 來自檔案: {{FILE_NAME}}\n    // {{RANGE[GrandReelWeight]_FULL_NAME}}       \n    {\n{{RANGE[GrandReelWeight]_LOOP_START}}\n        { {{ALL_COLUMNS}} },\n{{RANGE[GrandReelWeight]_LOOP_END}}\n    },\n{{FILES_LOOP_END}}\n};\n{{ARGUMENT_END:initgrandReelWeight}}\n\n#define RANDOM_JP_WEIGHT_VARIABLE_COUNT {{RANGE[RandomJPWeight]_ROW_COUNT}}     // 每個範圍的最大行數\n#define RANDOM_JP_WEIGHT_NORMAL_TYPE_COUNT {{RANGE[RandomJPWeight]_COL_COUNT}}  // 每個範圍的最大列數\n{{ARGUMENT_START:init_Random_Jackpot_Avg_Hit_Period}}\n// 參數定義：範圍名稱=RandomJPWeight\nstatic const unsigned int init_Random_Jackpot_Avg_Hit_Period[JACKPOT_FILE_COUNT][RANDOM_JP_WEIGHT_VARIABLE_COUNT][RANDOM_JP_WEIGHT_NORMAL_TYPE_COUNT] = {\n{{FILES_LOOP_START}}\n    // 來自檔案: {{FILE_NAME}}\n    // {{RANGE[RandomJPWeight]_FULL_NAME}}       \n    {\n{{RANGE[RandomJPWeight]_LOOP_START}}\n        { {{ALL_COLUMNS}} },\n{{RANGE[RandomJPWeight]_LOOP_END}}\n    },\n{{FILES_LOOP_END}}\n};\n{{ARGUMENT_END:init_Random_Jackpot_Avg_Hit_Period}}\n\n#define RANDOM_JP_VALUE_VARIABLE_COUNT {{RANGE[RandomJPValue]_ROW_COUNT}}     // 每個範圍的最大行數\n#define RANDOM_JP_VALUE_NORMAL_TYPE_COUNT {{RANGE[RandomJPValue]_COL_COUNT}}  // 每個範圍的最大列數\n{{ARGUMENT_START:init_Random_Jackpot_Hit_Dice}}\n// 參數定義：範圍名稱=RandomJPValue\nstatic const unsigned int init_Random_Jackpot_Hit_Dice[JACKPOT_FILE_COUNT][RANDOM_JP_VALUE_VARIABLE_COUNT][RANDOM_JP_VALUE_NORMAL_TYPE_COUNT] = {\n{{FILES_LOOP_START}}\n    // 來自檔案: {{FILE_NAME}}\n    // {{RANGE[RandomJPValue]_FULL_NAME}}       \n    {\n{{RANGE[RandomJPValue]_LOOP_START}}\n        { {{ALL_COLUMNS}} },\n{{RANGE[RandomJPValue]_LOOP_END}}\n    },\n{{FILES_LOOP_END}}\n};\n{{ARGUMENT_END:init_Random_Jackpot_Hit_Dice}}\n\n#endif // VARIABLE_WEIGHT_H",
+    "named_ranges": {
+        "NormalWeight1": "K3:U127",
+        "NormalWeight2": "W3:AG127",
+        "NormalWeight3": "AI3:AS127",
+        "NormalWeight4": "AU3:BE127",
+        "NormalWeight5": "BG3:BQ127",
+        "MagaWeight": "BS3:BY127",
+        "NormalLabelValue1": "K2:U2",
+        "NormalLabelValue2": "W2:AG2",
+        "NormalLabelValue3": "AI2:AS2",
+        "NormalLabelValue4": "AU2:BE2",
+        "NormalLabelValue5": "BG2:BQ2",
+        "MajorIsUseOrNotWeight": "CA3:CB127",
+        "GrandReelWeight": "D3:E127",
+        "RandomJPWeight": "I3:J127",
+        "RandomJPValue": "G3:H127"
+    }
+}
