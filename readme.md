@@ -13,11 +13,13 @@ ExcelCode Pro 是一款強大的工具，用於將 Excel 表格資料轉換為 C
    - [範本標記語法](#範本標記語法)
    - [橫向和直向讀取模式](#橫向和直向讀取模式)
    - [命名範圍](#命名範圍)
+   - [參數區塊功能](#參數區塊功能)
    - [多維陣列處理](#多維陣列處理)
 6. [範本範例](#範本範例)
-7. [進階功能](#進階功能)
-8. [疑難排解](#疑難排解)
-9. [技術支援](#技術支援)
+7. [命令行模式](#命令行模式)
+8. [進階功能](#進階功能)
+9. [疑難排解](#疑難排解)
+10. [技術支援](#技術支援)
 
 ## 功能概述
 
@@ -26,11 +28,15 @@ ExcelCode Pro 提供以下核心功能：
 - **多檔案處理**：可同時處理多個 Excel 檔案
 - **工作表選擇**：靈活選擇要處理的工作表
 - **範圍管理**：支援多種範圍選擇方式，包括命名範圍
+- **整合式範圍管理器**：結合範圍選擇和命名功能
 - **靈活的範本系統**：提供多種預設範本及強大的自訂範本功能
+- **參數區塊功能**：支援模板中的可重用參數區塊
 - **資料預覽**：即時預覽選定範圍的資料
 - **程式碼生成**：自動生成結構化的 C/C++ 程式碼
+- **命令行模式**：支援批處理和自動化操作
 - **設定檔儲存/載入**：保存和復原完整的工作設定
 - **多語言支援**：界面和操作完全支援繁體中文
+- **收納式側邊欄**：可收納的控制面板，提供更大的程式碼顯示區域
 
 ## 程式架構
 
@@ -42,6 +48,7 @@ ExcelCode Pro 採用模組化設計，主要由以下幾個部分組成：
 4. **程式碼生成器 (code_generator.py)**：根據範本和資料生成最終程式碼
 5. **公用工具 (utils.py)**：提供各種輔助功能
 6. **版本控制 (version.py)**：管理版本和更新檢查
+7. **命令行介面 (console.py)**：提供無介面操作模式
 
 ## 安裝與執行
 
@@ -60,12 +67,20 @@ ExcelCode Pro 採用模組化設計，主要由以下幾個部分組成：
 
 ### 執行方式
 
+#### 圖形介面模式
 - 使用執行檔：直接點擊 `ExcelCode Pro.exe`
 - 使用原始碼：
   ```
   python main.py
   ```
   或執行 `run.bat`
+
+#### 命令行模式
+- 使用執行檔：
+  ```
+  ExcelCode-Console.exe --config config.json --output output.c
+  ```
+- 使用批次檔：編輯並執行 `console.bat`
 
 ## 基本使用流程
 
@@ -81,7 +96,7 @@ ExcelCode Pro 採用模組化設計，主要由以下幾個部分組成：
 
 ### 3. 設定範圍
 
-點擊「範圍管理」按鈕，在彈出的對話框中可以：
+點擊「範圍管理」按鈕，在彈出的整合式範圍管理器中可以：
 - 輸入 Excel 範圍格式（如 A1:G10）添加新範圍
 - 為範圍設定名稱（方便在範本中引用）
 - 預覽所選範圍的實際資料
@@ -112,24 +127,6 @@ ExcelCode Pro 的範本系統是其最強大的特性之一，使用者可以通
 
 範本本質上是一段包含特殊標記（佔位符）的文字，這些標記會在生成程式碼時被實際資料取代。範本可以是任何文字，但通常會是 C/C++ 程式碼架構。
 
-#### 預設範本
-
-系統提供以下預設範本：
-
-1. **陣列初始化**：生成一維陣列
-2. **二維陣列**：生成二維陣列（橫向讀取模式）
-3. **二維陣列-直向讀取**：生成二維陣列（直向讀取模式）
-4. **三維陣列**：適用於多檔案資料的三維陣列
-5. **三維陣列-直向讀取**：三維陣列的直向讀取版本
-6. **四維陣列 (範圍優先)**：以範圍為主要維度的四維陣列
-7. **四維陣列-直向讀取**：四維陣列的直向讀取版本
-8. **四維陣列 (檔案優先)**：以檔案為主要維度的四維陣列
-9. **三維多範圍陣列**：處理多個範圍的三維陣列
-10. **權重表設定**：特化的遊戲權重表格式
-11. **權重表設定-直向讀取**：權重表的直向讀取版本
-12. **多範圍處理**：處理多個數據範圍的通用模板
-13. **命名範圍處理**：使用命名範圍的特化範本
-
 ### 範本標記語法
 
 #### 基本標記
@@ -143,6 +140,8 @@ ExcelCode Pro 的範本系統是其最強大的特性之一，使用者可以通
 | `{{COL_INDEX}}` | 當前列索引 | `0`, `1`, `2` |
 | `{{ALL_COLUMNS}}` | 當前行的所有列值 | `1, 2, 3, 4` |
 | `{{ALL_ROWS}}` | 當前列的所有行值 | `1, 5, 9, 13` |
+| `{{COL:n}}` | 當前行的第 n 列值 | `{{COL:0}}` → `1` |
+| `{{ROW:n}}` | 當前列的第 n 行值 | `{{ROW:0}}` → `1` |
 
 #### 方向控制標記
 
@@ -180,206 +179,119 @@ ExcelCode Pro 的範本系統是其最強大的特性之一，使用者可以通
 | `{{RANGE_LOOP_START}}` | 範圍內資料循環開始 |
 | `{{RANGE_LOOP_END}}` | 範圍內資料循環結束 |
 
-### 橫向和直向讀取模式
+### 參數區塊功能
 
-ExcelCode Pro 支援兩種資料讀取模式：
+參數區塊允許在模板中定義可重用的程式碼區塊，特別適合處理多個相似結構但使用不同範圍的程式碼。
 
-#### 橫向讀取模式（預設）
-
-- 資料按行讀取（Row by Row）
-- 主要使用 `{{ALL_COLUMNS}}` 獲取一行中的所有值
-- 適合表格資料的自然閱讀順序
+#### 參數區塊語法
 
 ```
-表格資料:
-| 1 | 2 | 3 |
-| 4 | 5 | 6 |
-
-橫向讀取結果:
-行 0: 1, 2, 3
-行 1: 4, 5, 6
+{{ARGUMENT_START:引數名稱}}
+// 範圍名稱=範圍1,範圍2
+// 程式碼區塊，可使用範圍標記
+{{ARGUMENT_END:引數名稱}}
 ```
 
-#### 直向讀取模式
+#### 範例：使用參數區塊
 
-- 資料按列讀取（Column by Column）
-- 主要使用 `{{ALL_ROWS}}` 獲取一列中的所有值
-- 適合需要交換行列結構的情況
-
-```
-表格資料:
-| 1 | 2 | 3 |
-| 4 | 5 | 6 |
-
-直向讀取結果:
-列 0: 1, 4
-列 1: 2, 5
-列 2: 3, 6
-```
-
-設定直向讀取模式可通過兩種方式：
-1. 在範本中使用 `{{DIRECTION:COLUMN}}` 標記
-2. 在範本設定對話框中選擇「直向讀取」選項
-
-### 命名範圍
-
-命名範圍是一種強大的功能，允許為特定範圍指定名稱，然後在範本中引用：
-
-1. 在「範圍管理」中為範圍命名（例如「左上」）
-2. 在範本中使用命名範圍標記：
-   ```
-   #define LEFT_TOP_ROWS {{RANGE[左上]_ROW_COUNT}}
-   #define LEFT_TOP_COLS {{RANGE[左上]_COL_COUNT}}
-
-   // 左上角區域數據
-   unsigned int left_top_area[LEFT_TOP_ROWS][LEFT_TOP_COLS] = {
-   {{RANGE[左上]_LOOP_START}}
-       { {{ALL_COLUMNS}} },  // Row {{ROW_INDEX}}
-   {{RANGE[左上]_LOOP_END}}
-   };
-   ```
-
-### 多維陣列處理
-
-處理複雜的多維資料結構時，可利用嵌套循環標記：
-
-```
-// 四維陣列: [範圍][檔案][行][列]
-unsigned int data4d[RANGE_COUNT][FILE_COUNT][ROW_COUNT][COL_COUNT] = {
-{{RANGES_LOOP_START}}
-    // 範圍 {{RANGE_INDEX}}
-    {
-{{FILES_LOOP_START}}
-        // 來自檔案: {{FILE_NAME}}
-        {
-{{RANGE_LOOP_START}}
-            { {{ALL_COLUMNS}} },
-{{RANGE_LOOP_END}}
-        },
-{{FILES_LOOP_END}}
-    },
-{{RANGES_LOOP_END}}
+```c
+// 定義多個陣列的通用結構
+{{ARGUMENT_START:TABLES}}
+// 範圍名稱=左上,右上,左下,右下
+unsigned int {{RANGE[name]_NAME}}_TABLE[{{RANGE[name]_ROW_COUNT}}][{{RANGE[name]_COL_COUNT}}] = {
+{{RANGE[name]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[name]_LOOP_END}}
 };
+{{ARGUMENT_END:TABLES}}
 ```
 
 ## 範本範例
 
-### 基本一維陣列
+### 使用參數區塊的範例
 
 ```c
-// 一維陣列初始化
-#define MAX_SIZE 100
-
-unsigned int weights[MAX_SIZE] = {
-{{LOOP_START}}
-    {{VALUE}},  // 索引 {{ROW_INDEX}}
-{{LOOP_END}}
-};
-```
-
-### 二維陣列（橫向讀取）
-
-```c
-// 二維陣列初始化
-#define ROW_COUNT 20
-#define COL_COUNT 4
-
-unsigned int table[ROW_COUNT][COL_COUNT] = {
-{{LOOP_START}}
+// 使用參數區塊定義多個表格
+{{ARGUMENT_START:WEIGHT_TABLES}}
+// 範圍名稱=Normal,Free,Skill
+static unsigned int {{RANGE[name]_NAME}}_table[{{RANGE[name]_ROW_COUNT}}][{{RANGE[name]_COL_COUNT}}] = {
+{{RANGE[name]_LOOP_START}}
     { {{ALL_COLUMNS}} },
-{{LOOP_END}}
+{{RANGE[name]_LOOP_END}}
 };
+{{ARGUMENT_END:WEIGHT_TABLES}}
 ```
 
-### 二維陣列（直向讀取）
-
-```c
-// 二維陣列初始化 - 直向讀取模式
-{{DIRECTION:COLUMN}}  // 指定為直向讀取
-#define COL_COUNT 20
-#define ROW_COUNT 4
-
-unsigned int table[ROW_COUNT][COL_COUNT] = {
-{{LOOP_START}}
-    { {{ALL_ROWS}} },  // Column {{COL_INDEX}}
-{{LOOP_END}}
-};
-```
-
-### 命名範圍處理
-
-```c
-// 命名範圍資料處理範例
-#define LEFT_TOP_ROWS {{RANGE[左上]_ROW_COUNT}}
-#define LEFT_TOP_COLS {{RANGE[左上]_COL_COUNT}}
-#define RIGHT_TOP_ROWS {{RANGE[右上]_ROW_COUNT}}
-#define RIGHT_TOP_COLS {{RANGE[右上]_COL_COUNT}}
-
-// 左上角區域數據
-unsigned int left_top_area[LEFT_TOP_ROWS][LEFT_TOP_COLS] = {
-{{RANGE[左上]_LOOP_START}}
-    { {{ALL_COLUMNS}} },  // Row {{ROW_INDEX}}
-{{RANGE[左上]_LOOP_END}}
-};
-
-// 右上角區域數據
-unsigned int right_top_area[RIGHT_TOP_ROWS][RIGHT_TOP_COLS] = {
-{{RANGE[右上]_LOOP_START}}
-    { {{ALL_COLUMNS}} },  // Row {{ROW_INDEX}}
-{{RANGE[右上]_LOOP_END}}
-};
-
-// 特定欄位值示例
-int left_top_first_value = {{RANGE[左上]_VALUE[0,0]}};
-int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
-```
-
-### 權重表設定
+### 整合式權重表設定
 
 ```c
 // 遊戲權重表初始化
 void initVariableWeights() {
-{{LOOP_START}}
-    normal_table_weight[{{COL:0}}][{{COL:1}}][{{COL:2}}][{{COL:3}}] = {{VALUE}};
-{{LOOP_END}}
+{{ARGUMENT_START:WEIGHT_INIT}}
+// 範圍名稱=Normal,Free,Skill
+{{RANGE[name]_LOOP_START}}
+    {{RANGE[name]_NAME}}_table_weight[{{COL:0}}][{{COL:1}}][{{COL:2}}][{{COL:3}}] = {{VALUE}};
+{{RANGE[name]_LOOP_END}}
+{{ARGUMENT_END:WEIGHT_INIT}}
 }
 ```
 
-### 三維多範圍陣列
+## 命令行模式
 
-```c
-// 三維多範圍陣列初始化
-#define FILE_COUNT {{FILE_COUNT}}           // 檔案數量
-#define RANGE_COUNT {{RANGE_COUNT}}         // 範圍數量
-#define MAX_ROW_COUNT {{MAX_ROW_COUNT}}     // 最大行數
-#define MAX_COL_COUNT {{MAX_COL_COUNT}}     // 最大列數
+ExcelCode Pro 提供完整的命令行介面，適合批處理和自動化操作。
 
-// 定義各個範圍的實際大小
-unsigned int range_dimensions[RANGE_COUNT][2] = {
-{{RANGES_LOOP_START}}
-    { {{RANGE_ROW_COUNT}}, {{RANGE_COL_COUNT}} },  // 範圍 {{RANGE_INDEX}}: {{RANGE_STR}}
-{{RANGES_LOOP_END}}
-};
+### 使用方法
 
-// 三維多範圍陣列: [檔案][範圍][行][列]
-unsigned int data3d_multi[FILE_COUNT][RANGE_COUNT][MAX_ROW_COUNT][MAX_COL_COUNT] = {
-{{FILES_LOOP_START}}
-    // 來自檔案: {{FILE_NAME}}
-    {
-{{RANGES_LOOP_START}}
-        // 範圍 {{RANGE_INDEX}}: {{RANGE_STR}}
-        {
-{{RANGE_DATA_LOOP_START}}
-            { {{ALL_COLUMNS}} },
-{{RANGE_DATA_LOOP_END}}
-        },
-{{RANGES_LOOP_END}}
-    },
-{{FILES_LOOP_END}}
-};
+```
+ExcelCode-Console.exe --config config.json --output output.c [--verbose]
 ```
 
+### 配置文件格式
+
+```json
+{
+  "excel_files": ["path/to/file1.xlsx", "path/to/file2.xlsx"],
+  "selected_sheet": "Sheet1",
+  "selected_ranges": [
+    {
+      "start_row": 0,
+      "start_col": 0,
+      "end_row": 10,
+      "end_col": 3,
+      "range_str": "A1:D11"
+    }
+  ],
+  "named_ranges": {
+    "左上": "A1:C5",
+    "右上": "D1:F5"
+  },
+  "template_type": "preset",
+  "preset_template": "二維陣列",
+  "template_direction": "row"
+}
+```
+
+### 參數說明
+
+- `--config` 或 `-c`：指定配置文件路徑
+- `--output` 或 `-o`：指定輸出文件路徑
+- `--verbose` 或 `-v`：啟用詳細日誌輸出
+
 ## 進階功能
+
+### 整合式範圍管理器
+
+新版本提供整合式範圍管理器，在同一界面中完成：
+- 範圍選擇和新增
+- 範圍命名和管理
+- 實時數據預覽
+- 命名範圍操作（重命名、刪除）
+
+### 收納式控制面板
+
+左側控制面板可以收納，提供更大的程式碼顯示區域：
+- 點擊 "<<" 按鈕可收起控制面板
+- 點擊 ">>" 按鈕可展開控制面板
 
 ### 設定檔儲存與載入
 
@@ -397,13 +309,7 @@ unsigned int data3d_multi[FILE_COUNT][RANGE_COUNT][MAX_ROW_COUNT][MAX_COL_COUNT]
 - 將自訂範本儲存為外部檔案
 - 從外部檔案載入範本
 - 管理多個範本
-
-### 多範圍管理
-
-「範圍管理」工具可以：
-- 同時定義和處理多個範圍
-- 為範圍命名以便在範本中引用
-- 實時預覽範圍內的資料
+- 儲存範本到指定目錄供後續使用
 
 ## 疑難排解
 
@@ -412,18 +318,25 @@ unsigned int data3d_multi[FILE_COUNT][RANGE_COUNT][MAX_ROW_COUNT][MAX_COL_COUNT]
 1. **範本中的標記沒有被正確替換**
    - 檢查標記語法是否正確
    - 確認範圍是否有效且包含資料
+   - 檢查參數區塊的配對是否正確
 
 2. **生成的程式碼中有逗號問題**
    - 範本中的陣列初始化語法可能需要調整
-   - 考慮在範本中明確處理最後一項的逗號
+   - 檢查循環結束位置是否正確處理最後一項
 
 3. **資料類型處理不正確**
    - 預設情況下，程式會嘗試識別數值類型
    - 文字值將被包裹在引號中
+   - 可以透過範本自訂數據格式
+
+4. **參數區塊處理問題**
+   - 確保 ARGUMENT_START 和 ARGUMENT_END 標籤配對
+   - 檢查範圍名稱是否正確指定
+   - 留意參數區塊中的範圍引用格式
 
 ### 日誌檢視
 
-程式底部的「執行日誌」區域會顯示重要的操作和錯誤信息，可用於診斷問題。
+程式底部的「執行日誌」區域會顯示重要的操作和錯誤信息，可用於診斷問題。命令行模式下，日誌會儲存在 `app.log` 文件中。
 
 ## 技術支援
 
@@ -433,4 +346,5 @@ unsigned int data3d_multi[FILE_COUNT][RANGE_COUNT][MAX_ROW_COUNT][MAX_COL_COUNT]
 
 ---
 
-感謝使用 ExcelCode Pro！希望這個工具能大幅提升您的數據轉程式碼工作效率。
+ExcelCode Pro v1.0.0
+© 2025 WWKing - Alphabet Studio 版權所有
