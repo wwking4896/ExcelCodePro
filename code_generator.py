@@ -895,30 +895,41 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
         
         self.gui.log(f"讀取方向: {'直向(Column)' if is_column_mode else '橫向(Row)'}")
         
-        # # 處理檔案數量
+        # 處理檔案數量
         template = template.replace("{{FILE_COUNT}}", str(len(excel_files)))
         
-        # # 計算最大行數和列數（通用方法）
-        max_row_count = max(
-            range_info['end_row'] - range_info['start_row'] + 1 
-            for range_info in selected_ranges
-        )
-        
-        max_col_count = max(
-            range_info['end_col'] - range_info['start_col'] + 1 
-            for range_info in selected_ranges
-        )
-        
-        template = template.replace("{{MAX_ROW_COUNT}}", str(max_row_count))
-        template = template.replace("{{MAX_COL_COUNT}}", str(max_col_count))
+        # 計算最大行數和列數（通用方法）
+        if selected_ranges:
+            max_row_count = max(
+                range_info['end_row'] - range_info['start_row'] + 1 
+                for range_info in selected_ranges
+            )
+            
+            max_col_count = max(
+                range_info['end_col'] - range_info['start_col'] + 1 
+                for range_info in selected_ranges
+            )
+            
+            template = template.replace("{{MAX_ROW_COUNT}}", str(max_row_count))
+            template = template.replace("{{MAX_COL_COUNT}}", str(max_col_count))
+            template = template.replace("{{RANGE_COUNT}}", str(len(selected_ranges)))
+            
+            # 處理第一個範圍的行列數（向下相容）
+            first_range = selected_ranges[0]
+            template = template.replace("{{ROW_COUNT}}", str(first_range['end_row'] - first_range['start_row'] + 1))
+            template = template.replace("{{COL_COUNT}}", str(first_range['end_col'] - first_range['start_col'] + 1))
         
         # 處理命名範圍的行列數
         template = self.process_named_range_metadata(template)
+        
+        # 處理命名範圍特定值引用（在任何循環處理之前）
+        template = self.process_named_range_value(template, dfs, excel_files)
         
         # 使用正則表達式找出所有參數區塊
         argument_pattern = r'{{ARGUMENT_START:(\w+)}}(.*?){{ARGUMENT_END:\1}}'
         arguments = re.findall(argument_pattern, template, re.DOTALL)
 
+        # 處理參數區塊
         for argument_name, argument_content in arguments:
             # 從備註中提取範圍名稱
             range_match = re.search(r'範圍名稱=([^\n]+)', argument_content)
@@ -942,7 +953,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                 processed_argument
             )
 
-        # 也檢查不配對的參數區塊標籤，修復可能的錯誤
+        # 檢查不配對的參數區塊標籤，修復可能的錯誤
         mismatch_pattern = r'{{ARGUMENT_START:(\w+)}}(.*?){{ARGUMENT_END:(\w+)}}'
         mismatch_arguments = re.findall(mismatch_pattern, template, re.DOTALL)
         
@@ -968,8 +979,133 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                         processed_argument
                     )
 
+        # 處理參數區塊外的傳統標記
+        template = self.process_traditional_template(
+            template, 
+            excel_files, 
+            dfs, 
+            selected_ranges,
+            selected_range,
+            is_column_mode
+        )
+
         return template
-    
+
+    def process_traditional_template(self, template, excel_files, dfs, selected_ranges, selected_range, is_column_mode):
+        """處理參數區塊外的傳統標記"""
+        final_code = template
+        
+        # 如果沒有任何需要處理的標記，直接返回
+        traditional_markers = [
+            "{{LOOP_START}}", "{{RANGE[", "{{RANGE:", "{{FILES_LOOP_START}}", "{{RANGES_LOOP_START}}"
+        ]
+        if not any(marker in final_code for marker in traditional_markers):
+            return final_code
+        
+        self.gui.log("處理參數區塊外的傳統標記...")
+        
+        # 處理命名範圍循環
+        final_code = self.process_named_range_loops(final_code, dfs, excel_files)
+        
+        # 判斷模板類型並相應處理
+        if "{{RANGES_LOOP_START}}" in final_code and "{{FILES_LOOP_START}}" in final_code:
+            # 四維陣列模板 - 範圍優先
+            self.gui.log("檢測到四維陣列模板（範圍優先）")
+            if selected_ranges:
+                final_code = self.process_4d_range_first_template(
+                    final_code,
+                    excel_files,
+                    dfs,
+                    selected_ranges,
+                    len(excel_files),
+                    max(r['end_row'] - r['start_row'] + 1 for r in selected_ranges),
+                    max(r['end_col'] - r['start_col'] + 1 for r in selected_ranges),
+                    is_column_mode
+                )
+        elif "{{FILES_LOOP_START}}" in final_code and "{{RANGES_LOOP_START}}" in final_code:
+            # 四維陣列模板 - 檔案優先
+            self.gui.log("檢測到四維陣列模板（檔案優先）")
+            if selected_ranges:
+                final_code = self.process_4d_file_first_template(
+                    final_code,
+                    excel_files,
+                    dfs,
+                    selected_ranges,
+                    len(excel_files),
+                    max(r['end_row'] - r['start_row'] + 1 for r in selected_ranges),
+                    max(r['end_col'] - r['start_col'] + 1 for r in selected_ranges),
+                    is_column_mode
+                )
+        elif "{{FILES_LOOP_START}}" in final_code and "{{RANGE_DATA_LOOP_START}}" in final_code:
+            # 三維多範圍陣列模板
+            self.gui.log("檢測到三維多範圍陣列模板")
+            final_code = self.process_3d_multi_range_template(
+                final_code,
+                excel_files,
+                dfs,
+                selected_ranges,
+                len(excel_files),
+                is_column_mode
+            )
+        elif "{{FILES_LOOP_START}}" in final_code and "{{LOOP_START}}" in final_code:
+            # 三維陣列模板
+            self.gui.log("檢測到三維陣列模板")
+            if selected_ranges:
+                first_range = selected_ranges[0]
+                final_code = self.process_3d_template(
+                    final_code,
+                    excel_files,
+                    dfs,
+                    first_range['start_row'],
+                    first_range['start_col'],
+                    first_range['end_row'],
+                    first_range['end_col'],
+                    len(excel_files),
+                    first_range['end_row'] - first_range['start_row'] + 1,
+                    is_column_mode
+                )
+        elif "{{RANGE:1_LOOP_START}}" in final_code or "{{RANGE:2_LOOP_START}}" in final_code:
+            # 多範圍處理模板
+            self.gui.log("檢測到多範圍處理模板")
+            final_code = self.process_multi_range_template(
+                final_code, 
+                excel_files, 
+                dfs, 
+                selected_ranges, 
+                is_column_mode
+            )
+        elif "{{LOOP_START}}" in final_code and "{{LOOP_END}}" in final_code:
+            # 標準單範圍模板
+            self.gui.log("檢測到標準單範圍模板")
+            if selected_ranges:
+                first_range = selected_ranges[0]
+                final_code = self.process_standard_template(
+                    final_code,
+                    excel_files,
+                    dfs,
+                    first_range['start_row'],
+                    first_range['start_col'],
+                    first_range['end_row'],
+                    first_range['end_col'],
+                    first_range['end_row'] - first_range['start_row'] + 1,
+                    is_column_mode
+                )
+            elif selected_range:
+                # 向下相容：使用舊的 selected_range
+                final_code = self.process_standard_template(
+                    final_code,
+                    excel_files,
+                    dfs,
+                    selected_range['start_row'],
+                    selected_range['start_col'],
+                    selected_range['end_row'],
+                    selected_range['end_col'],
+                    selected_range['end_row'] - selected_range['start_row'] + 1,
+                    is_column_mode
+                )
+        
+        return final_code
+
     def process_argument(self, template, excel_files, dfs, range_names, is_column_mode):
         """Process a specific argument block with its ranges"""
         final_code = template
