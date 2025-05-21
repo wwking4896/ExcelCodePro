@@ -1,13 +1,20 @@
 @echo off
-REM 嘗試使用 Python 3.13 執行
-py -3.13 -c "import sys; print(sys.version)" 2>nul && (
-    echo Using Python 3.13
-    py -3.13 build.py
-) || (
-    REM 如果 Python 3.13 不可用，使用任何可用的 Python 3.x
-    echo Python 3.13 not found, trying to use any available Python 3.x
-    py -3 build.py
+
+where python >nul 2>nul
+if %errorlevel% neq 0 (
+    echo [提示] 找不到 Python，正在執行 install.bat 安裝環境...
+    call install.bat
+
+    rem 安裝完後再檢查一次
+    where python >nul 2>nul
+    if %errorlevel% neq 0 (
+        echo [錯誤] 安裝後仍找不到 Python，請手動檢查安裝。
+        pause
+        exit /b 1
+    )
 )
+
+python build.py
 
 REM 複製 README.md 到 dist 目錄
 copy README.md dist\ > nul
@@ -36,7 +43,7 @@ if exist configs (
 
 REM 生成命令行版本執行檔案
 echo Creating console version executable...
-py -3.13 -m PyInstaller --clean --onefile --name="ExcelCode-Console" console.py
+python -m PyInstaller --clean --onefile --name="ExcelCode-Console" console.py
 
 REM 將命令行版本的執行檔案複製到 dist 目錄
 echo Copying console version to the distribution folder...
@@ -80,7 +87,7 @@ echo    Then run console.bat>> dist\ExcelCode\console_usage.txt
 echo.>> dist\ExcelCode\console_usage.txt
 echo 3. Example config.json can be found in the 'examples' folder>> dist\ExcelCode\console_usage.txt
 
-py -3.13 -m pip freeze > requirements.txt
+python -m pip freeze > requirements.txt
 
 echo Build process completed!
 echo.
