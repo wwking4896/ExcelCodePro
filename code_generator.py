@@ -13,6 +13,58 @@ import threading
 class CodeGenerator:
     def __init__(self, gui_instance):
         self.gui = gui_instance  # 保存對主GUI實例的引用
+
+    def validate_template(self, template, selected_ranges=None):
+        """
+        Validate template syntax and check if all placeholders are supported
+        驗證模板語法並檢查所有佔位符是否被支援
+        """
+        unsupported_tags = []
+        # Check for unsupported template tags
+        # 檢查不支援的模板標記
+        pattern = r'{{([^}]+)}}'
+        matches = re.findall(pattern, template)
+        
+        supported_tags = [
+            'LOOP_START', 'LOOP_END', 'VALUE', 'ROW_INDEX', 'COL_INDEX',
+            'ALL_COLUMNS', 'ALL_ROWS', 'DIRECTION:ROW', 'DIRECTION:COLUMN',
+            'FILE_NAME', 'FILE_INDEX', 'FILE_COUNT', 'ROW_COUNT', 'COL_COUNT',
+            'FILES_LOOP_START', 'FILES_LOOP_END', 'RANGES_LOOP_START', 'RANGES_LOOP_END',
+            'RANGE_LOOP_START', 'RANGE_LOOP_END', 'MAX_ROW_COUNT', 'MAX_COL_COUNT',
+            'RANGE_COUNT'
+        ]
+        
+        for match in matches:
+            is_supported = False
+            
+            # Check basic supported tags
+            # 檢查基本支援的標記
+            if any(tag in match for tag in supported_tags):
+                is_supported = True
+            # Check named range tags like RANGE[name]_LOOP_START
+            # 檢查命名範圍標記
+            elif re.match(r'RANGE\[.+\]_', match):
+                is_supported = True
+            # Check indexed tags like ROW:0, COL:1
+            # 檢查索引標記
+            elif re.match(r'(ROW|COL):\d+', match):
+                is_supported = True
+            # Check argument block tags
+            # 檢查參數區塊標記
+            elif re.match(r'ARGUMENT_(START|END):\w+', match):
+                is_supported = True
+            
+            if not is_supported:
+                unsupported_tags.append(match)
+        
+        # Log validation results
+        # 記錄驗證結果
+        if unsupported_tags:
+            self.gui.log(f"發現不支援的模板標記: {', '.join(unsupported_tags)}")
+            return False, unsupported_tags
+        else:
+            self.gui.log("模板語法驗證通過")
+            return True, []
     
     def load_template_from_file(self, file_path):
         """從檔案載入樣板內容"""
@@ -329,6 +381,18 @@ void process_column_data() {
             if not template_content:
                 messagebox.showerror("錯誤", "樣板不能為空", parent=template_dialog)
                 return
+    
+            # Add template validation
+            # 加入模板驗證
+            is_valid, unsupported_tags = self.validate_template(template_content)
+            if not is_valid:
+                result = messagebox.askyesno(
+                    "模板驗證警告", 
+                    f"發現不支援的標記: {', '.join(unsupported_tags)}\n\n是否仍要繼續使用此模板？",
+                    parent=template_dialog
+                )
+                if not result:
+                    return
             
             # 設定模板内容
             self.gui.code_template = template_content
