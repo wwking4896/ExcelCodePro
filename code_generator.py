@@ -13,7 +13,7 @@ import threading
 class CodeGenerator:
     def __init__(self, gui_instance):
         self.gui = gui_instance  # 保存對主GUI實例的引用
-
+    
     def validate_template(self, template, selected_ranges=None):
         """
         Validate template syntax and check if all placeholders are supported
@@ -30,8 +30,8 @@ class CodeGenerator:
             'ALL_COLUMNS', 'ALL_ROWS', 'DIRECTION:ROW', 'DIRECTION:COLUMN',
             'FILE_NAME', 'FILE_INDEX', 'FILE_COUNT', 'ROW_COUNT', 'COL_COUNT',
             'FILES_LOOP_START', 'FILES_LOOP_END', 'RANGES_LOOP_START', 'RANGES_LOOP_END',
-            'RANGE_LOOP_START', 'RANGE_LOOP_END', 'MAX_ROW_COUNT', 'MAX_COL_COUNT',
-            'RANGE_COUNT'
+            'RANGE_LOOP_START', 'RANGE_LOOP_END', 'RANGE_DATA_LOOP_START', 'RANGE_DATA_LOOP_END',
+            'MAX_ROW_COUNT', 'MAX_COL_COUNT', 'RANGE_COUNT'
         ]
         
         for match in matches:
@@ -52,6 +52,10 @@ class CodeGenerator:
             # Check argument block tags
             # 檢查參數區塊標記
             elif re.match(r'ARGUMENT_(START|END):\w+', match):
+                is_supported = True
+            # Check numbered range tags like RANGE:1_LOOP_START
+            # 檢查編號範圍標記
+            elif re.match(r'RANGE:\d+_', match):
                 is_supported = True
             
             if not is_supported:
@@ -381,7 +385,7 @@ void process_column_data() {
             if not template_content:
                 messagebox.showerror("錯誤", "樣板不能為空", parent=template_dialog)
                 return
-    
+            
             # Add template validation
             # 加入模板驗證
             is_valid, unsupported_tags = self.validate_template(template_content)
@@ -441,7 +445,6 @@ unsigned int weights[MAX_SIZE] = {
     {{VALUE}},  // 索引 {{ROW_INDEX}}
 {{LOOP_END}}
 };"""
-    
         elif template_name == "簡化權重表設定":  # 新增簡化版本
             return """// 簡化權重表初始化
 void initWeights() {
@@ -452,8 +455,8 @@ void initWeights() {
 }"""
         elif template_name == "二維陣列":
             return """// 二維陣列初始化
-#define ROW_COUNT 20
-#define COL_COUNT 4
+#define ROW_COUNT {{ROW_COUNT}}
+#define COL_COUNT {{COL_COUNT}}
 
 unsigned int table[ROW_COUNT][COL_COUNT] = {
 {{LOOP_START}}
@@ -508,6 +511,7 @@ unsigned int data3d[FILE_COUNT][ROW_COUNT][COL_COUNT] = {
 };"""
         elif template_name == "四維陣列 (範圍優先)":
             return """// 四維陣列初始化 - 範圍優先 [範圍][檔案][行][列]
+// 注意：此模板需要多個範圍和多個檔案才能正常運作
 #define RANGE_COUNT {{RANGE_COUNT}}  // 範圍數量
 #define FILE_COUNT {{FILE_COUNT}}    // 檔案數量
 #define ROW_COUNT {{ROW_COUNT}}      // 每個範圍的最大行數
@@ -623,22 +627,28 @@ unsigned int range_dimensions[RANGE_COUNT][2] = {
 {{RANGES_LOOP_END}}
 };
 
-// 三維多範圍陣列: [檔案][範圍][行][列]
-unsigned int data3d_multi[FILE_COUNT][RANGE_COUNT][MAX_ROW_COUNT][MAX_COL_COUNT] = {
+// 三維多範圍陣列: [檔案][範圍][行][列] (使用平坦化儲存)
+unsigned int* data3d_multi[FILE_COUNT][RANGE_COUNT];
+
+// 初始化函數
+void init_3d_multi_array() {
 {{FILES_LOOP_START}}
-    // 來自檔案: {{FILE_NAME}}
-    {
+    // 檔案 {{FILE_INDEX}}: {{FILE_NAME}}
 {{RANGES_LOOP_START}}
-        // 範圍 {{RANGE_INDEX}}: {{RANGE_STR}}
-        {
+    // 範圍 {{RANGE_INDEX}}: {{RANGE_STR}}
+    data3d_multi[{{FILE_INDEX}}][{{RANGE_INDEX}}] = malloc({{RANGE_ROW_COUNT}} * {{RANGE_COL_COUNT}} * sizeof(unsigned int));
+    
+    // 初始化資料
+    unsigned int temp_data[] = {
 {{RANGE_DATA_LOOP_START}}
-            { {{ALL_COLUMNS}} },
+        {{ALL_COLUMNS}},
 {{RANGE_DATA_LOOP_END}}
-        },
+    };
+    
+    memcpy(data3d_multi[{{FILE_INDEX}}][{{RANGE_INDEX}}], temp_data, sizeof(temp_data));
 {{RANGES_LOOP_END}}
-    },
 {{FILES_LOOP_END}}
-};"""
+}"""
         elif template_name == "權重表設定":
             return """// 遊戲權重表初始化
 void initVariableWeights() {
@@ -952,6 +962,45 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
         # 預設為橫向讀取
         return False
 
+    def process_range_data_loop(self, content, df, range_indices, is_column_mode=False):
+        """
+        Process RANGE_DATA_LOOP tags in template content
+        處理模板中的 RANGE_DATA_LOOP 標記
+        """
+        if "{{RANGE_DATA_LOOP_START}}" not in content:
+            return content
+            
+        start_row, start_col, end_row, end_col = range_indices
+        selected_data = df.iloc[start_row:end_row+1, start_col:end_col+1]
+        
+        # Split template to get loop content
+        # 分割模板以獲取循環內容
+        parts = content.split("{{RANGE_DATA_LOOP_START}}")
+        before_loop = parts[0]
+        
+        loop_and_after = parts[1].split("{{RANGE_DATA_LOOP_END}}")
+        loop_content = loop_and_after[0]
+        after_loop = loop_and_after[1] if len(loop_and_after) > 1 else ""
+        
+        loop_result = []
+        
+        if is_column_mode:
+            # Column-wise reading
+            # 直向讀取
+            for col_idx in range(selected_data.shape[1]):
+                column_data = selected_data.iloc[:, col_idx]
+                line = self.process_column_data(column_data, loop_content, start_col, col_idx, selected_data.shape[1])
+                loop_result.append(line)
+        else:
+            # Row-wise reading
+            # 橫向讀取
+            for row_idx in range(selected_data.shape[0]):
+                row_data = selected_data.iloc[row_idx, :]
+                line = self.process_row_data(row_data, loop_content, start_row, row_idx, selected_data.shape[0])
+                loop_result.append(line)
+        
+        return before_loop + "".join(loop_result) + after_loop
+
     def generate_code(self, excel_files, dfs, selected_ranges, code_template, selected_range):
         """生成程式碼"""
         # 首先檢查是否有檔案和範圍
@@ -1238,6 +1287,17 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                             # Replace loop content
                             final_code = before_loop + "".join(loop_result) + after_loop
                 
+                # Process RANGE_DATA_LOOP if present
+                # 處理 RANGE_DATA_LOOP（如果存在）
+                for range_name in range_names:
+                    if "{{RANGE_DATA_LOOP_START}}" in final_code:
+                        range_indices = self.convert_range_notation_to_indices(range_name)
+                        if range_indices:
+                            final_code = self.process_range_data_loop(
+                                final_code, df, range_indices, is_column_mode
+                            )
+                            break  # 只處理第一個找到的範圍
+                
                 # If there's still a standard loop, process it
                 if "{{LOOP_START}}" in final_code:
                     final_code = self.process_standard_template(
@@ -1309,6 +1369,17 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                                 f"{range_loop_start}{range_loop_content}{range_loop_end}", 
                                 "".join(loop_result)
                             )
+                
+                # Process RANGE_DATA_LOOP in file content if present
+                # 在檔案內容中處理 RANGE_DATA_LOOP（如果存在）
+                for range_name in range_names:
+                    if "{{RANGE_DATA_LOOP_START}}" in file_content:
+                        range_indices = self.convert_range_notation_to_indices(range_name)
+                        if range_indices:
+                            file_content = self.process_range_data_loop(
+                                file_content, df, range_indices, is_column_mode
+                            )
+                            break  # 只處理第一個找到的範圍
                 
                 # Process last file comma handling
                 is_last_file = (file_idx == len(excel_files) - 1)
@@ -1382,7 +1453,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                         range_content = range_content.replace("{{RANGE_INDEX}}", str(range_idx))
                         range_content = range_content.replace("{{RANGE_STR}}", range_info['range_str'])
                         
-                        # 處理範圍內的數據循環
+                        # 處理範圍內的數據循環 - 加入 RANGE_DATA_LOOP 支援
                         if "{{RANGE_DATA_LOOP_START}}" in range_content and "{{RANGE_DATA_LOOP_END}}" in range_content:
                             # 提取此範圍的數據
                             start_row = range_info['start_row']
@@ -1390,36 +1461,12 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                             end_row = range_info['end_row']
                             end_col = range_info['end_col']
                             
-                            selected_data = df.iloc[start_row:end_row+1, start_col:end_col+1]
+                            range_indices = (start_row, start_col, end_row, end_col)
                             
-                            # 分割模板以獲取循環內容
-                            loop_parts = range_content.split("{{RANGE_DATA_LOOP_START}}")
-                            before_loop = loop_parts[0]
-                            
-                            loop_and_after = loop_parts[1].split("{{RANGE_DATA_LOOP_END}}")
-                            loop_content = loop_and_after[0]
-                            after_loop = loop_and_after[1] if len(loop_and_after) > 1 else ""
-                            
-                            loop_result = []
-                            
-                            # 檢查循環內容是否指定了讀取方向
-                            local_is_column_mode = self.check_direction_mode(loop_content) or is_column_mode
-                            
-                            if local_is_column_mode:
-                                # 直向讀取 - 按列處理
-                                for col_idx in range(selected_data.shape[1]):
-                                    column_data = selected_data.iloc[:, col_idx]
-                                    line = self.process_column_data(column_data, loop_content, start_col, col_idx, selected_data.shape[1])
-                                    loop_result.append(line)
-                            else:
-                                # 橫向讀取 - 按行處理
-                                for row_idx in range(selected_data.shape[0]):
-                                    row_data = selected_data.iloc[row_idx, :]
-                                    line = self.process_row_data(row_data, loop_content, start_row, row_idx, selected_data.shape[0])
-                                    loop_result.append(line)
-                            
-                            # 組合該範圍的所有行
-                            range_content = before_loop + "".join(loop_result) + after_loop
+                            # 使用新的 process_range_data_loop 方法
+                            range_content = self.process_range_data_loop(
+                                range_content, df, range_indices, is_column_mode
+                            )
                         
                         # 處理最後一個範圍的逗號
                         is_last_range = (range_idx == len(selected_ranges) - 1)
@@ -1526,7 +1573,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
         
         return range_dim_content
 
-    # 處理標準模板函數
+    # 處理標準模板函數 - 其餘函數保持不變...
     def process_4d_range_first_template(self, template, excel_files, dfs, selected_ranges, file_count, row_count, col_count, is_column_mode=False):
         """處理四維陣列樣板 - 範圍優先 [範圍][檔案][行][列]"""
         if not selected_ranges or len(selected_ranges) < 1:
