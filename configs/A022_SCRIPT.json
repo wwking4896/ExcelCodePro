@@ -1,0 +1,24 @@
+{
+    "excel_files": [
+        "C:/Users/Wen Kai Wang/Downloads/Telegram Desktop/Parsheet/A022_18_parsheet.xlsx",
+        "C:/Users/Wen Kai Wang/Downloads/Telegram Desktop/Parsheet/A022_28_parsheet.xlsx",
+        "C:/Users/Wen Kai Wang/Downloads/Telegram Desktop/Parsheet/A022_38_parsheet.xlsx",
+        "C:/Users/Wen Kai Wang/Downloads/Telegram Desktop/Parsheet/A022_68_parsheet.xlsx",
+        "C:/Users/Wen Kai Wang/Downloads/Telegram Desktop/Parsheet/A022_88_parsheet.xlsx"
+    ],
+    "selected_sheet": "BG_Symbol",
+    "selected_ranges": [
+        {
+            "start_row": 2,
+            "start_col": 12,
+            "end_row": 73,
+            "end_col": 16,
+            "range_str": "M3:Q74"
+        }
+    ],
+    "template_type": "custom",
+    "code_template": "#ifndef VARIABLE_WEIGHT_H\n#define VARIABLE_WEIGHT_H\n\n// 四維陣列 - 檔案優先結構 [檔案][範圍][行][列]\n#define JACKPOT_FILE_COUNT {{FILE_COUNT}}         // 檔案數量\n#define BALL_TABLE_COUNT 5                 // 普通權重表數量(五個範圍)\n#define BALL_TABLE_WEIGHT_COUNT {{RANGE[BG_SCRIPT]_ROW_COUNT}}     // 每個範圍的最大行數\n#define BALL_TABLE_TYPE_COUNT {{RANGE[BG_SCRIPT]_COL_COUNT}}  // 每個範圍的最大列數\n\n{{ARGUMENT_START:initWeightValues}}\n// 參數定義：範圍名稱=BG_SCRIPT\n// 維度：[檔案][範圍][行][列]\nstatic const unsigned int initWeightValues[JACKPOT_FILE_COUNT][BALL_TABLE_COUNT][BALL_TABLE_WEIGHT_COUNT][BALL_TABLE_TYPE_COUNT] = {\n{{FILES_LOOP_START}}\n    // 來自檔案: {{FILE_NAME}}\n    {\n        // {{RANGE[BG_SCRIPT]_FULL_NAME}} \n        {\n{{RANGE[BG_SCRIPT]_LOOP_START}}\n            { {{ALL_ROWS}}} },\n{{RANGE[BG_SCRIPT]_LOOP_END}}\n        },\n    },\n{{FILES_LOOP_END}}\n};\n{{ARGUMENT_END:initWeightValues}}\n\n#endif // VARIABLE_WEIGHT_H",
+    "named_ranges": {
+        "BG_SCRIPT": "M3:Q74"
+    }
+}

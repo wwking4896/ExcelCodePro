@@ -1,0 +1,28 @@
+#ifndef VARIABLE_WEIGHT_H
+#define VARIABLE_WEIGHT_H
+
+// 四維陣列 - 檔案優先結構 [檔案][範圍][行][列]
+#define JACKPOT_FILE_COUNT {{FILE_COUNT}}         // 檔案數量
+#define BALL_TABLE_COUNT 5                 // 普通權重表數量(五個範圍)
+#define BALL_TABLE_WEIGHT_COUNT {{RANGE[BG_SCRIPT]_ROW_COUNT}}     // 每個範圍的最大行數
+#define BALL_TABLE_TYPE_COUNT {{RANGE[BG_SCRIPT]_COL_COUNT}}  // 每個範圍的最大列數
+
+{{ARGUMENT_START:initWeightValues}}
+// 參數定義：範圍名稱=BG_SCRIPT
+// 維度：[檔案][範圍][行][列]
+static const unsigned int initWeightValues[JACKPOT_FILE_COUNT][BALL_TABLE_COUNT][BALL_TABLE_WEIGHT_COUNT][BALL_TABLE_TYPE_COUNT] = {
+{{FILES_LOOP_START}}
+    // 來自檔案: {{FILE_NAME}}
+    {
+        // {{RANGE[BG_SCRIPT]_FULL_NAME}} 
+        {
+{{RANGE[BG_SCRIPT]_LOOP_START}}
+            { {{ALL_ROWS}}} },
+{{RANGE[BG_SCRIPT]_LOOP_END}}
+        },
+    },
+{{FILES_LOOP_END}}
+};
+{{ARGUMENT_END:initWeightValues}}
+
+#endif // VARIABLE_WEIGHT_H
