@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run GUI - ExcelCode Pro",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Run Console - ExcelCode Pro",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/console.py",
+            "args": [
+                "--config",
+                "sample_config.json" // ← 可換成你實際的設定檔
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }
+    ]
+}
