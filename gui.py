@@ -259,6 +259,7 @@ class ExcelToCodeApp:
         self.template_combo.pack(side="left", fill="x", expand=True, padx=0)
         self.template_combo['values'] = (
             "陣列初始化", "二維陣列", "二維陣列-直向讀取", 
+            "簡化權重表設定",  # 新增這個選項
             "三維陣列", "三維陣列-直向讀取", 
             "四維陣列 (範圍優先)", "四維陣列-直向讀取", 
             "四維陣列 (檔案優先)", 

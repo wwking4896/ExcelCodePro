@@ -441,6 +441,15 @@ unsigned int weights[MAX_SIZE] = {
     {{VALUE}},  // 索引 {{ROW_INDEX}}
 {{LOOP_END}}
 };"""
+    
+        elif template_name == "簡化權重表設定":  # 新增簡化版本
+            return """// 簡化權重表初始化
+void initWeights() {
+{{LOOP_START}}
+    // 設定權重值 [行{{ROW_INDEX}}]: {{VALUE}}
+    weights[{{ROW_INDEX}}] = {{VALUE}};
+{{LOOP_END}}
+}"""
         elif template_name == "二維陣列":
             return """// 二維陣列初始化
 #define ROW_COUNT 20
