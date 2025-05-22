@@ -6,6 +6,8 @@ import os
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 from tkinter.scrolledtext import ScrolledText
+from utils import format_cell_value
+
 import threading
 
 class CodeGenerator:
@@ -706,7 +708,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                 # 獲取目標值
                 if target_row < df.shape[0] and target_col < df.shape[1]:
                     value = df.iloc[target_row, target_col]
-                    formatted_value = self.format_cell_value(value)
+                    formatted_value = format_cell_value(value)
                     result = result.replace(placeholder, formatted_value)
                 else:
                     self.gui.log(f"警告: 位置 [{target_row},{target_col}] 超出資料範圍")
@@ -2030,7 +2032,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                             value = row[col_idx]
                         
                         # 格式化單元格值
-                        str_value = self.format_cell_value(value)
+                        str_value = format_cell_value(value)
                         
                         # 特別檢查並處理數字字串
                         # 如果是純數字但被包在引號中（如"1000"），移除引號
@@ -2063,7 +2065,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                 ref_idx = int(ref)
                 if hasattr(row, 'iloc') and 0 <= ref_idx < len(row):
                     ref_value = row.iloc[ref_idx]
-                    ref_str = self.format_cell_value(ref_value)
+                    ref_str = format_cell_value(ref_value)
                     # 檢查並移除不必要的引號
                     if ref_str.startswith('"') and ref_str.endswith('"'):
                         inner_value = ref_str[1:-1]
@@ -2075,7 +2077,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                     self.gui.log(f"ROW:{ref} = {ref_str}")
                 elif isinstance(row, (list, pd.Series)) and 0 <= ref_idx < len(row):
                     ref_value = row[ref_idx]
-                    ref_str = self.format_cell_value(ref_value)
+                    ref_str = format_cell_value(ref_value)
                     # 檢查並移除不必要的引號
                     if ref_str.startswith('"') and ref_str.endswith('"'):
                         inner_value = ref_str[1:-1]
@@ -2100,7 +2102,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                 if hasattr(row, 'index') and 0 <= ref_idx < len(row.index):
                     col_name = row.index[ref_idx]
                     col_value = row[col_name]
-                    col_str = self.format_cell_value(col_value)
+                    col_str = format_cell_value(col_value)
                     # 檢查並移除不必要的引號
                     if col_str.startswith('"') and col_str.endswith('"'):
                         inner_value = col_str[1:-1]
@@ -2112,7 +2114,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                     self.gui.log(f"COL:{ref} = {col_str}")
                 elif isinstance(row, (list, pd.Series)) and 0 <= ref_idx < len(row):
                     col_value = row[ref_idx]
-                    col_str = self.format_cell_value(col_value)
+                    col_str = format_cell_value(col_value)
                     # 檢查並移除不必要的引號
                     if col_str.startswith('"') and col_str.endswith('"'):
                         inner_value = col_str[1:-1]
@@ -2136,7 +2138,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                     value = row.iloc[0]
                 else:
                     value = row[0]
-                str_value = self.format_cell_value(value)
+                str_value = format_cell_value(value)
                 # 檢查並移除不必要的引號
                 if str_value.startswith('"') and str_value.endswith('"'):
                     inner_value = str_value[1:-1]
@@ -2215,7 +2217,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                             value = column[row_idx]
                         
                         # 格式化單元格值
-                        str_value = self.format_cell_value(value)
+                        str_value = format_cell_value(value)
                         
                         # 特別檢查並處理數字字串
                         if str_value.startswith('"') and str_value.endswith('"'):
@@ -2246,7 +2248,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                 ref_idx = int(ref)
                 if hasattr(column, 'iloc') and 0 <= ref_idx < len(column):
                     ref_value = column.iloc[ref_idx]
-                    ref_str = self.format_cell_value(ref_value)
+                    ref_str = format_cell_value(ref_value)
                     # 檢查並移除不必要的引號
                     if ref_str.startswith('"') and ref_str.endswith('"'):
                         inner_value = ref_str[1:-1]
@@ -2257,7 +2259,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                     line = line.replace(f"{{{{ROW:{ref}}}}}", ref_str)
                 elif isinstance(column, (list, pd.Series)) and 0 <= ref_idx < len(column):
                     ref_value = column[ref_idx]
-                    ref_str = self.format_cell_value(ref_value)
+                    ref_str = format_cell_value(ref_value)
                     # 檢查並移除不必要的引號
                     if ref_str.startswith('"') and ref_str.endswith('"'):
                         inner_value = ref_str[1:-1]
@@ -2287,7 +2289,7 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
                     value = column.iloc[0]
                 else:
                     value = column[0]
-                str_value = self.format_cell_value(value)
+                str_value = format_cell_value(value)
                 # 檢查並移除不必要的引號
                 if str_value.startswith('"') and str_value.endswith('"'):
                     inner_value = str_value[1:-1]
@@ -2309,41 +2311,3 @@ int right_top_first_value = {{RANGE[右上]_VALUE[0,0]}};
             line = line.rstrip().rstrip(",") + line[len(line.rstrip()):]
         
         return line
-
-    def format_cell_value(self, value):
-        """
-        格式化單元格值為適當的字串格式
-        - 確保數值不添加引號
-        - 只有文字類型才添加引號
-        """
-        # 處理空值
-        if pd.isna(value):
-            return "0"
-        
-        # 檢查是否為數值類型
-        if isinstance(value, (int, float, np.int64, np.float64)):
-            # 對於浮點數，如果是整數值則轉為整數顯示
-            if isinstance(value, (float, np.float64)) and value.is_integer():
-                return str(int(value))
-            return str(value)
-        
-        # 處理可能為數字的字串
-        if isinstance(value, str):
-            # 清理字串
-            cleaned = value.strip()
-            
-            # 嘗試識別數字字串（整數或浮點數）
-            try:
-                # 如果能轉換為數值，就返回數值形式
-                num_val = float(cleaned)
-                if num_val.is_integer():
-                    return str(int(num_val))
-                return str(num_val)
-            except (ValueError, TypeError):
-                # 不是數值，保持為字串並添加引號
-                # 確保特殊字元得到轉義
-                escaped_value = cleaned.replace('"', '\\"')
-                return f'"{escaped_value}"'
-        
-        # 其他任何類型，轉為字串並添加引號
-        return f'"{str(value)}"'

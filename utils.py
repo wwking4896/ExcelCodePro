@@ -31,12 +31,16 @@ def excel_notation_to_index(notation, gui=None):
     
     return row_idx, col_idx
 
-def format_cell_value(value):
+def format_cell_value(value, add_quotes=False):
     """
-    格式化單元格值為適當的字符串格式
+    Format cell value to appropriate string format
     - 將 NaN 轉換為 "0"
-    - 將整數浮點數轉換為整數字符串
-    - 將非數字值用引號包裹
+    - 將整數浮點數轉換為整數字串
+    - 文字值可選擇是否添加引號
+    
+    Args:
+        value: 要格式化的值
+        add_quotes: 是否為文字值添加引號，預設為 False
     """
     if pd.isna(value):
         return "0"
@@ -46,7 +50,11 @@ def format_cell_value(value):
         else:
             return str(value)
     else:
-        return f'"{value}"'
+        # 根據參數決定是否添加引號
+        if add_quotes:
+            return f'"{value}"'
+        else:
+            return str(value)
 
 def replace_template_placeholders(template, replacements):
     """
