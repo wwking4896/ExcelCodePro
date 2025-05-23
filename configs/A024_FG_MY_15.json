@@ -1,0 +1,21 @@
+{
+    "excel_files": [
+        "D:/SVN/A024/Parsheet/A024_03_Opt01.xlsx"
+    ],
+    "selected_sheet": "FG_MY#15",
+    "selected_ranges": [
+        {
+            "start_row": 6,
+            "start_col": 1,
+            "end_row": 21,
+            "end_col": 125,
+            "range_str": "B7:DV22"
+        }
+    ],
+    "template_type": "preset",
+    "preset_template": "二維陣列-直向讀取",
+    "code_template": "// 二維陣列初始化 - 直向讀取模式\n{{DIRECTION:COLUMN}}  // 指定為直向讀取\n#define COL_COUNT 20\n#define ROW_COUNT 4\n\nunsigned int table[ROW_COUNT][COL_COUNT] = {\n{{LOOP_START}}\n    { {{ALL_ROWS}} },  // Column {{COL_INDEX}}\n{{LOOP_END}}\n};",
+    "named_ranges": {
+        "FG_MY_15": "B7:DV22"
+    }
+}
