@@ -1,0 +1,23 @@
+{
+    "excel_files": [
+        "D:/小妹的資料/A023/Parsheet/A023_parsheet.xlsx"
+    ],
+    "selected_sheet": "FG_NormalBall_Weighted",
+    "selected_ranges": [],
+    "template_type": "preset",
+    "preset_template": "二維陣列",
+    "code_template": "// 二維陣列初始化\n#define Initial_ROW_COUNT {{ROW_COUNT}}\n#define Initial_COL_COUNT {{COL_COUNT}}\n#define COL_COUNT 14\n\nunsigned int gen_InitialMedian[Initial_ROW_COUNT][nitial_COL_COUNT] = {\n{{RANGE[median]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[median]_LOOP_END}}\n};\nunsigned int gen_InitialHigh[ROW_COUNT][COL_COUNT] = {\n{{RANGE[HIGH]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[HIGH]_LOOP_END}}\n};\nunsigned int gen_HS_6C1[ROW_COUNT][COL_COUNT] = {\n{{RANGE[6C1]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[6C1]_LOOP_END}}\n};\nunsigned int gen_HS_7C1[ROW_COUNT][COL_COUNT] = {\n{{RANGE[7C1]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[7C1]_LOOP_END}}\n};\nunsigned int gen_HS_8C1[ROW_COUNT][COL_COUNT] = {\n{{RANGE[8C1]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[8C1]_LOOP_END}}\n};\nunsigned int gen_HS_9C1[ROW_COUNT][COL_COUNT] = {\n{{RANGE[9C1]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[9C1]_LOOP_END}}\n};\nunsigned int gen_HS_10C1[ROW_COUNT][COL_COUNT] = {\n{{RANGE[10C1]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[10C1]_LOOP_END}}\n};\nunsigned int gen_HS_11C1[ROW_COUNT][COL_COUNT] = {\n{{RANGE[11C1]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[11C1]_LOOP_END}}\n};\nunsigned int gen_HS_12C1[ROW_COUNT][COL_COUNT] = {\n{{RANGE[12C1]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[12C1]_LOOP_END}}\n};\nunsigned int gen_HS_13C1[ROW_COUNT][COL_COUNT] = {\n{{RANGE[13C1]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[13C1]_LOOP_END}}\n};\nunsigned int gen_HS_14C1[ROW_COUNT][COL_COUNT] = {\n{{RANGE[14C1]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[14C1]_LOOP_END}}\n};",
+    "named_ranges": {
+        "median": "C3:Q77",
+        "HIGH": "S3:AG77",
+        "6C1": "AI3:AV77",
+        "7C1": "AX3:BK77",
+        "8C1": "BM3:BZ77",
+        "9C1": "CB3:CO77",
+        "10C1": "CQ3:DD77",
+        "11C1": "DF3:DS77",
+        "12C1": "DU3:EH77",
+        "13C1": "EJ3:EW77",
+        "14C1": "EY3:FL77"
+    }
+}

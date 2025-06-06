@@ -1,0 +1,59 @@
+{
+    "excel_files": [
+        "D:/小妹的資料/A023/Parsheet/A023_LLF_parsheet.xlsx"
+    ],
+    "selected_sheet": "01_Parameter-color change rate",
+    "selected_ranges": [
+        {
+            "start_row": 5,
+            "start_col": 3,
+            "end_row": 129,
+            "end_col": 9,
+            "range_str": "D6:J130"
+        }
+    ],
+    "template_type": "preset",
+    "preset_template": "二維陣列",
+    "code_template": "{{LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{LOOP_END}}",
+    "named_ranges": {
+        "Y_Weighted": "D3:AC127",
+        "R_Weighted": "AE3:BD127",
+        "G_Weighted": "BF3:CE127",
+        "SC1_Y": "D6:K130",
+        "SC1_R": "N6:U130",
+        "SC1_G": "X6:AE130",
+        "SC1_YR": "AH6:AO130",
+        "SC1_YRG": "BL6:BS130",
+        "SC1_YG": "AR6:AY130",
+        "SC1_GR": "BB6:BI130",
+        "SC2_Y": "BV6:CC130",
+        "SC2_R": "CF6:CM130",
+        "SC2_G": "CP6:CW130",
+        "SC2_YR": "CZ6:DG130",
+        "SC2_YG": "DJ6:DQ130",
+        "SC2_GR": "DT6:EA130",
+        "SC2_YRG": "ED6:EK130",
+        "SC3_Y": "EN6:EU130",
+        "SC3_R": "EX6:FE130",
+        "SC3_YR": "FR6:FY130",
+        "SC3_YG": "GB6:GI130",
+        "SC3_G": "FH6:FO130",
+        "SC3_GR": "GL6:GS130",
+        "SC3_YRG": "GV6:HC130",
+        "SC4_Y": "HF6:HM130",
+        "SC4_R": "HP6:HW130",
+        "SC4_G": "HZ6:IG130",
+        "SC4_YR": "IJ6:IQ130",
+        "SC4_YG": "IT6:JA130",
+        "SC4_GR": "JD6:JK130",
+        "SC4_YRG": "JN6:JU130",
+        "SC5_G": "KR6:KY130",
+        "SC5_YR": "LB6:LI130",
+        "SC5_YG": "LL6:LS130",
+        "SC5_GR": "LV6:MC130",
+        "SC5_Y": "JX6:KE130",
+        "SC5_R": "KH6:KO130",
+        "SC5_YRG": "MF6:MM130",
+        "color_change": "D6:J130"
+    }
+}

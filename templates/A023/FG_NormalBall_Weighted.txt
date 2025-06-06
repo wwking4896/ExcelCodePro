@@ -1,0 +1,60 @@
+// 二維陣列初始化
+#define Initial_ROW_COUNT {{ROW_COUNT}}
+#define Initial_COL_COUNT {{COL_COUNT}}
+#define COL_COUNT 14
+
+unsigned int gen_InitialMedian[Initial_ROW_COUNT][nitial_COL_COUNT] = {
+{{RANGE[median]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[median]_LOOP_END}}
+};
+unsigned int gen_InitialHigh[ROW_COUNT][COL_COUNT] = {
+{{RANGE[HIGH]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[HIGH]_LOOP_END}}
+};
+unsigned int gen_HS_6C1[ROW_COUNT][COL_COUNT] = {
+{{RANGE[6C1]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[6C1]_LOOP_END}}
+};
+unsigned int gen_HS_7C1[ROW_COUNT][COL_COUNT] = {
+{{RANGE[7C1]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[7C1]_LOOP_END}}
+};
+unsigned int gen_HS_8C1[ROW_COUNT][COL_COUNT] = {
+{{RANGE[8C1]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[8C1]_LOOP_END}}
+};
+unsigned int gen_HS_9C1[ROW_COUNT][COL_COUNT] = {
+{{RANGE[9C1]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[9C1]_LOOP_END}}
+};
+unsigned int gen_HS_10C1[ROW_COUNT][COL_COUNT] = {
+{{RANGE[10C1]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[10C1]_LOOP_END}}
+};
+unsigned int gen_HS_11C1[ROW_COUNT][COL_COUNT] = {
+{{RANGE[11C1]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[11C1]_LOOP_END}}
+};
+unsigned int gen_HS_12C1[ROW_COUNT][COL_COUNT] = {
+{{RANGE[12C1]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[12C1]_LOOP_END}}
+};
+unsigned int gen_HS_13C1[ROW_COUNT][COL_COUNT] = {
+{{RANGE[13C1]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[13C1]_LOOP_END}}
+};
+unsigned int gen_HS_14C1[ROW_COUNT][COL_COUNT] = {
+{{RANGE[14C1]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[14C1]_LOOP_END}}
+};

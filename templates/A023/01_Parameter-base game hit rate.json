@@ -1,0 +1,296 @@
+{
+    "excel_files": [
+        "D:/小妹的資料/A023/Parsheet/A023_LLF_parsheet.xlsx"
+    ],
+    "selected_sheet": "01_Parameter-base game hit rate",
+    "selected_ranges": [
+        {
+            "start_row": 5,
+            "start_col": 3,
+            "end_row": 129,
+            "end_col": 10,
+            "range_str": "D6:K130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 13,
+            "end_row": 129,
+            "end_col": 20,
+            "range_str": "N6:U130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 23,
+            "end_row": 129,
+            "end_col": 30,
+            "range_str": "X6:AE130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 33,
+            "end_row": 129,
+            "end_col": 40,
+            "range_str": "AH6:AO130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 63,
+            "end_row": 129,
+            "end_col": 70,
+            "range_str": "BL6:BS130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 43,
+            "end_row": 129,
+            "end_col": 50,
+            "range_str": "AR6:AY130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 53,
+            "end_row": 129,
+            "end_col": 60,
+            "range_str": "BB6:BI130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 73,
+            "end_row": 129,
+            "end_col": 80,
+            "range_str": "BV6:CC130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 83,
+            "end_row": 129,
+            "end_col": 90,
+            "range_str": "CF6:CM130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 93,
+            "end_row": 129,
+            "end_col": 100,
+            "range_str": "CP6:CW130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 103,
+            "end_row": 129,
+            "end_col": 110,
+            "range_str": "CZ6:DG130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 113,
+            "end_row": 129,
+            "end_col": 120,
+            "range_str": "DJ6:DQ130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 123,
+            "end_row": 129,
+            "end_col": 130,
+            "range_str": "DT6:EA130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 133,
+            "end_row": 129,
+            "end_col": 140,
+            "range_str": "ED6:EK130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 143,
+            "end_row": 129,
+            "end_col": 150,
+            "range_str": "EN6:EU130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 153,
+            "end_row": 129,
+            "end_col": 160,
+            "range_str": "EX6:FE130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 173,
+            "end_row": 129,
+            "end_col": 180,
+            "range_str": "FR6:FY130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 183,
+            "end_row": 129,
+            "end_col": 190,
+            "range_str": "GB6:GI130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 163,
+            "end_row": 129,
+            "end_col": 170,
+            "range_str": "FH6:FO130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 193,
+            "end_row": 129,
+            "end_col": 200,
+            "range_str": "GL6:GS130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 203,
+            "end_row": 129,
+            "end_col": 210,
+            "range_str": "GV6:HC130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 213,
+            "end_row": 129,
+            "end_col": 220,
+            "range_str": "HF6:HM130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 223,
+            "end_row": 129,
+            "end_col": 230,
+            "range_str": "HP6:HW130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 233,
+            "end_row": 129,
+            "end_col": 240,
+            "range_str": "HZ6:IG130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 243,
+            "end_row": 129,
+            "end_col": 250,
+            "range_str": "IJ6:IQ130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 253,
+            "end_row": 129,
+            "end_col": 260,
+            "range_str": "IT6:JA130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 263,
+            "end_row": 129,
+            "end_col": 270,
+            "range_str": "JD6:JK130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 273,
+            "end_row": 129,
+            "end_col": 280,
+            "range_str": "JN6:JU130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 303,
+            "end_row": 129,
+            "end_col": 310,
+            "range_str": "KR6:KY130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 313,
+            "end_row": 129,
+            "end_col": 320,
+            "range_str": "LB6:LI130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 323,
+            "end_row": 129,
+            "end_col": 330,
+            "range_str": "LL6:LS130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 333,
+            "end_row": 129,
+            "end_col": 340,
+            "range_str": "LV6:MC130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 283,
+            "end_row": 129,
+            "end_col": 290,
+            "range_str": "JX6:KE130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 293,
+            "end_row": 129,
+            "end_col": 300,
+            "range_str": "KH6:KO130"
+        },
+        {
+            "start_row": 5,
+            "start_col": 343,
+            "end_row": 129,
+            "end_col": 350,
+            "range_str": "MF6:MM130"
+        }
+    ],
+    "template_type": "preset",
+    "preset_template": "二維陣列",
+    "code_template": "// 二維陣列初始化\n#define ROW_COUNT {{ROW_COUNT}}\n#define COL_COUNT {{COL_COUNT}}\n\nunsigned intlong long gen_bgHitRateWeightValues[JP_TYPE_COUNT][SC_TABLE_COUNT][VARIABLE_COUNT][FEATURE_HIT_TYPE_COUNT] = {\n{\n{{RANGE[SC1_Y]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[SC1_Y]_LOOP_END}}\n},\n{\n{{RANGE[SC1_R]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[SC1_R]_LOOP_END}}\n}\n};",
+    "named_ranges": {
+        "Y_Weighted": "D3:AC127",
+        "R_Weighted": "AE3:BD127",
+        "G_Weighted": "BF3:CE127",
+        "SC1_Y": "D6:K130",
+        "SC1_R": "N6:U130",
+        "SC1_G": "X6:AE130",
+        "SC1_YR": "AH6:AO130",
+        "SC1_YG": "AR6:AY130",
+        "SC1_GR": "BB6:BI130",
+        "SC1_YRG": "BL6:BS130",
+        "SC2_Y": "BV6:CC130",
+        "SC2_R": "CF6:CM130",
+        "SC2_G": "CP6:CW130",
+        "SC2_YR": "CZ6:DG130",
+        "SC2_YG": "DJ6:DQ130",
+        "SC2_GR": "DT6:EA130",
+        "SC2_YRG": "ED6:EK130",
+        "SC3_Y": "EN6:EU130",
+        "SC3_R": "EX6:FE130",
+        "SC3_G": "FH6:FO130",
+        "SC3_YR": "FR6:FY130",
+        "SC3_YG": "GB6:GI130",
+        "SC3_GR": "GL6:GS130",
+        "SC3_YRG": "GV6:HC130",
+        "SC4_Y": "HF6:HM130",
+        "SC4_R": "HP6:HW130",
+        "SC4_G": "HZ6:IG130",
+        "SC4_YR": "IJ6:IQ130",
+        "SC4_YG": "IT6:JA130",
+        "SC4_GR": "JD6:JK130",
+        "SC4_YRG": "JN6:JU130",
+        "SC5_Y": "JX6:KE130",
+        "SC5_R": "KH6:KO130",
+        "SC5_G": "KR6:KY130",
+        "SC5_YR": "LB6:LI130",
+        "SC5_YG": "LL6:LS130",
+        "SC5_GR": "LV6:MC130",
+        "SC5_YRG": "MF6:MM130"
+    }
+}

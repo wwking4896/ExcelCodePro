@@ -1,0 +1,21 @@
+// 二維陣列初始化
+#define ROW_COUNT {{ROW_COUNT}}
+#define COL_COUNT {{COL_COUNT}}
+
+unsigned int gen_cumulativeWeighted_ColorY[FEATURE_BET_COUNT * DENOM_COUNT * BET_COUNT][26] = {
+{{RANGE[Y_Weighted]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[Y_Weighted]_LOOP_END}}
+};
+
+unsigned int gen_cumulativeWeighted_ColorR[FEATURE_BET_COUNT * DENOM_COUNT * BET_COUNT][26] = {
+{{RANGE[R_Weighted]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[R_Weighted]_LOOP_END}}
+};
+
+unsigned int gen_cumulativeWeighted_ColorG[FEATURE_BET_COUNT * DENOM_COUNT * BET_COUNT][26] = {
+{{RANGE[G_Weighted]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[G_Weighted]_LOOP_END}}
+};

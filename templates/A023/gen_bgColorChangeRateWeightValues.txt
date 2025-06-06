@@ -1,0 +1,3 @@
+{{RANGE[color_change]_LOOP_START}} 
+    { {{ALL_COLUMNS}} },
+{{RANGE[color_change]_LOOP_END}}

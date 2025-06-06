@@ -1,0 +1,104 @@
+{
+    "excel_files": [
+        "D:/小妹的資料/A023/Parsheet/A023_parsheet.xlsx"
+    ],
+    "selected_sheet": "FG_MajorBall_Weighted",
+    "selected_ranges": [
+        {
+            "start_row": 2,
+            "start_col": 2,
+            "end_row": 76,
+            "end_col": 3,
+            "range_str": "C3:D77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 5,
+            "end_row": 76,
+            "end_col": 18,
+            "range_str": "F3:S77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 20,
+            "end_row": 76,
+            "end_col": 33,
+            "range_str": "U3:AH77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 35,
+            "end_row": 76,
+            "end_col": 48,
+            "range_str": "AJ3:AW77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 50,
+            "end_row": 76,
+            "end_col": 63,
+            "range_str": "AY3:BL77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 80,
+            "end_row": 76,
+            "end_col": 93,
+            "range_str": "CC3:CP77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 95,
+            "end_row": 76,
+            "end_col": 108,
+            "range_str": "CR3:DE77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 110,
+            "end_row": 76,
+            "end_col": 123,
+            "range_str": "DG3:DT77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 125,
+            "end_row": 76,
+            "end_col": 138,
+            "range_str": "DV3:EI77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 65,
+            "end_row": 76,
+            "end_col": 78,
+            "range_str": "BN3:CA77"
+        }
+    ],
+    "template_type": "preset",
+    "preset_template": "二維陣列",
+    "code_template": "// 二維陣列初始化\n#define ROW_COUNT {{ROW_COUNT}}\n#define COL_COUNT {{COL_COUNT}}\n\nunsigned int MajorUsageWeights[ROW_COUNT][2] = {\n{{RANGE[USED_STATUS]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[USED_STATUS]_LOOP_END}}\n};\n\nunsigned int Major_HS_6C1[ROW_COUNT][HS_OPTION_COUNT] = {\n{{RANGE[Major_6C1]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[Major_6C1]_LOOP_END}}\n};\n\nunsigned int Major_HS_7C1[ROW_COUNT][HS_OPTION_COUNT] = {\n{{RANGE[Major_7C1]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[Major_7C1]_LOOP_END}}\n};\n\nunsigned int Major_HS_8C1[ROW_COUNT][HS_OPTION_COUNT] = {\n{{RANGE[Major_8C1]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[Major_8C1]_LOOP_END}}\n};\n\nunsigned int Major_HS_9C1[ROW_COUNT][HS_OPTION_COUNT] = {\n{{RANGE[Major_9C1]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[Major_9C1]_LOOP_END}}\n};\n\nunsigned int Major_HS_10C1[ROW_COUNT][HS_OPTION_COUNT] = {\n{{RANGE[Major_10C1]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[Major_10C1]_LOOP_END}}\n};\n\nunsigned int Major_HS_11C1[ROW_COUNT][HS_OPTION_COUNT] = {\n{{RANGE[Major_11C1]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[Major_11C1]_LOOP_END}}\n};\n\nunsigned int Major_HS_12C1[ROW_COUNT][HS_OPTION_COUNT] = {\n{{RANGE[Major_12C1]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[Major_12C1]_LOOP_END}}\n};\n\nunsigned int Major_HS_13C1[ROW_COUNT][HS_OPTION_COUNT] = {\n{{RANGE[Major_13C1]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[Major_13C1]_LOOP_END}}\n};\n\nunsigned int Major_HS_14C1[ROW_COUNT][HS_OPTION_COUNT] = {\n{{RANGE[Major_14C1]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[Major_14C1]_LOOP_END}}\n};",
+    "named_ranges": {
+        "median": "C3:Q77",
+        "HIGH": "S3:AG77",
+        "6C1": "AI3:AV77",
+        "7C1": "AX3:BK77",
+        "8C1": "BM3:BZ77",
+        "9C1": "CB3:CO77",
+        "10C1": "CQ3:DD77",
+        "11C1": "DF3:DS77",
+        "12C1": "DU3:EH77",
+        "13C1": "EJ3:EW77",
+        "14C1": "EY3:FL77",
+        "USED_STATUS": "C3:D77",
+        "Major_6C1": "F3:S77",
+        "Major_7C1": "U3:AH77",
+        "Major_8C1": "AJ3:AW77",
+        "Major_9C1": "AY3:BL77",
+        "Major_11C1": "CC3:CP77",
+        "Major_12C1": "CR3:DE77",
+        "Major_13C1": "DG3:DT77",
+        "Major_14C1": "DV3:EI77",
+        "Major_10C1": "BN3:CA77"
+    }
+}

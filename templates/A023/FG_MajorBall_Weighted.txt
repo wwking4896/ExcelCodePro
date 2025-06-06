@@ -1,0 +1,63 @@
+// 二維陣列初始化
+#define ROW_COUNT {{ROW_COUNT}}
+#define COL_COUNT {{COL_COUNT}}
+
+unsigned int MajorUsageWeights[ROW_COUNT][2] = {
+{{RANGE[USED_STATUS]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[USED_STATUS]_LOOP_END}}
+};
+
+unsigned int Major_HS_6C1[ROW_COUNT][HS_OPTION_COUNT] = {
+{{RANGE[Major_6C1]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[Major_6C1]_LOOP_END}}
+};
+
+unsigned int Major_HS_7C1[ROW_COUNT][HS_OPTION_COUNT] = {
+{{RANGE[Major_7C1]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[Major_7C1]_LOOP_END}}
+};
+
+unsigned int Major_HS_8C1[ROW_COUNT][HS_OPTION_COUNT] = {
+{{RANGE[Major_8C1]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[Major_8C1]_LOOP_END}}
+};
+
+unsigned int Major_HS_9C1[ROW_COUNT][HS_OPTION_COUNT] = {
+{{RANGE[Major_9C1]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[Major_9C1]_LOOP_END}}
+};
+
+unsigned int Major_HS_10C1[ROW_COUNT][HS_OPTION_COUNT] = {
+{{RANGE[Major_10C1]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[Major_10C1]_LOOP_END}}
+};
+
+unsigned int Major_HS_11C1[ROW_COUNT][HS_OPTION_COUNT] = {
+{{RANGE[Major_11C1]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[Major_11C1]_LOOP_END}}
+};
+
+unsigned int Major_HS_12C1[ROW_COUNT][HS_OPTION_COUNT] = {
+{{RANGE[Major_12C1]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[Major_12C1]_LOOP_END}}
+};
+
+unsigned int Major_HS_13C1[ROW_COUNT][HS_OPTION_COUNT] = {
+{{RANGE[Major_13C1]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[Major_13C1]_LOOP_END}}
+};
+
+unsigned int Major_HS_14C1[ROW_COUNT][HS_OPTION_COUNT] = {
+{{RANGE[Major_14C1]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[Major_14C1]_LOOP_END}}
+};

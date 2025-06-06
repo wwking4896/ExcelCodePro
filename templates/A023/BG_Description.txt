@@ -1,0 +1,22 @@
+// 二維陣列初始化 - 直向讀取模式
+{{DIRECTION:COLUMN}}  // 指定為直向讀取
+#define COL_COUNT 20
+#define ROW_COUNT 4
+
+unsigned int table[ROW_COUNT][COL_COUNT] = {
+{{RANGE[bet18]_LOOP_START}}
+    { {{ALL_ROWS}} },  // Denom {{COL_INDEX}}
+{{RANGE[bet18]_LOOP_END}}
+{{RANGE[bet28]_LOOP_START}}
+    { {{ALL_ROWS}} },  // Denom {{COL_INDEX}}
+{{RANGE[bet28]_LOOP_END}}
+{{RANGE[bet38]_LOOP_START}}
+    { {{ALL_ROWS}} },  // Denom {{COL_INDEX}}
+{{RANGE[bet38]_LOOP_END}}
+{{RANGE[bet68]_LOOP_START}}
+    { {{ALL_ROWS}} },  // Denom {{COL_INDEX}}
+{{RANGE[bet68]_LOOP_END}}
+{{RANGE[bet88]_LOOP_START}}
+    { {{ALL_ROWS}} },  // Denom {{COL_INDEX}}
+{{RANGE[bet88]_LOOP_END}}
+};

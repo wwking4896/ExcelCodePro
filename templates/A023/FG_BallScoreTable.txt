@@ -1,0 +1,15 @@
+// 二維陣列初始化
+#define ROW_COUNT {{ROW_COUNT}}
+#define COL_COUNT {{COL_COUNT}}
+
+unsigned int gen_InitialCreditBallValue[FEATURE_BET_COUNT * BET_COUNT][HS_INIT_OPTION_COUNT] = {
+{{RANGE[Initial]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[Initial]_LOOP_END}}
+};
+
+unsigned int gen_HSCreditBallValue[FEATURE_BET_COUNT * BET_COUNT][HS_OPTION_COUNT] = {
+{{RANGE[HS]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[HS]_LOOP_END}}
+};

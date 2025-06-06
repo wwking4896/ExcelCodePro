@@ -1,0 +1,42 @@
+{
+    "excel_files": [
+        "D:/小妹的資料/A023/Parsheet/A023_parsheet.xlsx"
+    ],
+    "selected_sheet": "FG_ReelWeighted",
+    "selected_ranges": [
+        {
+            "start_row": 2,
+            "start_col": 2,
+            "end_row": 16,
+            "end_col": 3,
+            "range_str": "C3:D17"
+        }
+    ],
+    "template_type": "preset",
+    "preset_template": "二維陣列",
+    "code_template": "// 二維陣列初始化\n#define ROW_COUNT {{ROW_COUNT}}\n#define COL_COUNT {{COL_COUNT}}\n\nunsigned int table[ROW_COUNT][COL_COUNT] = {\n{{LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{LOOP_END}}\n};",
+    "named_ranges": {
+        "median": "C3:Q77",
+        "HIGH": "S3:AG77",
+        "6C1": "AI3:AV77",
+        "7C1": "AX3:BK77",
+        "8C1": "BM3:BZ77",
+        "9C1": "CB3:CO77",
+        "10C1": "CQ3:DD77",
+        "11C1": "DF3:DS77",
+        "12C1": "DU3:EH77",
+        "13C1": "EJ3:EW77",
+        "14C1": "EY3:FL77",
+        "USED_STATUS": "C3:D77",
+        "Major_6C1": "F3:S77",
+        "Major_7C1": "U3:AH77",
+        "Major_8C1": "AJ3:AW77",
+        "Major_9C1": "AY3:BL77",
+        "Major_11C1": "CC3:CP77",
+        "Major_12C1": "CR3:DE77",
+        "Major_13C1": "DG3:DT77",
+        "Major_14C1": "DV3:EI77",
+        "Major_10C1": "BN3:CA77",
+        "GrandReel": "C3:D17"
+    }
+}
