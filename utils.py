@@ -34,23 +34,31 @@ def excel_notation_to_index(notation, gui=None):
 def format_cell_value(value, add_quotes=False):
     """
     Format cell value to appropriate string format
-    - 將 NaN 轉換為 "0"
-    - 將整數浮點數轉換為整數字串
-    - 文字值可選擇是否添加引號
+    - Convert NaN to "0"
+    - Convert float integers to integer strings with proper rounding
+    - Handle floating point precision issues
+    - Optionally add quotes for text values
     
     Args:
-        value: 要格式化的值
-        add_quotes: 是否為文字值添加引號，預設為 False
+        value: The value to format
+        add_quotes: Whether to add quotes for text values, default is False
     """
     if pd.isna(value):
         return "0"
     elif isinstance(value, (int, float)):
-        if isinstance(value, float) and value.is_integer():
-            return str(int(value))
+        if isinstance(value, float):
+            # Round to handle floating point precision issues
+            # Check if it's very close to an integer (within 1e-10)
+            rounded_value = round(value)
+            if abs(value - rounded_value) < 1e-10:
+                return str(rounded_value)
+            else:
+                # For non-integer floats, keep reasonable precision
+                return f"{value:.10g}"  # Use 'g' format to avoid unnecessary decimals
         else:
             return str(value)
     else:
-        # 根據參數決定是否添加引號
+        # Handle text values based on parameter
         if add_quotes:
             return f'"{value}"'
         else:
