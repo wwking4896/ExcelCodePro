@@ -1,0 +1,3 @@
+{{RANGE[Hit_Rate]_LOOP_START}}
+    { {{ALL_COLUMNS}} },
+{{RANGE[Hit_Rate]_LOOP_END}}

@@ -1,0 +1,228 @@
+{
+    "excel_files": [
+        "C:/Users/joshuajiang/Desktop/金來發/A022_皇朝盛世/20250528_A022/MR_A022_Treasure_Cumulative_parameter.xlsx"
+    ],
+    "selected_sheet": "Cumulative Weighted",
+    "selected_ranges": [
+        {
+            "start_row": 2,
+            "start_col": 2,
+            "end_row": 76,
+            "end_col": 16,
+            "range_str": "C3:Q77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 18,
+            "end_row": 76,
+            "end_col": 32,
+            "range_str": "S3:AG77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 34,
+            "end_row": 76,
+            "end_col": 47,
+            "range_str": "AI3:AV77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 49,
+            "end_row": 76,
+            "end_col": 62,
+            "range_str": "AX3:BK77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 64,
+            "end_row": 76,
+            "end_col": 77,
+            "range_str": "BM3:BZ77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 79,
+            "end_row": 76,
+            "end_col": 92,
+            "range_str": "CB3:CO77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 94,
+            "end_row": 76,
+            "end_col": 107,
+            "range_str": "CQ3:DD77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 109,
+            "end_row": 76,
+            "end_col": 122,
+            "range_str": "DF3:DS77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 124,
+            "end_row": 76,
+            "end_col": 137,
+            "range_str": "DU3:EH77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 139,
+            "end_row": 76,
+            "end_col": 152,
+            "range_str": "EJ3:EW77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 154,
+            "end_row": 76,
+            "end_col": 167,
+            "range_str": "EY3:FL77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 2,
+            "end_row": 76,
+            "end_col": 3,
+            "range_str": "C3:D77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 5,
+            "end_row": 76,
+            "end_col": 18,
+            "range_str": "F3:S77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 20,
+            "end_row": 76,
+            "end_col": 33,
+            "range_str": "U3:AH77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 35,
+            "end_row": 76,
+            "end_col": 48,
+            "range_str": "AJ3:AW77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 50,
+            "end_row": 76,
+            "end_col": 63,
+            "range_str": "AY3:BL77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 80,
+            "end_row": 76,
+            "end_col": 93,
+            "range_str": "CC3:CP77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 95,
+            "end_row": 76,
+            "end_col": 108,
+            "range_str": "CR3:DE77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 110,
+            "end_row": 76,
+            "end_col": 123,
+            "range_str": "DG3:DT77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 125,
+            "end_row": 76,
+            "end_col": 138,
+            "range_str": "DV3:EI77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 65,
+            "end_row": 76,
+            "end_col": 78,
+            "range_str": "BN3:CA77"
+        },
+        {
+            "start_row": 2,
+            "start_col": 2,
+            "end_row": 16,
+            "end_col": 3,
+            "range_str": "C3:D17"
+        },
+        {
+            "start_row": 3,
+            "start_col": 2,
+            "end_row": 27,
+            "end_col": 16,
+            "range_str": "C4:Q28"
+        },
+        {
+            "start_row": 3,
+            "start_col": 17,
+            "end_row": 27,
+            "end_col": 28,
+            "range_str": "R4:AC28"
+        },
+        {
+            "start_row": 2,
+            "start_col": 3,
+            "end_row": 126,
+            "end_col": 28,
+            "range_str": "D3:AC127"
+        },
+        {
+            "start_row": 2,
+            "start_col": 30,
+            "end_row": 126,
+            "end_col": 55,
+            "range_str": "AE3:BD127"
+        },
+        {
+            "start_row": 2,
+            "start_col": 57,
+            "end_row": 126,
+            "end_col": 82,
+            "range_str": "BF3:CE127"
+        }
+    ],
+    "template_type": "custom",
+    "code_template": "__device__ unsigned long long gen_cumulativeWeighted_ColorY[FEATURE_BET_COUNT * DENOM_COUNT * BET_COUNT][26] = {\n{{RANGE[Y_Weighted]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[Y_Weighted]_LOOP_END}}\n};\n\n__device__ unsigned long long gen_cumulativeWeighted_ColorR[FEATURE_BET_COUNT * DENOM_COUNT * BET_COUNT][26] = {\n{{RANGE[R_Weighted]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[R_Weighted]_LOOP_END}}\n};\n\n__device__ unsigned long long gen_cumulativeWeighted_ColorG[FEATURE_BET_COUNT * DENOM_COUNT * BET_COUNT][26] = {\n{{RANGE[G_Weighted]_LOOP_START}}\n    { {{ALL_COLUMNS}} },\n{{RANGE[G_Weighted]_LOOP_END}}\n};",
+    "named_ranges": {
+        "median": "C3:Q77",
+        "HIGH": "S3:AG77",
+        "6C1": "AI3:AV77",
+        "7C1": "AX3:BK77",
+        "8C1": "BM3:BZ77",
+        "9C1": "CB3:CO77",
+        "10C1": "CQ3:DD77",
+        "11C1": "DF3:DS77",
+        "12C1": "DU3:EH77",
+        "13C1": "EJ3:EW77",
+        "14C1": "EY3:FL77",
+        "USED_STATUS": "C3:D77",
+        "Major_6C1": "F3:S77",
+        "Major_7C1": "U3:AH77",
+        "Major_8C1": "AJ3:AW77",
+        "Major_9C1": "AY3:BL77",
+        "Major_11C1": "CC3:CP77",
+        "Major_12C1": "CR3:DE77",
+        "Major_13C1": "DG3:DT77",
+        "Major_14C1": "DV3:EI77",
+        "Major_10C1": "BN3:CA77",
+        "GrandReel": "C3:D17",
+        "Initial": "C4:Q28",
+        "HS": "R4:AC28",
+        "Y_Weighted": "D3:AC127",
+        "R_Weighted": "AE3:BD127",
+        "G_Weighted": "BF3:CE127"
+    }
+}

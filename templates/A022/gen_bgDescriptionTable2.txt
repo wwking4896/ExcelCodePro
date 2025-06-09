@@ -1,0 +1,25 @@
+{//Feature18
+{{RANGE[BgDescriptionTable2_18]_LOOP_START}} 
+    { {{ALL_COLUMNS}} },
+{{RANGE[BgDescriptionTable2_18]_LOOP_END}} 
+},
+{//Feature28
+{{RANGE[BgDescriptionTable2_28]_LOOP_START}} 
+    { {{ALL_COLUMNS}} },
+{{RANGE[BgDescriptionTable2_28]_LOOP_END}} 
+},
+{//Feature38
+{{RANGE[BgDescriptionTable2_38]_LOOP_START}} 
+    { {{ALL_COLUMNS}} },
+{{RANGE[BgDescriptionTable2_38]_LOOP_END}} 
+},
+{//Feature68
+{{RANGE[BgDescriptionTable2_68]_LOOP_START}} 
+    { {{ALL_COLUMNS}} },
+{{RANGE[BgDescriptionTable2_68]_LOOP_END}} 
+},
+{//Feature88
+{{RANGE[BgDescriptionTable2_88]_LOOP_START}} 
+    { {{ALL_COLUMNS}} },
+{{RANGE[BgDescriptionTable2_88]_LOOP_END}} 
+},

@@ -1,0 +1,26 @@
+{//Feature18
+{{RANGE[BallWeighted_Feature18_SpreadBall]_LOOP_START}} 
+    { {{ALL_COLUMNS}} },
+{{RANGE[BallWeighted_Feature18_SpreadBall]_LOOP_END}} 
+},
+{//Feature28
+{{RANGE[BallWeighted_Feature28_SpreadBall]_LOOP_START}} 
+    { {{ALL_COLUMNS}} },
+{{RANGE[BallWeighted_Feature28_SpreadBall]_LOOP_END}} 
+},
+{//Feature38
+{{RANGE[BallWeighted_Feature38_SpreadBall]_LOOP_START}} 
+    { {{ALL_COLUMNS}} },
+{{RANGE[BallWeighted_Feature38_SpreadBall]_LOOP_END}} 
+},
+{//Feature68
+{{RANGE[BallWeighted_Feature68_SpreadBall]_LOOP_START}} 
+    { {{ALL_COLUMNS}} },
+{{RANGE[BallWeighted_Feature68_SpreadBall]_LOOP_END}} 
+},
+{//Feature88
+{{RANGE[BallWeighted_Feature88_SpreadBall]_LOOP_START}} 
+    { {{ALL_COLUMNS}} },
+{{RANGE[BallWeighted_Feature88_SpreadBall]_LOOP_END}} 
+},
+

@@ -1,0 +1,60 @@
+{//Feature 18 Table1
+	{
+	{{RANGE[C5Respin_Feature18_Table1]_LOOP_START}}
+		{ {{ALL_COLUMNS}} },
+	{{RANGE[C5Respin_Feature18_Table1]_LOOP_END}}
+	},
+	{//Table2
+	{{RANGE[C5Respin_Feature18_Table2]_LOOP_START}}
+		{ {{ALL_COLUMNS}} },
+	{{RANGE[C5Respin_Feature18_Table2]_LOOP_END}}
+	},
+},
+{//Feature 28 Table1
+	{
+	{{RANGE[C5Respin_Feature28_Table1]_LOOP_START}}
+		{ {{ALL_COLUMNS}} },
+	{{RANGE[C5Respin_Feature28_Table1]_LOOP_END}}
+	},
+	{//Table2
+	{{RANGE[C5Respin_Feature28_Table2]_LOOP_START}}
+		{ {{ALL_COLUMNS}} },
+	{{RANGE[C5Respin_Feature28_Table2]_LOOP_END}}
+	},
+},
+{//Feature 38 Table1
+	{
+	{{RANGE[C5Respin_Feature38_Table1]_LOOP_START}}
+		{ {{ALL_COLUMNS}} },
+	{{RANGE[C5Respin_Feature38_Table1]_LOOP_END}}
+	},
+	{//Table2
+	{{RANGE[C5Respin_Feature38_Table2]_LOOP_START}}
+		{ {{ALL_COLUMNS}} },
+	{{RANGE[C5Respin_Feature38_Table2]_LOOP_END}}
+	},
+},
+{//Feature 68 Table1
+	{
+	{{RANGE[C5Respin_Feature68_Table1]_LOOP_START}}
+		{ {{ALL_COLUMNS}} },
+	{{RANGE[C5Respin_Feature68_Table1]_LOOP_END}}
+	},
+	{//Table2
+	{{RANGE[C5Respin_Feature68_Table2]_LOOP_START}}
+		{ {{ALL_COLUMNS}} },
+	{{RANGE[C5Respin_Feature68_Table2]_LOOP_END}}
+	},
+},
+{//Feature 88 Table1
+	{
+	{{RANGE[C5Respin_Feature88_Table1]_LOOP_START}}
+		{ {{ALL_COLUMNS}} },
+	{{RANGE[C5Respin_Feature88_Table1]_LOOP_END}}
+	},
+	{//Table2
+	{{RANGE[C5Respin_Feature88_Table2]_LOOP_START}}
+		{ {{ALL_COLUMNS}} },
+	{{RANGE[C5Respin_Feature88_Table2]_LOOP_END}}
+	},
+},

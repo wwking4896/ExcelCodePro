@@ -1,0 +1,812 @@
+{
+    "excel_files": [
+        "C:/Users/joshuajiang/Desktop/金來發/A022_皇朝盛世/20250528_A022/MR_A022_Feature_parsheet.xlsx"
+    ],
+    "selected_sheet": "FG_SpreadBall",
+    "selected_ranges": [
+        {
+            "start_row": 2,
+            "start_col": 7,
+            "end_row": 242,
+            "end_col": 7,
+            "range_str": "H3:H243"
+        },
+        {
+            "start_row": 2,
+            "start_col": 8,
+            "end_row": 242,
+            "end_col": 8,
+            "range_str": "I3:I243"
+        },
+        {
+            "start_row": 2,
+            "start_col": 9,
+            "end_row": 242,
+            "end_col": 9,
+            "range_str": "J3:J243"
+        },
+        {
+            "start_row": 243,
+            "start_col": 7,
+            "end_row": 483,
+            "end_col": 7,
+            "range_str": "H244:H484"
+        },
+        {
+            "start_row": 243,
+            "start_col": 8,
+            "end_row": 483,
+            "end_col": 8,
+            "range_str": "I244:I484"
+        },
+        {
+            "start_row": 243,
+            "start_col": 9,
+            "end_row": 483,
+            "end_col": 9,
+            "range_str": "J244:J484"
+        },
+        {
+            "start_row": 484,
+            "start_col": 7,
+            "end_row": 724,
+            "end_col": 7,
+            "range_str": "H485:H725"
+        },
+        {
+            "start_row": 484,
+            "start_col": 8,
+            "end_row": 724,
+            "end_col": 8,
+            "range_str": "I485:I725"
+        },
+        {
+            "start_row": 484,
+            "start_col": 9,
+            "end_row": 724,
+            "end_col": 9,
+            "range_str": "J485:J725"
+        },
+        {
+            "start_row": 725,
+            "start_col": 7,
+            "end_row": 965,
+            "end_col": 7,
+            "range_str": "H726:H966"
+        },
+        {
+            "start_row": 725,
+            "start_col": 8,
+            "end_row": 965,
+            "end_col": 8,
+            "range_str": "I726:I966"
+        },
+        {
+            "start_row": 725,
+            "start_col": 8,
+            "end_row": 965,
+            "end_col": 8,
+            "range_str": "I726:I966"
+        },
+        {
+            "start_row": 966,
+            "start_col": 7,
+            "end_row": 1206,
+            "end_col": 7,
+            "range_str": "H967:H1207"
+        },
+        {
+            "start_row": 966,
+            "start_col": 8,
+            "end_row": 1206,
+            "end_col": 8,
+            "range_str": "I967:I1207"
+        },
+        {
+            "start_row": 966,
+            "start_col": 9,
+            "end_row": 1206,
+            "end_col": 9,
+            "range_str": "J967:J1207"
+        },
+        {
+            "start_row": 1207,
+            "start_col": 7,
+            "end_row": 1447,
+            "end_col": 7,
+            "range_str": "H1208:H1448"
+        },
+        {
+            "start_row": 1207,
+            "start_col": 8,
+            "end_row": 1447,
+            "end_col": 8,
+            "range_str": "I1208:I1448"
+        },
+        {
+            "start_row": 1207,
+            "start_col": 9,
+            "end_row": 1447,
+            "end_col": 9,
+            "range_str": "J1208:J1448"
+        },
+        {
+            "start_row": 1448,
+            "start_col": 7,
+            "end_row": 1688,
+            "end_col": 7,
+            "range_str": "H1449:H1689"
+        },
+        {
+            "start_row": 1448,
+            "start_col": 8,
+            "end_row": 1688,
+            "end_col": 8,
+            "range_str": "I1449:I1689"
+        },
+        {
+            "start_row": 1448,
+            "start_col": 9,
+            "end_row": 1688,
+            "end_col": 9,
+            "range_str": "J1449:J1689"
+        },
+        {
+            "start_row": 1689,
+            "start_col": 7,
+            "end_row": 1929,
+            "end_col": 7,
+            "range_str": "H1690:H1930"
+        },
+        {
+            "start_row": 1689,
+            "start_col": 8,
+            "end_row": 1929,
+            "end_col": 8,
+            "range_str": "I1690:I1930"
+        },
+        {
+            "start_row": 1689,
+            "start_col": 9,
+            "end_row": 1929,
+            "end_col": 9,
+            "range_str": "J1690:J1930"
+        },
+        {
+            "start_row": 1930,
+            "start_col": 7,
+            "end_row": 2170,
+            "end_col": 7,
+            "range_str": "H1931:H2171"
+        },
+        {
+            "start_row": 1930,
+            "start_col": 8,
+            "end_row": 2170,
+            "end_col": 8,
+            "range_str": "I1931:I2171"
+        },
+        {
+            "start_row": 1930,
+            "start_col": 9,
+            "end_row": 2170,
+            "end_col": 9,
+            "range_str": "J1931:J2171"
+        },
+        {
+            "start_row": 2171,
+            "start_col": 7,
+            "end_row": 2411,
+            "end_col": 7,
+            "range_str": "H2172:H2412"
+        },
+        {
+            "start_row": 2171,
+            "start_col": 8,
+            "end_row": 2411,
+            "end_col": 8,
+            "range_str": "I2172:I2412"
+        },
+        {
+            "start_row": 2171,
+            "start_col": 9,
+            "end_row": 2411,
+            "end_col": 9,
+            "range_str": "J2172:J2412"
+        },
+        {
+            "start_row": 2,
+            "start_col": 3,
+            "end_row": 242,
+            "end_col": 6,
+            "range_str": "D3:G243"
+        },
+        {
+            "start_row": 243,
+            "start_col": 3,
+            "end_row": 483,
+            "end_col": 6,
+            "range_str": "D244:G484"
+        },
+        {
+            "start_row": 484,
+            "start_col": 3,
+            "end_row": 724,
+            "end_col": 6,
+            "range_str": "D485:G725"
+        },
+        {
+            "start_row": 725,
+            "start_col": 3,
+            "end_row": 965,
+            "end_col": 6,
+            "range_str": "D726:G966"
+        },
+        {
+            "start_row": 966,
+            "start_col": 3,
+            "end_row": 1206,
+            "end_col": 6,
+            "range_str": "D967:G1207"
+        },
+        {
+            "start_row": 1207,
+            "start_col": 3,
+            "end_row": 1447,
+            "end_col": 6,
+            "range_str": "D1208:G1448"
+        },
+        {
+            "start_row": 1448,
+            "start_col": 3,
+            "end_row": 1688,
+            "end_col": 6,
+            "range_str": "D1449:G1689"
+        },
+        {
+            "start_row": 1689,
+            "start_col": 3,
+            "end_row": 1929,
+            "end_col": 6,
+            "range_str": "D1690:G1930"
+        },
+        {
+            "start_row": 1930,
+            "start_col": 3,
+            "end_row": 2170,
+            "end_col": 6,
+            "range_str": "D1931:G2171"
+        },
+        {
+            "start_row": 2171,
+            "start_col": 3,
+            "end_row": 2411,
+            "end_col": 6,
+            "range_str": "D2172:G2412"
+        },
+        {
+            "start_row": 2,
+            "start_col": 4,
+            "end_row": 4,
+            "end_col": 6,
+            "range_str": "E3:G5"
+        },
+        {
+            "start_row": 5,
+            "start_col": 4,
+            "end_row": 7,
+            "end_col": 6,
+            "range_str": "E6:G8"
+        },
+        {
+            "start_row": 8,
+            "start_col": 4,
+            "end_row": 10,
+            "end_col": 6,
+            "range_str": "E9:G11"
+        },
+        {
+            "start_row": 11,
+            "start_col": 4,
+            "end_row": 13,
+            "end_col": 6,
+            "range_str": "E12:G14"
+        },
+        {
+            "start_row": 14,
+            "start_col": 4,
+            "end_row": 16,
+            "end_col": 6,
+            "range_str": "E15:G17"
+        },
+        {
+            "start_row": 17,
+            "start_col": 4,
+            "end_row": 19,
+            "end_col": 6,
+            "range_str": "E18:G20"
+        },
+        {
+            "start_row": 20,
+            "start_col": 4,
+            "end_row": 22,
+            "end_col": 6,
+            "range_str": "E21:G23"
+        },
+        {
+            "start_row": 23,
+            "start_col": 4,
+            "end_row": 25,
+            "end_col": 6,
+            "range_str": "E24:G26"
+        },
+        {
+            "start_row": 26,
+            "start_col": 4,
+            "end_row": 28,
+            "end_col": 6,
+            "range_str": "E27:G29"
+        },
+        {
+            "start_row": 29,
+            "start_col": 4,
+            "end_row": 31,
+            "end_col": 6,
+            "range_str": "E30:G32"
+        },
+        {
+            "start_row": 2,
+            "start_col": 3,
+            "end_row": 31,
+            "end_col": 15,
+            "range_str": "D3:P32"
+        },
+        {
+            "start_row": 32,
+            "start_col": 3,
+            "end_row": 61,
+            "end_col": 15,
+            "range_str": "D33:P62"
+        },
+        {
+            "start_row": 62,
+            "start_col": 3,
+            "end_row": 91,
+            "end_col": 15,
+            "range_str": "D63:P92"
+        },
+        {
+            "start_row": 92,
+            "start_col": 3,
+            "end_row": 121,
+            "end_col": 15,
+            "range_str": "D93:P122"
+        },
+        {
+            "start_row": 122,
+            "start_col": 3,
+            "end_row": 151,
+            "end_col": 15,
+            "range_str": "D123:P152"
+        },
+        {
+            "start_row": 2,
+            "start_col": 17,
+            "end_row": 31,
+            "end_col": 29,
+            "range_str": "R3:AD32"
+        },
+        {
+            "start_row": 32,
+            "start_col": 17,
+            "end_row": 61,
+            "end_col": 29,
+            "range_str": "R33:AD62"
+        },
+        {
+            "start_row": 62,
+            "start_col": 17,
+            "end_row": 91,
+            "end_col": 29,
+            "range_str": "R63:AD92"
+        },
+        {
+            "start_row": 92,
+            "start_col": 17,
+            "end_row": 121,
+            "end_col": 29,
+            "range_str": "R93:AD122"
+        },
+        {
+            "start_row": 122,
+            "start_col": 17,
+            "end_row": 151,
+            "end_col": 29,
+            "range_str": "R123:AD152"
+        },
+        {
+            "start_row": 2,
+            "start_col": 31,
+            "end_row": 31,
+            "end_col": 43,
+            "range_str": "AF3:AR32"
+        },
+        {
+            "start_row": 32,
+            "start_col": 31,
+            "end_row": 61,
+            "end_col": 43,
+            "range_str": "AF33:AR62"
+        },
+        {
+            "start_row": 62,
+            "start_col": 31,
+            "end_row": 91,
+            "end_col": 43,
+            "range_str": "AF63:AR92"
+        },
+        {
+            "start_row": 92,
+            "start_col": 31,
+            "end_row": 121,
+            "end_col": 43,
+            "range_str": "AF93:AR122"
+        },
+        {
+            "start_row": 122,
+            "start_col": 31,
+            "end_row": 151,
+            "end_col": 43,
+            "range_str": "AF123:AR152"
+        },
+        {
+            "start_row": 2,
+            "start_col": 45,
+            "end_row": 31,
+            "end_col": 57,
+            "range_str": "AT3:BF32"
+        },
+        {
+            "start_row": 32,
+            "start_col": 45,
+            "end_row": 61,
+            "end_col": 57,
+            "range_str": "AT33:BF62"
+        },
+        {
+            "start_row": 62,
+            "start_col": 45,
+            "end_row": 91,
+            "end_col": 57,
+            "range_str": "AT63:BF92"
+        },
+        {
+            "start_row": 92,
+            "start_col": 45,
+            "end_row": 121,
+            "end_col": 57,
+            "range_str": "AT93:BF122"
+        },
+        {
+            "start_row": 122,
+            "start_col": 45,
+            "end_row": 151,
+            "end_col": 57,
+            "range_str": "AT123:BF152"
+        },
+        {
+            "start_row": 2,
+            "start_col": 59,
+            "end_row": 31,
+            "end_col": 71,
+            "range_str": "BH3:BT32"
+        },
+        {
+            "start_row": 32,
+            "start_col": 59,
+            "end_row": 61,
+            "end_col": 71,
+            "range_str": "BH33:BT62"
+        },
+        {
+            "start_row": 62,
+            "start_col": 59,
+            "end_row": 91,
+            "end_col": 71,
+            "range_str": "BH63:BT92"
+        },
+        {
+            "start_row": 92,
+            "start_col": 59,
+            "end_row": 121,
+            "end_col": 71,
+            "range_str": "BH93:BT122"
+        },
+        {
+            "start_row": 122,
+            "start_col": 59,
+            "end_row": 151,
+            "end_col": 71,
+            "range_str": "BH123:BT152"
+        },
+        {
+            "start_row": 2,
+            "start_col": 73,
+            "end_row": 31,
+            "end_col": 85,
+            "range_str": "BV3:CH32"
+        },
+        {
+            "start_row": 32,
+            "start_col": 73,
+            "end_row": 61,
+            "end_col": 85,
+            "range_str": "BV33:CH62"
+        },
+        {
+            "start_row": 62,
+            "start_col": 73,
+            "end_row": 91,
+            "end_col": 85,
+            "range_str": "BV63:CH92"
+        },
+        {
+            "start_row": 92,
+            "start_col": 73,
+            "end_row": 121,
+            "end_col": 85,
+            "range_str": "BV93:CH122"
+        },
+        {
+            "start_row": 122,
+            "start_col": 73,
+            "end_row": 151,
+            "end_col": 85,
+            "range_str": "BV123:CH152"
+        },
+        {
+            "start_row": 2,
+            "start_col": 7,
+            "end_row": 242,
+            "end_col": 9,
+            "range_str": "H3:J243"
+        },
+        {
+            "start_row": 243,
+            "start_col": 7,
+            "end_row": 483,
+            "end_col": 9,
+            "range_str": "H244:J484"
+        },
+        {
+            "start_row": 484,
+            "start_col": 7,
+            "end_row": 724,
+            "end_col": 9,
+            "range_str": "H485:J725"
+        },
+        {
+            "start_row": 725,
+            "start_col": 7,
+            "end_row": 965,
+            "end_col": 9,
+            "range_str": "H726:J966"
+        },
+        {
+            "start_row": 966,
+            "start_col": 7,
+            "end_row": 1206,
+            "end_col": 9,
+            "range_str": "H967:J1207"
+        },
+        {
+            "start_row": 1207,
+            "start_col": 7,
+            "end_row": 1447,
+            "end_col": 9,
+            "range_str": "H1208:J1448"
+        },
+        {
+            "start_row": 1448,
+            "start_col": 7,
+            "end_row": 1688,
+            "end_col": 9,
+            "range_str": "H1449:J1689"
+        },
+        {
+            "start_row": 1689,
+            "start_col": 7,
+            "end_row": 1929,
+            "end_col": 9,
+            "range_str": "H1690:J1930"
+        },
+        {
+            "start_row": 1930,
+            "start_col": 7,
+            "end_row": 2170,
+            "end_col": 9,
+            "range_str": "H1931:J2171"
+        },
+        {
+            "start_row": 2171,
+            "start_col": 7,
+            "end_row": 2411,
+            "end_col": 9,
+            "range_str": "H2172:J2412"
+        },
+        {
+            "start_row": 2,
+            "start_col": 3,
+            "end_row": 242,
+            "end_col": 6,
+            "range_str": "D3:G243"
+        },
+        {
+            "start_row": 243,
+            "start_col": 3,
+            "end_row": 483,
+            "end_col": 6,
+            "range_str": "D244:G484"
+        },
+        {
+            "start_row": 484,
+            "start_col": 3,
+            "end_row": 724,
+            "end_col": 6,
+            "range_str": "D485:G725"
+        },
+        {
+            "start_row": 725,
+            "start_col": 3,
+            "end_row": 965,
+            "end_col": 6,
+            "range_str": "D726:G966"
+        },
+        {
+            "start_row": 966,
+            "start_col": 3,
+            "end_row": 1206,
+            "end_col": 6,
+            "range_str": "D967:G1207"
+        },
+        {
+            "start_row": 1207,
+            "start_col": 3,
+            "end_row": 1447,
+            "end_col": 6,
+            "range_str": "D1208:G1448"
+        },
+        {
+            "start_row": 1448,
+            "start_col": 3,
+            "end_row": 1688,
+            "end_col": 6,
+            "range_str": "D1449:G1689"
+        },
+        {
+            "start_row": 1689,
+            "start_col": 3,
+            "end_row": 1929,
+            "end_col": 6,
+            "range_str": "D1690:G1930"
+        },
+        {
+            "start_row": 1930,
+            "start_col": 3,
+            "end_row": 2170,
+            "end_col": 6,
+            "range_str": "D1931:G2171"
+        },
+        {
+            "start_row": 2171,
+            "start_col": 3,
+            "end_row": 2411,
+            "end_col": 6,
+            "range_str": "D2172:G2412"
+        }
+    ],
+    "template_type": "custom",
+    "code_template": "{//Feature18\n\t{//Table1\n\t{{RANGE[SpreadBallData_Feature18_Table1]_LOOP_START}} \n\t\t{ {{ALL_COLUMNS}} },\n\t{{RANGE[SpreadBallData_Feature18_Table1]_LOOP_END}} \n\t},\n\t{//Table2\n\t{{RANGE[SpreadBallData_Feature18_Table2]_LOOP_START}} \n\t\t{ {{ALL_COLUMNS}} },\n\t{{RANGE[SpreadBallData_Feature18_Table2]_LOOP_END}} \n\t},\n},\n{//Feature28\n\t{//Table1\n\t{{RANGE[SpreadBallData_Feature28_Table1]_LOOP_START}} \n\t\t{ {{ALL_COLUMNS}} },\n\t{{RANGE[SpreadBallData_Feature28_Table1]_LOOP_END}} \n\t},\n\t{//Table2\n\t{{RANGE[SpreadBallData_Feature28_Table2]_LOOP_START}} \n\t\t{ {{ALL_COLUMNS}} },\n\t{{RANGE[SpreadBallData_Feature28_Table2]_LOOP_END}} \n\t},\n},\n{//Feature38\n\t{// Table1\n\t{{RANGE[SpreadBallData_Feature38_Table1]_LOOP_START}} \n\t\t{ {{ALL_COLUMNS}} },\n\t{{RANGE[SpreadBallData_Feature38_Table1]_LOOP_END}} \n\t},\n\t{// Table2\n\t{{RANGE[SpreadBallData_Feature38_Table2]_LOOP_START}} \n\t\t{ {{ALL_COLUMNS}} },\n\t{{RANGE[SpreadBallData_Feature38_Table2]_LOOP_END}} \n\t},\n},\n{//Feature68\n\t{// Table1\n\t{{RANGE[SpreadBallData_Feature68_Table1]_LOOP_START}} \n\t\t{ {{ALL_COLUMNS}} },\n\t{{RANGE[SpreadBallData_Feature68_Table1]_LOOP_END}} \n\t},\n\t{// Table2\n\t{{RANGE[SpreadBallData_Feature68_Table2]_LOOP_START}} \n\t\t{ {{ALL_COLUMNS}} },\n\t{{RANGE[SpreadBallData_Feature68_Table2]_LOOP_END}} \n\t},\n},\n{//Feature88\n\t{// Table1\n\t{{RANGE[SpreadBallData_Feature88_Table1]_LOOP_START}} \n\t\t{ {{ALL_COLUMNS}} },\n\t{{RANGE[SpreadBallData_Feature88_Table1]_LOOP_END}} \n\t},\n\t{// Table2\n\t{{RANGE[SpreadBallData_Feature88_Table2]_LOOP_START}} \n\t\t{ {{ALL_COLUMNS}} },\n\t{{RANGE[SpreadBallData_Feature88_Table2]_LOOP_END}} \n\t},\n}",
+    "named_ranges": {
+        "Feature18_TABLE1_G_YG": "H3:H243",
+        "Feature18_TABLE1_R_YR": "I3:I243",
+        "Feature18_TABLE1_GR_YGR": "J3:J243",
+        "Feature18_TABLE2_G_YG": "H244:H484",
+        "Feature18_TABLE2_R_YR": "I244:I484",
+        "Feature18_TABLE2_GR_YGR": "J244:J484",
+        "Feature28_TABLE1_G_YG": "H485:H725",
+        "Feature28_TABLE1_R_YR": "I485:I725",
+        "Feature28_TABLE1_GR_YGR": "J485:J725",
+        "Feature28_TABLE2_G_YG": "H726:H966",
+        "Feature28_TABLE2_R_YR": "I726:I966",
+        "Feature28_TABLE2_GR_YGR": "I726:I966",
+        "Feature38_TABLE1_G_YG": "H967:H1207",
+        "Feature38_TABLE1_R_YR": "I967:I1207",
+        "Feature38_TABLE1_GR_YGR": "J967:J1207",
+        "Feature38_TABLE2_G_YG": "H1208:H1448",
+        "Feature38_TABLE2_R_YR": "I1208:I1448",
+        "Feature38_TABLE2_GR_YGR": "J1208:J1448",
+        "Feature68_TABLE1_G_YG": "H1449:H1689",
+        "Feature68_TABLE1_R_YR": "I1449:I1689",
+        "Feature68_TABLE1_GR_YGR": "J1449:J1689",
+        "Feature68_TABLE2_G_YG": "H1690:H1930",
+        "Feature68_TABLE2_R_YR": "I1690:I1930",
+        "Feature68_TABLE2_GR_YGR": "J1690:J1930",
+        "Feature88_TABLE1_G_YG": "H1931:H2171",
+        "Feature88_TABLE1_R_YR": "I1931:I2171",
+        "Feature88_TABLE1_GR_YGR": "J1931:J2171",
+        "Feature88_TABLE2_G_YG": "H2172:H2412",
+        "Feature88_TABLE2_R_YR": "I2172:I2412",
+        "Feature88_TABLE2_GR_YGR": "J2172:J2412",
+        "Feature18_Table1": "D3:G243",
+        "Feature18_Table2": "D244:G484",
+        "Feature28_Table1": "D485:G725",
+        "Feature28_Table2": "D726:G966",
+        "Feature38_Table1": "D967:G1207",
+        "Feature38_Table2": "D1208:G1448",
+        "Feature68_Table1": "D1449:G1689",
+        "Feature68_Table2": "D1690:G1930",
+        "Feature88_Table1": "D1931:G2171",
+        "Feature88_Table2": "D2172:G2412",
+        "C5Respin_Feature18_Table1": "E3:G5",
+        "C5Respin_Feature18_Table2": "E6:G8",
+        "C5Respin_Feature28_Table1": "E9:G11",
+        "C5Respin_Feature28_Table2": "E12:G14",
+        "C5Respin_Feature38_Table1": "E15:G17",
+        "C5Respin_Feature38_Table2": "E18:G20",
+        "C5Respin_Feature68_Table1": "E21:G23",
+        "C5Respin_Feature68_Table2": "E24:G26",
+        "C5Respin_Feature88_Table1": "E27:G29",
+        "C5Respin_Feature88_Table2": "E30:G32",
+        "BallWeighted_Feature18_R2": "D3:P32",
+        "BallWeighted_Feature28_R2": "D33:P62",
+        "BallWeighted_Feature38_R2": "D63:P92",
+        "BallWeighted_Feature68_R2": "D93:P122",
+        "BallWeighted_Feature88_R2": "D123:P152",
+        "BallWeighted_Feature18_R3": "R3:AD32",
+        "BallWeighted_Feature28_R3": "R33:AD62",
+        "BallWeighted_Feature38_R3": "R63:AD92",
+        "BallWeighted_Feature68_R3": "R93:AD122",
+        "BallWeighted_Feature88_R3": "R123:AD152",
+        "BallWeighted_Feature18_R4": "AF3:AR32",
+        "BallWeighted_Feature28_R4": "AF33:AR62",
+        "BallWeighted_Feature38_R4": "AF63:AR92",
+        "BallWeighted_Feature68_R4": "AF93:AR122",
+        "BallWeighted_Feature88_R4": "AF123:AR152",
+        "BallWeighted_Feature18_R5": "AT3:BF32",
+        "BallWeighted_Feature28_R5": "AT33:BF62",
+        "BallWeighted_Feature38_R5": "AT63:BF92",
+        "BallWeighted_Feature68_R5": "AT93:BF122",
+        "BallWeighted_Feature88_R5": "AT123:BF152",
+        "BallWeighted_Feature18_SpreadBall": "BH3:BT32",
+        "BallWeighted_Feature28_SpreadBall": "BH33:BT62",
+        "BallWeighted_Feature38_SpreadBall": "BH63:BT92",
+        "BallWeighted_Feature68_SpreadBall": "BH93:BT122",
+        "BallWeighted_Feature88_SpreadBall": "BH123:BT152",
+        "BallWeighted_Feature18_R5_C3": "BV3:CH32",
+        "BallWeighted_Feature28_R5_C3": "BV33:CH62",
+        "BallWeighted_Feature38_R5_C3": "BV63:CH92",
+        "BallWeighted_Feature68_R5_C3": "BV93:CH122",
+        "BallWeighted_Feature88_R5_C3": "BV123:CH152",
+        "SpreadBallDataWeight_Feature18_Table1": "H3:J243",
+        "SpreadBallDataWeight_Feature18_Table2": "H244:J484",
+        "SpreadBallDataWeight_Feature28_Table1": "H485:J725",
+        "SpreadBallDataWeight_Feature28_Table2": "H726:J966",
+        "SpreadBallDataWeight_Feature38_Table1": "H967:J1207",
+        "SpreadBallDataWeight_Feature38_Table2": "H1208:J1448",
+        "SpreadBallDataWeight_Feature68_Table1": "H1449:J1689",
+        "SpreadBallDataWeight_Feature68_Table2": "H1690:J1930",
+        "SpreadBallDataWeight_Feature88_Table1": "H1931:J2171",
+        "SpreadBallDataWeight_Feature88_Table2": "H2172:J2412",
+        "SpreadBallData_Feature18_Table1": "D3:G243",
+        "SpreadBallData_Feature18_Table2": "D244:G484",
+        "SpreadBallData_Feature28_Table1": "D485:G725",
+        "SpreadBallData_Feature28_Table2": "D726:G966",
+        "SpreadBallData_Feature38_Table1": "D967:G1207",
+        "SpreadBallData_Feature38_Table2": "D1208:G1448",
+        "SpreadBallData_Feature68_Table1": "D1449:G1689",
+        "SpreadBallData_Feature68_Table2": "D1690:G1930",
+        "SpreadBallData_Feature88_Table1": "D1931:G2171",
+        "SpreadBallData_Feature88_Table2": "D2172:G2412"
+    }
+}
