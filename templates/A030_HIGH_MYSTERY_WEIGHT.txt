@@ -1,0 +1,12 @@
+{{DIRECTION:COLUMN}}  // 指定為直向讀取
+
+__device__ static const unsigned int gen_bgMysterySymbolWeights_HighTotalBet[FEATURE_BET_COUNT][DENOM_COUNT][SYMBOL_TYPE_NUM] = {
+{{FILES_LOOP_START}}
+    // file: {{FILE_NAME}}
+    {
+{{LOOP_START}}
+        { {{ALL_ROWS}} },  // Denom {{COL_INDEX}}
+{{LOOP_END}}
+    },
+{{FILES_LOOP_END}}
+};

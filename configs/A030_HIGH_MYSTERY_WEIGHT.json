@@ -1,0 +1,24 @@
+{
+    "excel_files": [
+        "D:/SVN/A030/Parsheet/High_TotalBet/A030+A031_18_Parsheet_High_TotalBet.xlsx",
+        "D:/SVN/A030/Parsheet/High_TotalBet/A030+A031_28_Parsheet_High_TotalBet.xlsx",
+        "D:/SVN/A030/Parsheet/High_TotalBet/A030+A031_38_Parsheet_High_TotalBet.xlsx",
+        "D:/SVN/A030/Parsheet/High_TotalBet/A030+A031_68_Parsheet_High_TotalBet.xlsx",
+        "D:/SVN/A030/Parsheet/High_TotalBet/A030+A031_88_Parsheet_High_TotalBet.xlsx"
+    ],
+    "selected_sheet": "BG_Description",
+    "selected_ranges": [
+        {
+            "start_row": 3,
+            "start_col": 2,
+            "end_row": 19,
+            "end_col": 6,
+            "range_str": "C4:G20"
+        }
+    ],
+    "template_type": "custom",
+    "code_template": "{{DIRECTION:COLUMN}}  // 指定為直向讀取\n\n__device__ static const unsigned int gen_bgMysterySymbolWeights_HighTotalBet[FEATURE_BET_COUNT][DENOM_COUNT][SYMBOL_TYPE_NUM] = {\n{{FILES_LOOP_START}}\n    // file: {{FILE_NAME}}\n    {\n{{LOOP_START}}\n        { {{ALL_ROWS}} },  // Denom {{COL_INDEX}}\n{{LOOP_END}}\n    },\n{{FILES_LOOP_END}}\n};",
+    "named_ranges": {
+        "MysteryWeight": "C4:G20"
+    }
+}
