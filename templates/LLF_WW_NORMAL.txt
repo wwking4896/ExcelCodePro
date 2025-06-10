@@ -1,0 +1,47 @@
+    
+    // {{RANGE[ID_OPT]_VALUE[0,0]}}{{RANGE[ID_OPT]_VALUE[0,1]}}
+        { // WW_1
+        {{RANGE[WW_1_HIT_RATE]_LOOP_START}}
+            { {{ALL_COLUMNS}} },  // {{ROW_INDEX}}
+        {{RANGE[WW_1_HIT_RATE]_LOOP_END}}
+        },
+        { // WW_2
+        {{RANGE[WW_2_HIT_RATE]_LOOP_START}}
+            { {{ALL_COLUMNS}} },  // {{ROW_INDEX}}
+        {{RANGE[WW_2_HIT_RATE]_LOOP_END}}
+        },
+        { // WW_3
+        {{RANGE[WW_3_HIT_RATE]_LOOP_START}}
+            { {{ALL_COLUMNS}} },  // {{ROW_INDEX}}
+        {{RANGE[WW_3_HIT_RATE]_LOOP_END}}
+        },
+        { // WW_4
+        {{RANGE[WW_4_HIT_RATE]_LOOP_START}}
+            { {{ALL_COLUMNS}} },  // {{ROW_INDEX}}
+        {{RANGE[WW_4_HIT_RATE]_LOOP_END}}
+        },
+        { // WW_5
+        {{RANGE[WW_5_HIT_RATE]_LOOP_START}}
+            { {{ALL_COLUMNS}} },  // {{ROW_INDEX}}
+        {{RANGE[WW_5_HIT_RATE]_LOOP_END}}
+        },
+        { // WW_6
+        {{RANGE[WW_6_HIT_RATE]_LOOP_START}}
+            { {{ALL_COLUMNS}} },  // {{ROW_INDEX}}
+        {{RANGE[WW_6_HIT_RATE]_LOOP_END}}
+        },
+        { // WW_7
+        {{RANGE[WW_7_HIT_RATE]_LOOP_START}}
+            { {{ALL_COLUMNS}} },  // {{ROW_INDEX}}
+        {{RANGE[WW_7_HIT_RATE]_LOOP_END}}
+        },
+        { // WW_8
+        {{RANGE[WW_8_HIT_RATE]_LOOP_START}}
+            { {{ALL_COLUMNS}} },  // {{ROW_INDEX}}
+        {{RANGE[WW_8_HIT_RATE]_LOOP_END}}
+        },
+        { // WW_9
+        {{RANGE[WW_9_HIT_RATE]_LOOP_START}}
+            { {{ALL_COLUMNS}} },  // {{ROW_INDEX}}
+        {{RANGE[WW_9_HIT_RATE]_LOOP_END}}
+        },

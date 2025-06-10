@@ -1,0 +1,29 @@
+{
+    "excel_files": [
+        "D:/SVN/Jackpot/LLF/LLF_Calculator(L).xlsx"
+    ],
+    "selected_sheet": "Parameter (2)",
+    "selected_ranges": [
+        {
+            "start_row": 5,
+            "start_col": 3,
+            "end_row": 129,
+            "end_col": 6,
+            "range_str": "D6:G130"
+        }
+    ],
+    "template_type": "custom",
+    "code_template": "    \n    // {{RANGE[ID_OPT]_VALUE[0,0]}}{{RANGE[ID_OPT]_VALUE[0,1]}}\n        { // WW_1\n        {{RANGE[WW_1_HIT_RATE]_LOOP_START}}\n            { {{ALL_COLUMNS}} },  // {{ROW_INDEX}}\n        {{RANGE[WW_1_HIT_RATE]_LOOP_END}}\n        },\n        { // WW_2\n        {{RANGE[WW_2_HIT_RATE]_LOOP_START}}\n            { {{ALL_COLUMNS}} },  // {{ROW_INDEX}}\n        {{RANGE[WW_2_HIT_RATE]_LOOP_END}}\n        },\n        { // WW_3\n        {{RANGE[WW_3_HIT_RATE]_LOOP_START}}\n            { {{ALL_COLUMNS}} },  // {{ROW_INDEX}}\n        {{RANGE[WW_3_HIT_RATE]_LOOP_END}}\n        },\n        { // WW_4\n        {{RANGE[WW_4_HIT_RATE]_LOOP_START}}\n            { {{ALL_COLUMNS}} },  // {{ROW_INDEX}}\n        {{RANGE[WW_4_HIT_RATE]_LOOP_END}}\n        },\n        { // WW_5\n        {{RANGE[WW_5_HIT_RATE]_LOOP_START}}\n            { {{ALL_COLUMNS}} },  // {{ROW_INDEX}}\n        {{RANGE[WW_5_HIT_RATE]_LOOP_END}}\n        },\n        { // WW_6\n        {{RANGE[WW_6_HIT_RATE]_LOOP_START}}\n            { {{ALL_COLUMNS}} },  // {{ROW_INDEX}}\n        {{RANGE[WW_6_HIT_RATE]_LOOP_END}}\n        },\n        { // WW_7\n        {{RANGE[WW_7_HIT_RATE]_LOOP_START}}\n            { {{ALL_COLUMNS}} },  // {{ROW_INDEX}}\n        {{RANGE[WW_7_HIT_RATE]_LOOP_END}}\n        },\n        { // WW_8\n        {{RANGE[WW_8_HIT_RATE]_LOOP_START}}\n            { {{ALL_COLUMNS}} },  // {{ROW_INDEX}}\n        {{RANGE[WW_8_HIT_RATE]_LOOP_END}}\n        },\n        { // WW_9\n        {{RANGE[WW_9_HIT_RATE]_LOOP_START}}\n            { {{ALL_COLUMNS}} },  // {{ROW_INDEX}}\n        {{RANGE[WW_9_HIT_RATE]_LOOP_END}}\n        },",
+    "named_ranges": {
+        "WW_1_HIT_RATE": "D6:F130",
+        "WW_2_HIT_RATE": "H6:J130",
+        "WW_3_HIT_RATE": "L6:N130",
+        "WW_4_HIT_RATE": "P6:R130",
+        "WW_5_HIT_RATE": "T6:V130",
+        "WW_6_HIT_RATE": "X6:Z130",
+        "WW_7_HIT_RATE": "AB6:AD130",
+        "WW_8_HIT_RATE": "AF6:AH130",
+        "WW_9_HIT_RATE": "AJ6:AL130",
+        "ID_OPT": "A2:B2"
+    }
+}
