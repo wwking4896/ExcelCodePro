@@ -1,0 +1,7 @@
+{{RANGE[HS02Normal]_LOOP_START}}
+            { {{ALL_COLUMNS}} }, // {{ROW_INDEX}}
+{{RANGE[HS02Normal]_LOOP_END}}
+
+{{RANGE[HS02Extra]_LOOP_START}}
+            { {{ALL_COLUMNS}} }, // {{ROW_INDEX}}
+{{RANGE[HS02Extra]_LOOP_END}}

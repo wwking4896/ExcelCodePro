@@ -1,0 +1,32 @@
+{
+    "excel_files": [
+        "D:/SVN/A031/Parsheet/Normal/A031_18HS_Parsheet.xlsx",
+        "D:/SVN/A031/Parsheet/Normal/A031_28HS_Parsheet.xlsx",
+        "D:/SVN/A031/Parsheet/Normal/A031_38HS_Parsheet.xlsx",
+        "D:/SVN/A031/Parsheet/Normal/A031_68HS_Parsheet.xlsx",
+        "D:/SVN/A031/Parsheet/Normal/A031_88HS_Parsheet.xlsx"
+    ],
+    "selected_sheet": "HS2_Symbol",
+    "selected_ranges": [
+        {
+            "start_row": 3,
+            "start_col": 9,
+            "end_row": 6,
+            "end_col": 108,
+            "range_str": "J4:DE7"
+        },
+        {
+            "start_row": 10,
+            "start_col": 9,
+            "end_row": 13,
+            "end_col": 47,
+            "range_str": "J11:AV14"
+        }
+    ],
+    "template_type": "custom",
+    "code_template": "{{RANGE[HS02Normal]_LOOP_START}}\n            { {{ALL_COLUMNS}} }, // {{ROW_INDEX}}\n{{RANGE[HS02Normal]_LOOP_END}}\n\n{{RANGE[HS02Extra]_LOOP_START}}\n            { {{ALL_COLUMNS}} }, // {{ROW_INDEX}}\n{{RANGE[HS02Extra]_LOOP_END}}",
+    "named_ranges": {
+        "HS02Normal": "J4:DE7",
+        "HS02Extra": "J11:AV14"
+    }
+}
