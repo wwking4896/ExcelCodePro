@@ -1,0 +1,20 @@
+{
+    "excel_files": [
+        "D:/SVN/A031/Parsheet/Normal/A031_88HS_Parsheet.xlsx"
+    ],
+    "selected_sheet": "HS2_Pay_Combo_4_Script",
+    "selected_ranges": [
+        {
+            "start_row": 1,
+            "start_col": 8,
+            "end_row": 65536,
+            "end_col": 8,
+            "range_str": "I2:I65537"
+        }
+    ],
+    "template_type": "custom",
+    "code_template": "{{DIRECTION:COLUMN}}{{LOOP_START}}{{ALL_COLUMNS}}\n{{LOOP_END}}",
+    "named_ranges": {
+        "MainReelWeight": "I2:I65537"
+    }
+}

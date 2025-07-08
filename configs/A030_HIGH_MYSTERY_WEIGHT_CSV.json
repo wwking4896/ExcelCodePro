@@ -1,0 +1,24 @@
+{
+    "excel_files": [
+        "D:/SVN/A030/Parsheet/High_TotalBet/A030+A031_18_Parsheet_High_TotalBet.xlsx",
+        "D:/SVN/A030/Parsheet/High_TotalBet/A030+A031_28_Parsheet_High_TotalBet.xlsx",
+        "D:/SVN/A030/Parsheet/High_TotalBet/A030+A031_38_Parsheet_High_TotalBet.xlsx",
+        "D:/SVN/A030/Parsheet/High_TotalBet/A030+A031_68_Parsheet_High_TotalBet.xlsx",
+        "D:/SVN/A030/Parsheet/High_TotalBet/A030+A031_88_Parsheet_High_TotalBet.xlsx"
+    ],
+    "selected_sheet": "BG_Description",
+    "selected_ranges": [
+        {
+            "start_row": 3,
+            "start_col": 2,
+            "end_row": 19,
+            "end_col": 6,
+            "range_str": "C4:G20"
+        }
+    ],
+    "template_type": "custom",
+    "code_template": "{{DIRECTION:COLUMN}}{{FILES_LOOP_START}}{{LOOP_START}}{{ALL_ROWS}}\n{{LOOP_END}}{{FILES_LOOP_END}}",
+    "named_ranges": {
+        "MysteryWeight": "C4:G20"
+    }
+}
